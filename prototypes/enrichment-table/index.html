@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enrichment Table Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Design System Tokens ─────────────────────────── */
+:root {
+  /* Purple (Brand) */
+  --purple-10: #F3EFFB;
+  --purple-15: #E9E1F8;
+  --purple-20: #DFD2F4;
+  --purple-25: #D5C4F1;
+  --purple-30: #CAB5ED;
+  --purple-40: #B598E6;
+  --purple-50: #A17BDF;
+  --purple-60: #682FC5;
+  --purple-65: #5E2BB2;
+
+  /* Tan */
+  --tan-10: #FAF8F5;
+  --tan-15: #F1EEE9;
+  --tan-20: #E8E3DC;
+  --tan-25: #DED8D1;
+  --tan-30: #D3CCC5;
+  --tan-40: #C0B4A7;
+  --tan-50: #A89D90;
+  --tan-60: #8E847A;
+  --tan-65: #7F776E;
+  --tan-70: #6A6358;
+  --tan-80: #524E48;
+  --tan-90: #373431;
+  --tan-100: #201F1D;
+
+  /* Green */
+  --green-60: #43AD5B;
+  --green-10: #F3FCF5;
+
+  /* Red */
+  --red-60: #D94638;
+  --red-10: #FDF3F2;
+
+  /* Orange */
+  --orange-60: #E16931;
+
+  /* Semantic tokens */
+  --text-primary: var(--tan-100);
+  --text-secondary: var(--tan-70);
+  --text-helper: var(--tan-65);
+  --text-placeholder: var(--tan-50);
+  --text-interactive: var(--purple-60);
+  --background-default: var(--tan-10);
+  --background-hover: var(--tan-15);
+  --layer-01: #FFFFFF;
+  --layer-02: var(--tan-10);
+  --border-subtle-01: var(--tan-20);
+  --border-subtle-02: var(--tan-30);
+
+  /* Motion */
+  --duration-instant: 0ms;
+  --duration-micro: 150ms;
+  --duration-fast: 200ms;
+  --duration-moderate: 300ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Reset ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--background-default);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ───────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ──────────────────────────────────────── */
+.sidebar {
+  width: 52px;
+  background: var(--purple-10);
+  border-right: 1px solid var(--border-subtle-01);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--purple-60);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-logo svg { width: 16px; height: 16px; }
+
+.sidebar-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tan-60);
+  cursor: pointer;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.sidebar-icon:hover {
+  background: var(--purple-15);
+}
+
+.sidebar-icon.active {
+  background: var(--purple-20);
+  color: var(--purple-60);
+}
+
+.sidebar-icon svg { width: 18px; height: 18px; }
+
+/* ── Main content ─────────────────────────────────── */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Header ───────────────────────────────────────── */
+.page-header {
+  padding: 16px 24px 0;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--purple-60);
+  margin-bottom: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.breadcrumb:hover { text-decoration: underline; }
+
+.page-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: -0.015em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-static {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  background: var(--tan-20);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.page-meta {
+  font-size: 12px;
+  color: var(--text-helper);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--duration-micro) var(--ease-out), transform var(--duration-micro) var(--ease-out);
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-secondary {
+  background: var(--tan-80);
+  color: white;
+}
+.btn-secondary:hover { background: var(--tan-70); }
+
+.btn-brand {
+  background: var(--purple-60);
+  color: white;
+}
+.btn-brand:hover { background: var(--purple-65); }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-subtle-02);
+  color: var(--text-primary);
+}
+.btn-outline:hover { background: var(--background-hover); }
+
+.btn-icon {
+  padding: 8px;
+}
+
+.campaigns-badge {
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--purple-10);
+  color: var(--purple-60);
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 2px;
+}
+
+/* ── Table container ──────────────────────────────── */
+.table-container {
+  flex: 1;
+  padding: 0 24px 24px;
+  overflow: auto;
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.search-input {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--layer-01);
+  border: 1px solid var(--border-subtle-01);
+  border-radius: 8px;
+  padding: 8px 12px 8px 36px;
+  width: 560px;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.search-input:focus { border-color: var(--purple-60); }
+
+.search-wrapper {
+  position: relative;
+}
+
+.search-wrapper svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-placeholder);
+  width: 16px;
+  height: 16px;
+}
+
+.table-count {
+  font-size: 12px;
+  color: var(--text-helper);
+  padding: 4px 0;
+}
+
+/* ── Data table ───────────────────────────────────── */
+.data-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: var(--layer-01);
+  border: 1px solid var(--border-subtle-01);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.data-table thead th {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle-01);
+  background: var(--layer-01);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.data-table thead th .sort-icon {
+  display: inline-flex;
+  margin-left: 4px;
+  opacity: 0.4;
+  vertical-align: middle;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--border-subtle-01);
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.data-table tbody tr:last-child { border-bottom: none; }
+
+.data-table tbody tr:hover { background: var(--background-hover); }
+
+.data-table tbody td {
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 20px;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Prospect cell ────────────────────────────────── */
+.prospect-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.prospect-info { display: flex; flex-direction: column; }
+.prospect-name { font-weight: 500; font-size: 14px; }
+.prospect-title { font-size: 12px; color: var(--text-secondary); }
+
+/* ── Status badges ────────────────────────────────── */
+.status-positive { color: var(--green-60); font-weight: 500; font-size: 13px; }
+.status-negative { color: var(--red-60); font-weight: 500; font-size: 13px; }
+.status-not-found { color: var(--text-helper); font-size: 13px; }
+.status-no-response { color: var(--text-helper); font-size: 13px; }
+
+.icp-score {
+  font-weight: 600;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.icp-high { color: var(--purple-60); }
+.icp-medium { color: var(--orange-60); }
+.icp-low { color: var(--red-60); }
+
+/* ── Checkbox ─────────────────────────────────────── */
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border-subtle-02);
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Three dot menu ───────────────────────────────── */
+.row-menu {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-placeholder);
+  opacity: 0;
+  transition: opacity var(--duration-micro) var(--ease-out);
+}
+
+tr:hover .row-menu { opacity: 1; }
+.row-menu:hover { background: var(--tan-20); color: var(--text-secondary); }
+
+/* ═══════════════════════════════════════════════════
+   ENRICHMENT BUTTON — the star of the show
+   ═══════════════════════════════════════════════════ */
+.enrich-cell {
+  position: relative;
+  min-width: 100px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.enrich-btn {
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle-02);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  background: white;
+  color: var(--text-primary);
+  transition: background var(--duration-micro) var(--ease-out),
+              border-color var(--duration-micro) var(--ease-out),
+              width 320ms var(--ease-out),
+              border-radius 320ms var(--ease-out),
+              transform var(--duration-micro) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.enrich-btn:hover {
+  background: var(--tan-20);
+  border-color: var(--tan-40);
+}
+
+.enrich-btn:active {
+  transform: scale(0.97);
+}
+
+.enrich-btn .star-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--tan-90);
+}
+
+.enrich-btn .btn-label {
+  padding: 0 4px;
+}
+
+/* ── Loading state ────────────────────────────────── */
+.enrich-loading {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle-02);
+  border-radius: 6px;
+  padding: 4px 10px;
+  width: 100%;
+  height: 26px;
+  opacity: 0;
+  /* morph + fade transition */
+  transition: border-radius 280ms var(--ease-out), opacity 180ms var(--ease-out);
+}
+
+.enrich-loading.active {
+  display: flex;
+}
+
+.enrich-loading.morphed {
+  opacity: 1;
+  width: 100%;
+  border-radius: 999px;
+}
+
+.loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--tan-30);
+  border-top-color: var(--tan-60);
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 12px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  /* Fade wrapper — handles the in/out transition per message swap */
+  animation: textFade 3s var(--ease-in-out) infinite;
+}
+
+.loading-text-inner {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* AI shimmer — tan-only color ripple sweeps across text */
+  background: linear-gradient(
+    90deg,
+    var(--tan-60) 0%,
+    var(--tan-60) 35%,
+    var(--tan-30) 50%,
+    var(--tan-60) 65%,
+    var(--tan-60) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: aiShimmer 3s linear infinite;
+}
+
+@keyframes textFade {
+  0%   { opacity: 0; transform: translateY(4px); }
+  10%  { opacity: 1; transform: translateY(0); }
+  82%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
+@keyframes aiShimmer {
+  0%   { background-position: 250% 0; }
+  100% { background-position: -250% 0; }
+}
+
+/* ── Filled result ────────────────────────────────── */
+.enrich-result {
+  display: none;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  align-items: center;
+  gap: 4px;
+  overflow: visible;
+}
+
+.enrich-result .result-star {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--tan-65);
+}
+
+.enrich-result.visible {
+  display: flex;
+}
+
+/* ── Completion: character stagger reveal ──────────── */
+.enrich-result .char {
+  display: inline;
+  opacity: 0;
+  color: #F8A36F;
+}
+
+.enrich-result.animate .char {
+  animation: charReveal 1.2s var(--ease-out) forwards;
+}
+
+.enrich-result .char.space {
+  width: 0.25em;
+}
+
+@keyframes charReveal {
+  0%   { opacity: 0; color: #F8A36F; }
+  15%  { opacity: 1; color: #F8A36F; }
+  30%  { color: #B74EF9; }
+  45%  { color: #5488F8; }
+  55%  { color: var(--text-primary); }
+  100% { opacity: 1; color: var(--text-primary); }
+}
+
+/* ── Pagination ───────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.pagination-left {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-num {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.page-num:hover { background: var(--tan-20); }
+.page-num.active { background: var(--purple-60); color: white; }
+.page-dots { font-size: 13px; color: var(--text-placeholder); padding: 0 2px; }
+
+.page-arrow {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+.page-arrow:hover { background: var(--tan-20); }
+
+/* ── Enrichment Tooltip ───────────────────────────── */
+/* Tooltip — fixed positioning to escape table overflow */
+.enrich-tooltip {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+
+  background: white;
+  border: 1px solid var(--border-subtle-01);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: 0 4px 12px rgba(32, 31, 29, 0.10), 0 1px 3px rgba(32, 31, 29, 0.06);
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+
+  /* entrance: 200ms ease-out per tooltip spec */
+  transition: opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+  transform: translateY(4px);
+}
+
+.enrich-tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Arrow */
+.enrich-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: white;
+  filter: drop-shadow(0 1px 0 var(--border-subtle-01));
+}
+
+.enrich-tooltip .coin-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.enrich-tooltip .tooltip-cost {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--text-primary);
+}
+
+.enrich-tooltip .tooltip-cost-value {
+  color: var(--purple-60);
+  font-weight: 600;
+}
+
+/* ── Loading progress tooltip ─────────────────────── */
+.progress-tooltip {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+
+  background: white;
+  border: 1px solid var(--border-subtle-01);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 16px rgba(32, 31, 29, 0.12), 0 1px 3px rgba(32, 31, 29, 0.06);
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  white-space: nowrap;
+
+  /* Entrance: 200ms ease-out with opacity + translateY (tooltip spec)
+     Exit: 150ms ease-in (exits faster than entrances) */
+  transition: opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+  transform: translateY(4px);
+}
+
+.progress-tooltip.hiding {
+  transition: opacity var(--duration-micro) var(--ease-in),
+              transform var(--duration-micro) var(--ease-in);
+}
+
+.progress-tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Arrow */
+.progress-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: white;
+  filter: drop-shadow(0 1px 0 var(--border-subtle-01));
+}
+
+/* Step rows — stagger entrance via opacity + translateY */
+.progress-tooltip .step-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--text-placeholder);
+  /* Smooth transitions for state changes (pending→active→done) */
+  transition: color var(--duration-fast) var(--ease-out),
+              opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* Stagger rows in when tooltip shows — each row gets --i inline */
+.progress-tooltip.show .step-row {
+  opacity: 1;
+  transform: translateY(0);
+  /* 40ms stagger between items, capped at 7 per motion spec */
+  transition-delay: calc(var(--i, 0) * 40ms);
+}
+
+.progress-tooltip .step-row.done {
+  color: var(--text-secondary);
+}
+
+.progress-tooltip .step-row.active {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Pending rows are dimmer */
+.progress-tooltip .step-row:not(.done):not(.active) {
+  color: var(--text-placeholder);
+}
+
+/* Check icon container */
+.step-check {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Empty circle for pending steps */
+.step-check .check-empty {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--tan-30);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
+}
+
+/* Active step — purple ring */
+.step-row.active .check-empty {
+  border-color: var(--purple-40);
+  background: var(--purple-10);
+}
+
+/* Green checkmark — pops in with spring-snappy scale */
+.step-check .check-done {
+  width: 14px;
+  height: 14px;
+  color: var(--green-60);
+  animation: checkPop var(--duration-fast) var(--spring-snappy);
+}
+
+@keyframes checkPop {
+  0%   { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Result tooltip (all steps done) ─────────────── */
+.result-tooltip {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: white;
+  border: 1px solid var(--border-subtle-01);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 16px rgba(32, 31, 29, 0.12), 0 1px 3px rgba(32, 31, 29, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+  transform: translateY(4px);
+}
+
+.result-tooltip.hiding {
+  transition: opacity var(--duration-micro) var(--ease-in),
+              transform var(--duration-micro) var(--ease-in);
+}
+
+.result-tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.result-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: white;
+  filter: drop-shadow(0 1px 0 var(--border-subtle-01));
+}
+
+.result-tooltip .step-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.result-tooltip.show .step-row {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--i, 0) * 40ms);
+}
+
+/* ── Helpers ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2L14 14H2L8 2Z" fill="white"/></svg>
+    </div>
+    <div class="sidebar-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l7-4 7 4v7l-7 4-7-4V6z"/></svg></div>
+    <div class="sidebar-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h12M3 9h12M3 13h12"/></svg></div>
+    <div class="sidebar-icon active"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="14" height="14" rx="2"/><path d="M2 7h14"/><path d="M7 7v9"/></svg></div>
+    <div class="sidebar-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 5v4l3 2"/></svg></div>
+    <div class="sidebar-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h10v10H4z"/><path d="M7 4V2M11 4V2M4 8h10"/></svg></div>
+    <div class="sidebar-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14l5-5 3 3 6-6"/></svg></div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="page-header">
+      <div class="breadcrumb">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11L5 7l4-4"/></svg>
+        All lists
+      </div>
+      <div class="page-title-row">
+        <div class="page-title">
+          US HR-Ops leader
+          <span class="badge-static">Static</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline">Campaigns <span class="campaigns-badge">3</span> <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5l3 3 3-3"/></svg></button>
+          <button class="btn btn-outline btn-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="4" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="8" cy="12" r="1"/></svg></button>
+          <button class="btn btn-secondary"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 3v8M3 7h8"/></svg> Add people</button>
+          <button class="btn btn-brand"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.8 3.6L13 5.3l-3 2.9.7 4.1L7 10.2 3.3 12.3l.7-4.1-3-2.9 4.2-.7L7 1z" fill="white"/></svg> Enrich</button>
+        </div>
+      </div>
+      <div class="page-meta">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3v3l2 1.5"/></svg>
+        Last updated Feb 20, 2026 by Sarah Chen
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-toolbar">
+        <div>
+          <div class="search-wrapper">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+            <input class="search-input" placeholder="Search people lists..." />
+          </div>
+          <div class="table-count">Showing 1-20 of 1,927 people</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn btn-outline">Manage columns</button>
+          <button class="btn btn-outline btn-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg></button>
+        </div>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:32px"><div class="checkbox"></div></th>
+            <th style="width:18%">Prospect name <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
+            <th style="width:14%">Company <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
+            <th style="width:18%">Email <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
+            <th style="width:15%">Phone <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
+            <th style="width:13%">Person location <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
+            <th style="width:9%">Status <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
+            <th style="width:9%">ICP score <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
+            <th style="width:32px"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+
+      <div class="pagination">
+        <div class="pagination-left">Show 20 list at once <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5l3 3 3-3"/></svg></div>
+        <div class="pagination-pages">
+          <div class="page-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11L5 7l4-4"/></svg></div>
+          <div class="page-num active">1</div>
+          <div class="page-num">2</div>
+          <div class="page-dots">...</div>
+          <div class="page-num">96</div>
+          <div class="page-num">97</div>
+          <div class="page-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3l4 4-4 4"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Star SVG ─────────────────────────────────────────
+const starSVG = `<svg class="star-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.1" fill-rule="evenodd" clip-rule="evenodd" d="M9.84604 3.68164C10.0769 3.68162 10.2778 3.83968 10.3321 4.06407C10.6847 5.52187 11.0461 6.43395 11.5913 7.09022C12.1279 7.73611 12.8879 8.18737 14.1593 8.61657C14.3625 8.68517 14.4994 8.87575 14.4994 9.09024C14.4994 9.30473 14.3627 9.49534 14.1595 9.564C12.944 9.97467 12.1929 10.3908 11.6463 11.0253C11.0928 11.6679 10.7011 12.5894 10.3321 14.117C10.2767 14.3462 10.0717 14.5001 9.84579 14.4998C9.61996 14.5001 9.41487 14.3464 9.35943 14.1172C9.00753 12.6628 8.64531 11.7501 8.09927 11.0927C7.56179 10.4455 6.80103 9.99272 5.53145 9.56403C5.32824 9.49541 5.19143 9.30484 5.19141 9.09036C5.19139 8.87587 5.32816 8.68527 5.53136 8.61661C6.74689 8.20592 7.4982 7.78988 8.04502 7.15552C8.59877 6.51312 8.99075 5.59171 9.36008 4.06414C9.41433 3.83974 9.61517 3.68166 9.84604 3.68164Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.30812 1.5C4.54441 1.50006 4.7484 1.66551 4.79721 1.8967C4.95812 2.65872 5.18306 3.15388 5.47869 3.49821C5.76908 3.83643 6.1657 4.07325 6.75639 4.24784C6.96886 4.31064 7.11467 4.50577 7.11467 4.72733C7.11467 4.94889 6.96886 5.14403 6.75639 5.20683C6.16571 5.38141 5.76906 5.61824 5.47857 5.9565C5.18283 6.30088 4.95773 6.7961 4.79651 7.55816C4.7476 7.7893 4.54359 7.95467 4.30733 7.95467C4.07108 7.95467 3.86706 7.7893 3.81816 7.55816C3.65693 6.79611 3.43183 6.30086 3.13606 5.95638C2.84553 5.618 2.44881 5.381 1.85806 5.2061C1.64565 5.14321 1.49995 4.94806 1.5 4.72655C1.50005 4.50503 1.64585 4.30996 1.85828 4.24717C2.4729 4.06552 2.87284 3.81401 3.15927 3.47058C3.45196 3.11964 3.6641 2.6275 3.81884 1.89646C3.86777 1.6653 4.07184 1.49994 4.30812 1.5ZM3.22778 4.72636C3.47545 4.88553 3.69795 5.07572 3.89477 5.30495C4.05251 5.48866 4.18892 5.69187 4.30734 5.91546C4.42576 5.69188 4.56218 5.48869 4.71993 5.305C4.91645 5.07616 5.13856 4.88626 5.38577 4.72733C5.13856 4.56839 4.91646 4.37848 4.71997 4.14963C4.56248 3.96619 4.42627 3.76332 4.30803 3.54012C4.19858 3.74626 4.07276 3.93659 3.92723 4.11108C3.72476 4.35385 3.49203 4.55659 3.22778 4.72636ZM9.84663 3.682C10.0775 3.68198 10.2784 3.84004 10.3326 4.06443C10.6853 5.52223 11.0467 6.43431 11.5919 7.09058C12.1285 7.73647 12.8885 8.18772 14.1599 8.61693C14.3631 8.68553 14.5 8.87611 14.5 9.0906C14.5 9.30509 14.3633 9.4957 14.16 9.56436C12.9446 9.97503 12.1935 10.3912 11.6469 11.0257C11.0934 11.6682 10.7017 12.5898 10.3327 14.1174C10.2773 14.3466 10.0722 14.5004 9.84638 14.5001C9.62055 14.5005 9.41547 14.3467 9.36002 14.1176C9.00812 12.6632 8.6459 11.7505 8.09986 11.093C7.56239 10.4459 6.80163 9.99308 5.53204 9.56439C5.32883 9.49577 5.19202 9.3052 5.192 9.09071C5.19198 8.87623 5.32875 8.68563 5.53195 8.61697C6.74749 8.20628 7.49879 7.79024 8.04562 7.15588C8.59937 6.51348 8.99135 5.59207 9.36067 4.0645C9.41492 3.8401 9.61576 3.68202 9.84663 3.682ZM9.84748 12.2337C10.1258 11.4821 10.4568 10.875 10.8893 10.373C11.3637 9.82223 11.9394 9.42203 12.6441 9.08919C11.8928 8.73151 11.2998 8.30387 10.8227 7.72959C10.4121 7.23529 10.1032 6.65086 9.845 5.9495C9.56655 6.70049 9.23546 7.30716 8.80305 7.80879C8.32829 8.35954 7.75236 8.75966 7.04736 9.09247C7.79852 9.4507 8.39175 9.87932 8.86914 10.4541C9.27992 10.9487 9.58914 11.5331 9.84748 12.2337Z" fill="currentColor"/></svg>`;
+
+const coinSVG = `<svg class="coin-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.1" d="M8 2C11.3137 2 14 4.68629 14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2Z" fill="#682FC5"/><path d="M8 1.5C11.5899 1.5 14.5 4.41015 14.5 8C14.5 11.5899 11.5899 14.5 8 14.5C4.41015 14.5 1.5 11.5899 1.5 8C1.5 4.41015 4.41015 1.5 8 1.5ZM8 2.4668C4.94402 2.4668 2.4668 4.94402 2.4668 8C2.4668 11.056 4.94402 13.5332 8 13.5332C11.056 13.5332 13.5332 11.056 13.5332 8C13.5332 4.94402 11.056 2.4668 8 2.4668ZM11.3643 10.2588C10.2825 10.3389 9.20165 9.62445 8.15723 8.97754L7.16992 8.33008L6.66699 8C6.45316 7.85901 6.38596 7.57775 6.51367 7.35742C7.01415 6.49722 7.74155 5.30864 8.11426 4.66699L11.3643 10.2588ZM5.67871 8.85449C5.81891 8.61479 6.13283 8.54005 6.36621 8.69336L7.56348 9.48047C6.74362 9.96164 5.82587 10.2763 4.8623 10.2588L5.67871 8.85449Z" fill="#682FC5"/></svg>`;
+
+// ── Credit costs per enrichment type ─────────────────
+const ENRICHMENT_COSTS = {
+  email: { credits: 1, label: "Find email" },
+  phone: { credits: 2, label: "Find phone" },
+  message: { credits: 3, label: "Generate message" },
+};
+
+// ── Enrichment rotating messages by type ─────────────
+const ENRICHMENT_MESSAGES = {
+  email: [
+    "Matching contact profile",
+    "Querying enrichment providers",
+    "Cross-referencing company domain",
+    "Validating email pattern",
+    "Checking email deliverability",
+    "Confirming inbox exists",
+  ],
+  phone: [
+    "Matching contact profile",
+    "Querying enrichment providers",
+    "Checking direct dial databases",
+    "Validating mobile number",
+    "Cross-referencing carrier data",
+    "Confirming number is active",
+  ],
+};
+
+// ── Fake results ─────────────────────────────────────
+const FAKE_RESULTS = {
+  email: [
+    "aknox@acmecorp.com",
+    "g.hollis@deltadyn.com",
+    "l.corbin@zetatech.io",
+    "n.voss@etasystems.com",
+    "e.rourke@thetaind.com",
+    "z.flint@iotaserv.com",
+    "c.pryor@kappalabs.io",
+  ],
+  phone: [
+    "+1 (555) 203-8841",
+    "+1 (555) 417-2293",
+    "+1 (555) 881-3347",
+    "+1 (555) 612-9074",
+    "+1 (555) 330-5519",
+    "+1 (555) 749-2210",
+    "+1 (555) 502-6638",
+    "+1 (555) 118-4473",
+    "+1 (555) 937-1125",
+    "+1 (555) 284-7701",
+  ],
+  message: [
+    "Hi Avery, saw ACME Corp is...",
+    "Message 1 draft ready",
+    "Message 1 draft ready",
+  ],
+};
+
+let emailIdx = 0, phoneIdx = 0, msgIdx = 0;
+function getResult(type) {
+  if (type === 'email') return FAKE_RESULTS.email[emailIdx++ % FAKE_RESULTS.email.length];
+  if (type === 'phone') return FAKE_RESULTS.phone[phoneIdx++ % FAKE_RESULTS.phone.length];
+  return FAKE_RESULTS.message[msgIdx++ % FAKE_RESULTS.message.length];
+}
+
+// ── Avatar colors ────────────────────────────────────
+const avatarColors = ['#682FC5','#43AD5B','#3068E2','#DA3784','#E16931','#D94638','#E49E0C','#524E48','#A17BDF','#5EC575'];
+
+// ── Row data ─────────────────────────────────────────
+const rows = [
+  { name: "Avery Knox", title: "VP, People Operations", company: "ACME Corp", email: null, phone: null, location: "Port Jasper, AR", status: "positive", icp: 80 },
+  { name: "Jude Carver", title: "Director of Workforce Strategy", company: "Beta Innovations", email: "jcarver@betainnov...", phone: null, location: "New Hope, PA", status: "positive", icp: 89 },
+  { name: "Tessa Rowen", title: "Head of Organizational Effect...", company: "Gamma Solutions", email: "erourke@betainno...", phone: null, location: "North Gate, CA", status: "not-found", icp: 93 },
+  { name: "Grant Hollis", title: "Chief Human Resources Offic...", company: "Delta Dynamics", email: null, phone: null, location: "East Onata, ME", status: "no-response", icp: 70 },
+  { name: "Mira Penn", title: "Director of HR", company: "Epsilon Enterprises", email: "lflanagan@betainn...", phone: null, location: "West Berin, TN", status: "negative", icp: 43 },
+  { name: "Liam Corbin", title: "Senior Operations Partner", company: "Zeta Technologies", email: null, phone: null, location: "South Fenix, AZ", status: "positive", icp: 89 },
+  { name: "Nina Voss", title: "Director of Talent & Culture", company: "Eta Systems", email: null, phone: null, location: "Lake Toba, ID", status: "not-found", icp: 99 },
+  { name: "Eli Rourke", title: "Head of People Ops", company: "Theta Industries", email: null, phone: null, location: "Mount Ainslie,...", status: "positive", icp: 93 },
+  { name: "Zara Flint", title: "Senior HR Architect", company: "Iota Services", email: null, phone: null, location: "Port Pirie, SC", status: "not-found", icp: 32 },
+  { name: "Calen Pryor", title: "Director of Employee Experie...", company: "Kappa Labs", email: null, phone: null, location: "Cape York, ND", status: "positive", icp: 90 },
+];
+
+// ── Build enrich button HTML ─────────────────────────
+function enrichBtnHTML(type, label) {
+  const cost = ENRICHMENT_COSTS[type];
+  return `
+    <div class="enrich-cell">
+      <button class="enrich-btn" data-type="${type}" onclick="startEnrich(this)">
+        ${starSVG}
+        <span class="btn-label">${label}</span>
+      </button>
+      <div class="enrich-tooltip">
+        ${coinSVG}
+        <span class="tooltip-cost"><span class="tooltip-cost-value">${cost.credits} credit${cost.credits > 1 ? 's' : ''}</span> to ${cost.label.toLowerCase()}</span>
+      </div>
+      <div class="enrich-loading" data-type="${type}">
+        <div class="loading-spinner"></div>
+        <div class="loading-text"><span class="loading-text-inner"></span></div>
+      </div>
+      <div class="progress-tooltip"></div>
+      <div class="enrich-result"></div>
+      <div class="result-tooltip"></div>
+    </div>`;
+}
+
+// ── Render table ─────────────────────────────────────
+const tbody = document.getElementById('tableBody');
+rows.forEach((row, i) => {
+  const initials = row.name.split(' ').map(n => n[0]).join('');
+  const color = avatarColors[i % avatarColors.length];
+
+  const statusHTML = {
+    positive: '<span class="status-positive">Positive</span>',
+    negative: '<span class="status-negative">Negative</span>',
+    'not-found': '<span class="status-not-found">Not found</span>',
+    'no-response': '<span class="status-no-response">No response</span>',
+  }[row.status];
+
+  const icpClass = row.icp >= 80 ? 'icp-high' : row.icp >= 50 ? 'icp-medium' : 'icp-low';
+
+  const emailCell = row.email
+    ? `<td>${row.email}</td>`
+    : `<td>${enrichBtnHTML('email', 'Find email')}</td>`;
+
+  const phoneCell = `<td>${enrichBtnHTML('phone', 'Find phone')}</td>`;
+
+  // Grant Hollis has both email enrichment
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><div class="checkbox"></div></td>
+    <td>
+      <div class="prospect-cell">
+        <div class="avatar" style="background:${color}">${initials}</div>
+        <div class="prospect-info">
+          <span class="prospect-name">${row.name}</span>
+          <span class="prospect-title">${row.title}</span>
+        </div>
+      </div>
+    </td>
+    <td>${row.company}</td>
+    ${emailCell}
+    ${phoneCell}
+    <td>${row.location}</td>
+    <td>${statusHTML}</td>
+    <td><span class="icp-score ${icpClass}">${row.icp}</span></td>
+    <td><div class="row-menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="4" r="0.5"/><circle cx="8" cy="8" r="0.5"/><circle cx="8" cy="12" r="0.5"/></svg></div></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// ── Enrichment interaction ───────────────────────────
+// ── Tooltip hover positioning ────────────────────────
+document.querySelectorAll('.enrich-btn').forEach(btn => {
+  const tooltip = btn.closest('.enrich-cell').querySelector('.enrich-tooltip');
+  if (!tooltip) return;
+
+  btn.addEventListener('mouseenter', () => {
+    const rect = btn.getBoundingClientRect();
+    // Position off-screen to measure width
+    tooltip.style.left = '-9999px';
+    tooltip.style.top = '-9999px';
+    tooltip.classList.add('show');
+    // Wait a frame so tooltip has layout
+    requestAnimationFrame(() => {
+      const tw = tooltip.offsetWidth;
+      const th = tooltip.offsetHeight;
+      tooltip.style.left = Math.round(rect.left + rect.width / 2 - tw / 2) + 'px';
+      tooltip.style.top = Math.round(rect.top - th - 8) + 'px';
+    });
+  });
+
+  btn.addEventListener('mouseleave', () => {
+    tooltip.classList.remove('show');
+  });
+});
+
+// ── SVG fragments for progress tooltip ───────────────
+const checkDoneSVG = `<svg class="check-done" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" fill="#43AD5B"/><path d="M4.5 7l2 2 3.5-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const checkEmptyHTML = `<div class="check-empty"></div>`;
+
+function initProgressTooltip(tooltipEl, messages) {
+  // Build once — all rows start as pending
+  tooltipEl.innerHTML = messages.map((msg, i) =>
+    `<div class="step-row" style="--i:${i}" data-step="${i}"><div class="step-check">${checkEmptyHTML}</div><span>${msg}</span></div>`
+  ).join('');
+}
+
+function updateProgressStep(tooltipEl, newActiveIndex) {
+  const rows = tooltipEl.querySelectorAll('.step-row');
+  rows.forEach((row, i) => {
+    const checkEl = row.querySelector('.step-check');
+    if (i < newActiveIndex) {
+      // Just completed — only swap icon if not already done
+      if (!row.classList.contains('done')) {
+        row.classList.remove('active');
+        row.classList.add('done');
+        checkEl.innerHTML = checkDoneSVG;
+      }
+    } else if (i === newActiveIndex) {
+      row.classList.remove('done');
+      row.classList.add('active');
+      // Keep the empty circle, it gets purple ring via CSS
+    } else {
+      row.classList.remove('done', 'active');
+    }
+  });
+}
+
+function startEnrich(btn) {
+  const cell = btn.closest('.enrich-cell');
+  const type = btn.dataset.type;
+  const loadingEl = cell.querySelector('.enrich-loading');
+  const textInner = cell.querySelector('.loading-text-inner');
+  const resultEl = cell.querySelector('.enrich-result');
+  const progressTooltip = cell.querySelector('.progress-tooltip');
+  const messages = ENRICHMENT_MESSAGES[type];
+
+  // 1. Morph button → loading pill
+  const tooltip = cell.querySelector('.enrich-tooltip');
+  if (tooltip) tooltip.style.display = 'none';
+  btn.style.pointerEvents = 'none';
+  btn.style.cursor = 'default';
+
+  // Snapshot button width, set explicitly so we can animate from it
+  const btnWidth = btn.getBoundingClientRect().width;
+  btn.style.width = btnWidth + 'px';
+
+  // Fade out the button label content
+  const btnLabel = btn.querySelector('.btn-label');
+  const btnIcon = btn.querySelector('.star-icon');
+  if (btnLabel) { btnLabel.style.transition = 'opacity 180ms var(--ease-in)'; btnLabel.style.opacity = '0'; }
+  if (btnIcon) { btnIcon.style.transition = 'opacity 180ms var(--ease-in)'; btnIcon.style.opacity = '0'; }
+
+  // Next frame: grow button to full width + pill radius
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      btn.style.width = '100%';
+      btn.style.borderRadius = '999px';
+    });
+  });
+
+  // After the grow transition, swap to loading element
+  setTimeout(() => {
+    btn.style.display = 'none';
+    loadingEl.style.transition = 'none';
+    loadingEl.style.opacity = '1';
+    loadingEl.classList.add('active');
+    loadingEl.classList.add('morphed');
+    textInner.textContent = messages[0];
+  }, 340);
+
+  // Build tooltip once, then patch individual rows
+  let isLoading = true;
+  initProgressTooltip(progressTooltip, messages);
+  updateProgressStep(progressTooltip, 0);
+
+  // Hover logic for loading area → show progress tooltip
+  function showProgressTip() {
+    if (!isLoading) return;
+    const rect = loadingEl.getBoundingClientRect();
+    progressTooltip.style.left = '-9999px';
+    progressTooltip.style.top = '-9999px';
+    progressTooltip.classList.add('show');
+    requestAnimationFrame(() => {
+      const tw = progressTooltip.offsetWidth;
+      const th = progressTooltip.offsetHeight;
+      progressTooltip.style.left = Math.round(rect.left + rect.width / 2 - tw / 2) + 'px';
+      progressTooltip.style.top = Math.round(rect.top - th - 8) + 'px';
+    });
+  }
+  function hideProgressTip() {
+    progressTooltip.classList.add('hiding');
+    progressTooltip.classList.remove('show');
+    setTimeout(() => progressTooltip.classList.remove('hiding'), 150);
+  }
+  loadingEl.addEventListener('mouseenter', showProgressTip);
+  loadingEl.addEventListener('mouseleave', hideProgressTip);
+
+  // 2. Message rotation
+  let msgIndex = 0;
+  const loadingTextEl = cell.querySelector('.loading-text');
+  const interval = setInterval(() => {
+    msgIndex = (msgIndex + 1) % messages.length;
+    updateProgressStep(progressTooltip, msgIndex);
+    loadingTextEl.style.animation = 'none';
+    loadingTextEl.offsetHeight; // reflow
+    textInner.textContent = messages[msgIndex];
+    loadingTextEl.style.animation = 'textFade 3s var(--ease-in-out) infinite';
+  }, 3000);
+
+  // 3. After ~12-15 seconds, show result
+  const totalTime = 10000 + Math.random() * 5000;
+  setTimeout(() => {
+    clearInterval(interval);
+    isLoading = false;
+    hideProgressTip();
+    loadingEl.removeEventListener('mouseenter', showProgressTip);
+    loadingEl.removeEventListener('mouseleave', hideProgressTip);
+
+    // Morph loading pill back to button size, then reveal result
+    loadingEl.classList.remove('morphed');
+    setTimeout(() => {
+      loadingEl.classList.remove('active');
+      loadingEl.style.width = '';
+
+      // Show result with staggered character reveal
+      const result = getResult(type);
+      const staggerDelay = 25;
+      const resultStarSVG = starSVG.replace('class="star-icon"', 'class="result-star"');
+      const charsHTML = result.split('').map((ch, i) => {
+        if (ch === ' ') return `<span class="char space" style="animation-delay:${i * staggerDelay}ms"></span>`;
+        return `<span class="char" style="animation-delay:${i * staggerDelay}ms">${ch}</span>`;
+      }).join('');
+      resultEl.innerHTML = resultStarSVG + `<span class="result-text">${charsHTML}</span>`;
+      resultEl.classList.add('visible');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          resultEl.classList.add('animate');
+        });
+      });
+
+      // Build result tooltip — all steps completed
+      const resultTooltip = cell.querySelector('.result-tooltip');
+      resultTooltip.innerHTML = messages.map((msg, i) =>
+        `<div class="step-row" style="--i:${i}">
+          <span class="step-check">${checkDoneSVG}</span>
+          <span>${msg}</span>
+        </div>`
+      ).join('');
+
+      resultEl.addEventListener('mouseenter', () => {
+        const rect = resultEl.getBoundingClientRect();
+        resultTooltip.style.left = '-9999px';
+        resultTooltip.style.top = '-9999px';
+        resultTooltip.classList.add('show');
+        requestAnimationFrame(() => {
+          const tw = resultTooltip.offsetWidth;
+          const th = resultTooltip.offsetHeight;
+          resultTooltip.style.left = Math.round(rect.left + rect.width / 2 - tw / 2) + 'px';
+          resultTooltip.style.top = Math.round(rect.top - th - 8) + 'px';
+        });
+      });
+      resultEl.addEventListener('mouseleave', () => {
+        resultTooltip.classList.add('hiding');
+        resultTooltip.classList.remove('show');
+        setTimeout(() => resultTooltip.classList.remove('hiding'), 150);
+      });
+    }, 300);
+  }, totalTime);
+}
+</script>
+</body>
+</html>
