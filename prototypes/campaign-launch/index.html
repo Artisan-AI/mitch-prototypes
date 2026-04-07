@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Launch Celebration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fireworks-js@2/dist/index.umd.js"></script>
+<style>
+/* ─── Design System Tokens ─── */
+:root {
+  --purple-10: #F3EFFB;
+  --purple-15: #E9E1F8;
+  --purple-20: #DFD2F4;
+  --purple-30: #CAB5ED;
+  --purple-40: #B598E6;
+  --purple-50: #A17BDF;
+  --purple-60: #682FC5;
+  --purple-65: #5E2BB2;
+  --purple-70: #53269E;
+  --purple-80: #3F1D77;
+  --tan-10: #FAF8F5;
+  --tan-15: #F1EEE9;
+  --tan-20: #E8E3DC;
+  --tan-25: #DED8D1;
+  --tan-30: #D3CCC5;
+  --tan-40: #C0B4A7;
+  --tan-50: #A89D90;
+  --tan-60: #8E847A;
+  --tan-65: #7F776E;
+  --tan-70: #6A6358;
+  --tan-80: #524E48;
+  --tan-90: #373431;
+  --tan-100: #201F1D;
+  --green-10: #F3FCF5;
+  --green-50: #5EC575;
+  --green-60: #43AD5B;
+  --green-70: #378649;
+  --red-60: #D94638;
+  --red-10: #FDF3F2;
+  --orange-50: #E88456;
+  --orange-60: #E16931;
+  --orange-10: #FEF5F1;
+  --blue-60: #3068E2;
+  --yellow-50: #F5B52E;
+  --yellow-60: #E49E0C;
+  --yellow-10: #FFFAF0;
+  --stone-20: #D7D1E0;
+  --stone-30: #C7C1D0;
+  --duration-instant: 0ms;
+  --duration-micro: 150ms;
+  --duration-fast: 200ms;
+  --duration-moderate: 300ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--tan-10);
+  color: var(--tan-100);
+  -webkit-font-smoothing: antialiased;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+/* ─── Side Nav ─── */
+.side-nav {
+  width: 56px;
+  height: 100vh;
+  background: var(--purple-10);
+  border-right: 1px solid var(--tan-20);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 5;
+}
+.nav-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+.nav-icon:hover { background: var(--purple-15); }
+.nav-icon.active { background: var(--purple-20); }
+.nav-icon svg { width: 20px; height: 20px; color: var(--tan-60); }
+.nav-icon.active svg { color: var(--purple-60); }
+
+/* ─── Screens Container ─── */
+.screens-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity 150ms var(--ease-in), transform 150ms var(--ease-in);
+}
+
+.screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+.screen.entering {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* ─── Top Nav ─── */
+.top-nav { border-bottom: 1px solid var(--tan-20); background: white; padding: 0 24px; flex-shrink: 0; }
+.top-nav-upper { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.breadcrumb-link { color: var(--tan-65); text-decoration: none; }
+.breadcrumb-sep { color: var(--tan-40); }
+.breadcrumb-current { color: var(--tan-100); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+.breadcrumb-dropdown-icon { width: 16px; height: 16px; color: var(--tan-50); }
+.badge-draft { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; background: var(--tan-15); color: var(--tan-65); margin-left: 8px; }
+.top-nav-actions { display: flex; align-items: center; gap: 12px; }
+.badge-email { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: var(--purple-10); color: var(--purple-60); }
+
+/* ─── Tabs ─── */
+.tabs { display: flex; gap: 0; height: 40px; }
+.tab {
+  padding: 0 16px; font-size: 13px; font-weight: 500; color: var(--tan-65);
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color var(--duration-micro) var(--ease-out);
+  text-decoration: none; position: relative;
+}
+.tab:hover { color: var(--tan-80); }
+.tab.active { color: var(--purple-60); border-bottom-color: var(--purple-60); }
+.tab-icon { width: 16px; height: 16px; }
+
+/* ─── Content Area ─── */
+.content-area { flex: 1; overflow-y: auto; padding: 32px 40px 120px; }
+.settings-section { max-width: 720px; margin: 0 auto; }
+.section-block { margin-bottom: 32px; }
+.section-title { font-size: 14px; font-weight: 600; color: var(--tan-100); margin-bottom: 16px; }
+
+/* ─── Form Controls ─── */
+.form-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--tan-15);
+}
+.form-row:last-child { border-bottom: none; }
+.form-label { font-size: 13px; color: var(--tan-80); }
+.form-value { font-size: 13px; color: var(--tan-60); display: flex; align-items: center; gap: 8px; }
+.toggle {
+  width: 36px; height: 20px; border-radius: 10px; background: var(--tan-30);
+  cursor: pointer; position: relative;
+  transition: background var(--duration-fast) var(--spring-smooth);
+}
+.toggle.on { background: var(--purple-60); }
+.toggle::after {
+  content: ''; width: 16px; height: 16px; border-radius: 50%; background: white;
+  position: absolute; top: 2px; left: 2px;
+  transition: transform var(--duration-fast) var(--spring-smooth);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.toggle.on::after { transform: translateX(16px); }
+.select-pill { padding: 6px 12px; border: 1px solid var(--tan-20); border-radius: 8px; font-size: 13px; color: var(--tan-80); background: white; cursor: pointer; }
+.radio-group { display: flex; gap: 2px; background: var(--tan-15); border-radius: 8px; padding: 2px; }
+.radio-pill { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--tan-65); cursor: pointer; transition: all var(--duration-micro) var(--ease-out); }
+.radio-pill.active { background: white; color: var(--tan-100); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+/* ─── Info Banner ─── */
+.info-banner { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; background: var(--green-10); border: 1px solid #CCF0D4; margin-bottom: 24px; }
+.info-banner-icon { width: 20px; height: 20px; color: var(--green-60); flex-shrink: 0; }
+.info-banner-text { font-size: 13px; color: var(--green-70); line-height: 1.4; }
+
+/* ─── Slider ─── */
+.slider-track { width: 100%; height: 6px; border-radius: 3px; background: var(--tan-20); position: relative; cursor: pointer; }
+.slider-fill { height: 100%; border-radius: 3px; background: var(--purple-60); width: 45%; }
+.slider-thumb { width: 18px; height: 18px; border-radius: 50%; background: white; border: 2px solid var(--purple-60); position: absolute; top: 50%; left: 45%; transform: translate(-50%, -50%); cursor: grab; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+
+/* ─── People List ─── */
+.people-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.person-row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; background: white; border: 1px solid var(--tan-15); }
+.person-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: white; }
+.person-name { font-size: 13px; font-weight: 500; color: var(--tan-100); flex: 1; }
+.person-count { font-size: 12px; color: var(--tan-50); }
+.person-status { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; }
+.status-active { background: var(--green-10); color: var(--green-60); }
+
+/* ─── Bottom Bar ─── */
+.bottom-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+  background: white; border-top: 1px solid var(--tan-20);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 40px; z-index: 10;
+}
+
+/* ─── Buttons ─── */
+.btn {
+  padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; display: flex; align-items: center; gap: 6px;
+  transition: background var(--duration-micro) var(--ease-out), transform var(--duration-instant);
+  font-family: inherit;
+}
+.btn:active { transform: scale(0.97); }
+.btn-ghost { background: none; color: var(--tan-65); }
+.btn-ghost:hover { background: var(--tan-15); color: var(--tan-80); }
+.btn-primary { background: var(--purple-60); color: white; }
+.btn-primary:hover { background: var(--purple-65); }
+.btn-primary:active { background: var(--purple-80); }
+
+.btn-launch {
+  background: var(--purple-60); color: white; padding: 10px 28px;
+  font-size: 14px; font-weight: 600; border-radius: 10px;
+  position: relative; overflow: hidden;
+}
+.btn-launch:hover { background: var(--purple-65); transform: translateY(-2px); }
+.btn-launch:active { transform: scale(0.97); }
+.btn-launch.launched { background: var(--green-60); pointer-events: none; }
+
+/* ─── Modal (Figma dialog style) ─── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(82, 78, 72, 0.5);
+  z-index: 999;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+.modal-dialog {
+  background: white;
+  width: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  transform: scale(0.96);
+  opacity: 0;
+  transition: all var(--duration-moderate) var(--ease-out);
+  box-shadow: 0 24px 80px rgba(32, 31, 29, 0.18), 0 4px 16px rgba(32, 31, 29, 0.08);
+}
+.modal-backdrop.visible .modal-dialog {
+  transform: scale(1); opacity: 1;
+  transition-delay: 100ms;
+}
+
+.modal-body {
+  padding: 32px 16px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-check-wrap {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--green-10);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+  transform: scale(0);
+  transition: transform 500ms var(--spring-bounce);
+}
+.modal-backdrop.visible .modal-check-wrap {
+  transform: scale(1);
+  transition-delay: 300ms;
+}
+.modal-check-wrap svg { width: 32px; height: 32px; color: var(--green-60); }
+
+.modal-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--tan-100);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.modal-subtitle {
+  font-size: 14px;
+  color: var(--tan-65);
+  line-height: 1.5;
+}
+
+.modal-footer {
+  padding: 0 16px 16px;
+}
+
+.btn-modal-ok {
+  background: var(--purple-60);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  height: 40px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+.btn-modal-ok:hover { background: var(--purple-65); }
+.btn-modal-ok:active { background: var(--purple-80); transform: scale(0.97); }
+
+/* ─── Effect Toggle ─── */
+.effect-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 50;
+  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+  background: white; border: 1px solid var(--tan-20); border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 12px; color: var(--tan-65);
+}
+.effect-toggle-label { font-weight: 500; color: var(--tan-80); }
+.effect-select { padding: 4px 8px; border: 1px solid var(--tan-20); border-radius: 6px; font-size: 12px; font-family: inherit; color: var(--tan-80); background: var(--tan-10); cursor: pointer; }
+
+/* ─── Tasks Page ─── */
+.tasks-header {
+  padding: 24px 24px 0;
+  flex-shrink: 0;
+}
+.tasks-page-title { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
+
+.tasks-tabs {
+  display: flex; gap: 0; height: 48px; border-bottom: 1px solid var(--tan-20);
+  padding: 0 24px; background: white;
+  flex-shrink: 0;
+}
+.tasks-tab {
+  padding: 0 12px; font-size: 13px; font-weight: 500; color: var(--tan-65);
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  border-bottom: 2px solid transparent; text-decoration: none;
+}
+.tasks-tab.active { color: var(--purple-60); border-bottom-color: var(--purple-60); }
+.tasks-tab-badge {
+  font-size: 11px; font-weight: 500; padding: 1px 6px; border-radius: 999px;
+  background: var(--tan-15); color: var(--tan-65);
+}
+
+.tasks-toolbar {
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.tasks-search {
+  flex: 1; max-width: 600px; padding: 8px 12px 8px 36px;
+  border: 1px solid var(--tan-20); border-radius: 8px;
+  font-size: 13px; color: var(--tan-80); background: white;
+  font-family: inherit; position: relative;
+}
+.tasks-filters {
+  display: flex; gap: 8px; align-items: center;
+}
+.tasks-filter-pill {
+  padding: 6px 12px; border: 1px solid var(--tan-20); border-radius: 8px;
+  font-size: 12px; font-weight: 500; color: var(--tan-70); background: white;
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+}
+
+/* ─── Tasks Table ─── */
+.tasks-table-wrap { flex: 1; overflow-y: auto; padding: 0 24px; }
+.tasks-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tasks-table th {
+  text-align: left; padding: 8px 12px; font-size: 12px; font-weight: 500;
+  color: var(--tan-50); border-bottom: 1px solid var(--tan-20);
+  position: sticky; top: 0; background: var(--tan-10); z-index: 2;
+}
+.tasks-table td {
+  padding: 10px 12px; border-bottom: 1px solid var(--tan-15);
+  color: var(--tan-80); vertical-align: middle;
+}
+.tasks-table tr:hover td { background: var(--tan-15); }
+
+.task-group-header td {
+  padding: 12px 12px 6px; font-size: 12px; font-weight: 600;
+  color: var(--tan-80); background: none !important; border-bottom: none;
+}
+.task-group-badge {
+  font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px;
+  margin-left: 6px; display: inline-block;
+}
+
+.task-lead { display: flex; align-items: center; gap: 10px; }
+.task-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: white; flex-shrink: 0;
+  overflow: hidden;
+}
+.task-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.task-lead-name { font-weight: 500; color: var(--tan-100); line-height: 1.2; }
+.task-lead-title { font-size: 11px; color: var(--tan-50); }
+.task-message { color: var(--tan-65); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task-campaign { color: var(--tan-65); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task-status {
+  font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.status-overdue { background: var(--red-10); color: var(--red-60); }
+.status-pending { background: var(--yellow-10); color: var(--yellow-60); }
+
+.task-sender { display: flex; align-items: center; gap: 6px; }
+.task-sender-avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--purple-40); display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 600; color: white;
+}
+
+.task-checkbox {
+  width: 16px; height: 16px; border: 1.5px solid var(--tan-30);
+  border-radius: 4px; cursor: pointer; flex-shrink: 0;
+}
+.task-mail-icon { width: 16px; height: 16px; color: var(--tan-40); flex-shrink: 0; }
+
+/* ─── Scrollbar ─── */
+.content-area::-webkit-scrollbar, .tasks-table-wrap::-webkit-scrollbar { width: 6px; }
+.content-area::-webkit-scrollbar-track, .tasks-table-wrap::-webkit-scrollbar-track { background: transparent; }
+.content-area::-webkit-scrollbar-thumb, .tasks-table-wrap::-webkit-scrollbar-thumb { background: var(--tan-30); border-radius: 3px; }
+
+/* ─── Accordion ─── */
+.accordion-header { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0; user-select: none; }
+.accordion-header .chevron { width: 16px; height: 16px; color: var(--tan-50); transition: transform var(--duration-fast) var(--ease-out); }
+.accordion-header.open .chevron { transform: rotate(180deg); }
+
+/* Force confetti canvas above modal */
+canvas[style*="pointer-events"] {
+  z-index: 10000 !important;
+}
+
+/* Fireworks container */
+#fireworks-container {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  display: none;
+  opacity: 1;
+  transition: opacity 1.5s ease-out;
+}
+#fireworks-container.fading { opacity: 0; }
+#fireworks-container canvas {
+  filter: blur(0.4px) brightness(1.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Side Nav -->
+<nav class="side-nav">
+  <div class="nav-icon">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10h14M3 5h14M3 15h14"/></svg>
+  </div>
+  <div class="nav-icon">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v14M3 10h14"/></svg>
+  </div>
+  <div class="nav-icon" id="navCampaigns">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h5v5H4zM11 4h5v5h-5zM4 11h5v5H4zM11 11h5v5h-5z"/></svg>
+  </div>
+  <div class="nav-icon" id="navTasks">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 6-6"/><path d="M4 6h12M4 10h12M4 14h8"/></svg>
+  </div>
+  <div class="nav-icon">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 7v3l2 2"/></svg>
+  </div>
+</nav>
+
+<!-- Screens -->
+<div class="screens-wrapper">
+
+  <!-- ═══ SCREEN 1: Campaign Settings ═══ -->
+  <div class="screen" id="screenSettings">
+    <div class="top-nav">
+      <div class="top-nav-upper">
+        <div class="breadcrumb">
+          <a class="breadcrumb-link" href="#">Campaigns</a>
+          <svg class="breadcrumb-sep" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 4l4 4-4 4"/></svg>
+          <span class="breadcrumb-current">New campaign <svg class="breadcrumb-dropdown-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6l4 4 4-4"/></svg></span>
+          <span class="badge-draft">Draft</span>
+        </div>
+        <div class="top-nav-actions">
+          <span class="badge-email">Email</span>
+        </div>
+      </div>
+      <div class="tabs">
+        <a class="tab" href="#"><svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h4v4H3zM9 3h4v4h-4zM3 9h4v4H3zM9 9h4v4h-4z"/></svg>Priority</a>
+        <a class="tab" href="#"><svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>Targeting</a>
+        <a class="tab" href="#"><svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z"/><path d="M2 4l6 5 6-5"/></svg>Messaging</a>
+        <a class="tab" href="#"><svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z"/></svg>AI Settings</a>
+        <a class="tab active" href="#"><svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 5.5l-1-1a1.41 1.41 0 00-2 0L4 11v2h2l6.5-6.5a1.41 1.41 0 000-2z"/></svg>Settings</a>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="settings-section">
+        <div class="section-block">
+          <div class="section-title">How should Ava schedule and send messages?</div>
+          <div class="radio-group" style="display:inline-flex;margin-bottom:16px"><div class="radio-pill active">Ava write and send messages autonomously</div><div class="radio-pill">Recommended</div></div>
+          <div class="form-row"><span class="form-label">Review and approve every message before its sent?</span><div class="toggle"></div></div>
+        </div>
+        <div class="section-block">
+          <div class="section-title">How many leads do you want to contact each month?</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:16px"><span style="font-size:20px;font-weight:600">2,250</span><span style="font-size:12px;color:var(--tan-50)">leads / month</span></div>
+          <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+          <div style="display:flex;gap:24px;margin-top:12px"><span style="font-size:12px;color:var(--tan-50)">Standard</span><span style="font-size:12px;color:var(--tan-50)">Accelerated</span><span style="font-size:12px;color:var(--tan-50)">Mailboxes needed</span></div>
+          <div class="people-list" style="margin-top:16px">
+            <div class="person-row"><div class="person-avatar" style="background:var(--purple-60)">SR</div><span class="person-name">Divya Ravi</span><span class="person-count">100/day</span><span class="person-status status-active">Active</span></div>
+            <div class="person-row"><div class="person-avatar" style="background:var(--orange-60)">LF</div><span class="person-name">Lisa Foster</span><span class="person-count">100/day</span><span class="person-status status-active">Active</span></div>
+            <div class="person-row"><div class="person-avatar" style="background:var(--blue-60)">JD</div><span class="person-name">John Doe</span><span class="person-count">100/day</span><span class="person-status status-active">Active</span></div>
+          </div>
+          <div class="info-banner" style="margin-top:16px">
+            <svg class="info-banner-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="8"/><path d="M10 7v0M10 10v4"/></svg>
+            <span class="info-banner-text">You don't have enough mailboxes to reach the monthly target</span>
+            <button class="btn btn-primary" style="padding:6px 14px;font-size:12px;border-radius:6px;white-space:nowrap">Purchase mailboxes</button>
+          </div>
+        </div>
+        <div class="section-block">
+          <div class="form-row"><span class="form-label">Should Ava reply to leads automatically on your senders' behalf?</span><div class="toggle on"></div></div>
+          <div class="form-row"><span class="form-label">Should Ava re-engage leads that don't respond?</span><div class="toggle on"></div></div>
+          <div class="form-row"><span class="form-label">Be send each into sequence after</span><div class="form-value"><span class="select-pill">30 days</span><span style="font-size:12px;color:var(--tan-50)">if no response</span></div></div>
+        </div>
+        <div class="section-block">
+          <div class="section-title">People Ava should not contact</div>
+          <div class="form-row"><span class="form-label">Exclude people from my CRM</span><div class="toggle on"></div></div>
+          <div class="form-row"><span class="form-label">Exclude people from Artisan list</span><div class="toggle"></div></div>
+          <div class="form-row"><span class="form-label">If they were contacted in the past</span><div class="form-value"><span class="select-pill">anytime</span></div></div>
+        </div>
+        <div class="section-block">
+          <div class="accordion-header open" onclick="this.classList.toggle('open');this.nextElementSibling.style.display=this.classList.contains('open')?'block':'none'">
+            <span class="section-title" style="margin-bottom:0">Advanced</span>
+            <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6l4 4 4-4"/></svg>
+          </div>
+          <div>
+            <div class="form-row"><span class="form-label">Should Ava rely on global social proof?</span><div class="toggle on"></div></div>
+            <div class="form-row"><span class="form-label">Enrich social proof</span><div class="toggle on"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <button class="btn btn-ghost">Back</button>
+      <button class="btn btn-launch" id="launchBtn" onclick="handleLaunch()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13l4-4m0 0L12 3m-6 6l6 6M2 3l4 4"/></svg>
+        Launch
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 2: Tasks ═══ -->
+  <div class="screen hidden" id="screenTasks">
+    <div class="tasks-header">
+      <div class="tasks-page-title">Tasks</div>
+    </div>
+    <div class="tasks-tabs">
+      <a class="tasks-tab active" href="#">Outbound to approve <span class="tasks-tab-badge">40</span></a>
+      <a class="tasks-tab" href="#">Manual tasks <span class="tasks-tab-badge">34</span></a>
+      <a class="tasks-tab" href="#">Platform tasks <span class="tasks-tab-badge">19</span></a>
+    </div>
+    <div class="tasks-toolbar">
+      <input class="tasks-search" type="text" placeholder="Search lead, company, or subject..." />
+      <div class="tasks-filters">
+        <div class="tasks-filter-pill">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/></svg>
+          All tasks
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5l3 3 3-3"/></svg>
+        </div>
+        <div class="tasks-filter-pill">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--yellow-60)" stroke-width="1.5"><circle cx="8" cy="8" r="6"/></svg>
+          Pending
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5l3 3 3-3"/></svg>
+        </div>
+        <div class="tasks-filter-pill">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+          Filters
+        </div>
+      </div>
+    </div>
+    <div class="tasks-table-wrap">
+      <table class="tasks-table">
+        <thead>
+          <tr>
+            <th style="width:32px"></th>
+            <th>Lead</th>
+            <th></th>
+            <th>Message</th>
+            <th>Campaign</th>
+            <th>Created on</th>
+            <th>Step</th>
+            <th>Sender</th>
+            <th>Status</th>
+            <th>Scheduled</th>
+          </tr>
+        </thead>
+        <tbody id="tasksBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Effect indicator (shows which one was randomly picked) -->
+<div class="effect-toggle" id="effectIndicator" style="opacity:0;transition:opacity 300ms ease">
+  <span class="effect-toggle-label" id="effectLabel"></span>
+</div>
+
+<!-- Fireworks Container -->
+<div id="fireworks-container"></div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-dialog">
+    <div class="modal-body">
+      <div class="modal-check-wrap">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16l6 6L25 10"/></svg>
+      </div>
+      <div class="modal-title">Campaign Launched!</div>
+      <div class="modal-subtitle">Your campaign is now live. Ava will start reaching out to leads based on your settings.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-ok" onclick="dismissModal()">Ok</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const myConfetti = confetti;
+let launched = false;
+
+// Alternating counter — persisted so it survives reset clicks
+let launchCount = parseInt(sessionStorage.getItem('launchCount') || '0', 10);
+
+// ─── Navigation ───
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
+  const target = document.getElementById(id);
+  setTimeout(() => {
+    target.classList.remove('hidden');
+    target.classList.add('entering');
+    requestAnimationFrame(() => requestAnimationFrame(() => target.classList.remove('entering')));
+  }, 150);
+  if (id === 'screenSettings') document.getElementById('navCampaigns').classList.add('active');
+  if (id === 'screenTasks') document.getElementById('navTasks').classList.add('active');
+}
+
+document.getElementById('navCampaigns').classList.add('active');
+
+// ─── Launch Flow ───
+function handleLaunch() {
+  if (launched) return;
+  launched = true;
+
+  // Alternate: even = confetti, odd = fireworks
+  const effect = launchCount % 2 === 0 ? 'confetti' : 'fireworks';
+  launchCount++;
+  sessionStorage.setItem('launchCount', launchCount);
+
+  // Show indicator
+  const indicator = document.getElementById('effectIndicator');
+  document.getElementById('effectLabel').textContent = effect === 'confetti' ? '✨ Confetti' : '🎆 Fireworks';
+  indicator.style.opacity = '1';
+  setTimeout(() => indicator.style.opacity = '0', 4000);
+
+  const btn = document.getElementById('launchBtn');
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l3 3 5-5"/></svg> Launched!`;
+  btn.classList.add('launched');
+
+  setTimeout(() => showScreen('screenTasks'), 400);
+
+  // Wait for screen transition to fully complete before firing effects
+  setTimeout(() => {
+    document.getElementById('modalBackdrop').classList.add('visible');
+    // Extra rAF to ensure layout is settled for fireworks-js canvas sizing
+    requestAnimationFrame(() => {
+      if (effect === 'confetti') fireConfetti();
+      else fireFireworks();
+    });
+  }, 900);
+}
+
+function dismissModal() {
+  document.getElementById('modalBackdrop').classList.remove('visible');
+  // Clean up fireworks if still running
+  stopFireworks();
+}
+
+function resetLaunch() {
+  launched = false;
+  const btn = document.getElementById('launchBtn');
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13l4-4m0 0L12 3m-6 6l6 6M2 3l4 4"/></svg> Launch`;
+  btn.classList.remove('launched');
+  stopFireworks();
+  showScreen('screenSettings');
+}
+
+document.getElementById('navCampaigns').addEventListener('click', () => { showScreen('screenSettings'); if (launched) resetLaunch(); });
+document.getElementById('navTasks').addEventListener('click', () => showScreen('screenTasks'));
+
+// ─── CONFETTI (purple shades only) ───
+function fireConfetti() {
+  const purples = ['#F3EFFB', '#E9E1F8', '#DFD2F4', '#CAB5ED', '#B598E6', '#A17BDF', '#8555D2', '#682FC5', '#5E2BB2', '#53269E'];
+  const defaults = { spread: 360, ticks: 120, gravity: 0.6, decay: 0.94, startVelocity: 35, colors: purples, origin: { x: 0.5, y: 0.4 } };
+
+  myConfetti({ ...defaults, particleCount: 80, scalar: 1.2, shapes: ['circle', 'square'] });
+  myConfetti({ ...defaults, particleCount: 40, scalar: 0.8, shapes: ['circle'] });
+
+  setTimeout(() => {
+    myConfetti({ ...defaults, particleCount: 60, spread: 180, startVelocity: 45, origin: { x: 0.3, y: 0.5 }, scalar: 1 });
+    myConfetti({ ...defaults, particleCount: 60, spread: 180, startVelocity: 45, origin: { x: 0.7, y: 0.5 }, scalar: 1 });
+  }, 200);
+
+  setTimeout(() => {
+    myConfetti({ particleCount: 30, spread: 120, startVelocity: 20, gravity: 0.4, decay: 0.96, ticks: 200, colors: purples, origin: { x: 0.2, y: 0.2 }, scalar: 1.4, shapes: ['circle', 'square'] });
+    myConfetti({ particleCount: 30, spread: 120, startVelocity: 20, gravity: 0.4, decay: 0.96, ticks: 200, colors: purples, origin: { x: 0.8, y: 0.2 }, scalar: 1.4, shapes: ['circle', 'square'] });
+  }, 500);
+
+  setTimeout(() => {
+    myConfetti({ particleCount: 100, spread: 360, startVelocity: 15, gravity: 0.3, decay: 0.97, ticks: 250, colors: purples, origin: { x: 0.5, y: 0.3 }, scalar: 0.6, shapes: ['circle'] });
+  }, 800);
+}
+
+// ─── FIREWORKS (fireworks-js library — real fireworks!) ───
+let fireworksInstance = null;
+let fireworksRunId = 0; // guard against stale cleanup
+
+function fireFireworks() {
+  // Clean up any previous instance fully
+  stopFireworks();
+
+  const container = document.getElementById('fireworks-container');
+  container.style.display = 'block';
+  container.classList.remove('fading');
+  container.style.opacity = '1';
+
+  const runId = ++fireworksRunId;
+
+  fireworksInstance = new Fireworks.default(container, {
+    autoresize: true,
+    opacity: 0.6,
+    acceleration: 1.02,
+    friction: 0.97,
+    gravity: 1.5,
+    particles: 140,
+    traceLength: 4,
+    traceSpeed: 6,
+    explosion: 8,
+    intensity: 25,
+    flickering: 90,
+    lineStyle: 'round',
+    hue: { min: 260, max: 290 },
+    delay: { min: 25, max: 55 },
+    rocketsPoint: { min: 15, max: 85 },
+    lineWidth: {
+      explosion: { min: 2, max: 5 },
+      trace: { min: 1, max: 2 },
+    },
+    brightness: { min: 80, max: 100 },
+    decay: { min: 0.01, max: 0.02 },
+    mouse: { click: false, move: false, max: 1 },
+  });
+
+  fireworksInstance.start();
+
+  // After 3s stop launching new rockets — reduce intensity to 0
+  // so existing explosions finish naturally but no new ones fire
+  setTimeout(() => {
+    if (fireworksRunId !== runId) return;
+    if (fireworksInstance) {
+      fireworksInstance.updateOptions({ intensity: 0 });
+    }
+  }, 3000);
+
+  // At 5s, start fading the container (particles have decayed by now)
+  setTimeout(() => {
+    if (fireworksRunId !== runId) return;
+    container.classList.add('fading');
+  }, 5000);
+
+  // At 6.5s, fully clean up after fade
+  setTimeout(() => {
+    if (fireworksRunId !== runId) return;
+    stopFireworks();
+  }, 6500);
+}
+
+function stopFireworks() {
+  if (fireworksInstance) {
+    fireworksInstance.stop(true);
+    fireworksInstance = null;
+  }
+  const container = document.getElementById('fireworks-container');
+  if (container) {
+    container.classList.remove('fading');
+    container.style.display = 'none';
+    // Reset opacity without triggering transition
+    container.style.transition = 'none';
+    container.style.opacity = '1';
+    requestAnimationFrame(() => { container.style.transition = ''; });
+    // Remove stale canvases
+    while (container.firstChild) container.removeChild(container.firstChild);
+  }
+}
+
+// ─── Populate Tasks Table ───
+const names = [
+  { name: 'Avery Knox', title: 'VP, People Operations', bg: '#9B6BCC' },
+  { name: 'Maya Reid', title: 'Director of Workforce St...', bg: '#E88456' },
+  { name: 'Tessa Rowen', title: 'Head of Organizational...', bg: '#5583E9' },
+  { name: 'Grant Hollis', title: 'Chief Human Resources...', bg: '#43AD5B' },
+  { name: 'Mira Penn', title: 'Director of HR', bg: '#DA3784' },
+  { name: 'Liam Corbin', title: 'Senior Operations Partn...', bg: '#E16931' },
+  { name: 'Nina Voss', title: 'Director of Talent & Cult...', bg: '#682FC5' },
+  { name: 'Eli Rourke', title: 'Head of People Ops', bg: '#3068E2' },
+  { name: 'Zara Flint', title: 'Senior HR Architect', bg: '#D94638' },
+  { name: 'Calen Pryor', title: 'Director of Employee Ex...', bg: '#E49E0C' },
+];
+const messages = [
+  "I'm having some trouble getting started with th...",
+  "I need some assistance with migrating my data...",
+  "I am unable to log in to my account. I've tried m...",
+  "I seem to have forgotten my password. How do...",
+  "I want to update my billing information, but I'm...",
+  "I'm looking for the API documentation. Where c...",
+  "I'm encountering issues with the integration wit...",
+  "I've found a bug in the mobile app. How do I re...",
+  "I would like to request a new feature for the pla...",
+  "I'm considering canceling my subscription. Wh...",
+];
+const campaigns = ['Innovation Quest...', 'Q1 26 Promotional...', 'Innovation Quest...'];
+const senders = ['Julia', 'Wren', 'Mira', 'Dax', 'Jalen', 'Reese'];
+
+function buildTable() {
+  let html = '';
+
+  // Overdue group
+  html += `<tr class="task-group-header"><td colspan="10"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:middle;margin-right:4px"><path d="M3 5l3 3 3-3"/></svg>Overdue <span class="task-group-badge" style="background:var(--red-10);color:var(--red-60)">3</span></td></tr>`;
+  for (let i = 0; i < 3; i++) html += taskRow(names[i], messages[i], campaigns[i%3], 'overdue', senders[i%6]);
+
+  // Needs review group
+  html += `<tr class="task-group-header"><td colspan="10"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:middle;margin-right:4px"><path d="M3 5l3 3 3-3"/></svg>Needs review <span class="task-group-badge" style="background:var(--yellow-10);color:var(--yellow-60)">7</span></td></tr>`;
+  for (let i = 3; i < 10; i++) html += taskRow(names[i], messages[i], campaigns[i%3], 'pending', senders[i%6]);
+
+  // Second needs review
+  html += `<tr class="task-group-header"><td colspan="10"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:middle;margin-right:4px"><path d="M3 5l3 3 3-3"/></svg>Needs review <span class="task-group-badge" style="background:var(--yellow-10);color:var(--yellow-60)">4</span></td></tr>`;
+  for (let i = 0; i < 4; i++) html += taskRow(names[9], messages[9], campaigns[0], 'pending', 'Julia');
+
+  document.getElementById('tasksBody').innerHTML = html;
+}
+
+function taskRow(person, message, campaign, status, sender) {
+  const initials = person.name.split(' ').map(n=>n[0]).join('');
+  const statusClass = status === 'overdue' ? 'status-overdue' : 'status-pending';
+  const statusLabel = status === 'overdue' ? 'Overdue' : 'Pending';
+  const statusIcon = status === 'overdue'
+    ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 4v2.5M6 8v0"/><circle cx="6" cy="6" r="5"/></svg>'
+    : '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/></svg>';
+  const date = status === 'overdue' ? 'Mar 30 at 10:45 AM' : 'Today';
+  return `<tr>
+    <td><div class="task-checkbox"></div></td>
+    <td><div class="task-lead"><div class="task-avatar" style="background:${person.bg}">${initials}</div><div><div class="task-lead-name">${person.name}</div><div class="task-lead-title">${person.title}</div></div></div></td>
+    <td><svg class="task-mail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z"/><path d="M2 4l6 5 6-5"/></svg></td>
+    <td><span class="task-message">${message}</span></td>
+    <td><span class="task-campaign">${campaign}</span></td>
+    <td style="white-space:nowrap">${date}</td>
+    <td>1/1</td>
+    <td><div class="task-sender"><div class="task-sender-avatar">${sender[0]}</div>${sender}</div></td>
+    <td><span class="task-status ${statusClass}">${statusIcon} ${statusLabel}</span></td>
+    <td style="white-space:nowrap">${date}</td>
+  </tr>`;
+}
+
+buildTable();
+
+// Toggle interactivity
+document.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
+</script>
+</body>
+</html>
