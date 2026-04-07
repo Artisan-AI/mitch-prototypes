@@ -849,6 +849,25 @@ tr:hover .row-menu { opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
 
+.tooltip-note {
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--text-placeholder);
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle-01);
+  margin-top: 2px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.progress-tooltip.show .tooltip-note {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--i, 0) * 40ms);
+}
+
 /* ── Result tooltip (all steps done) ─────────────── */
 .result-tooltip {
   position: fixed;
@@ -1028,16 +1047,16 @@ const ENRICHMENT_MESSAGES = {
     "Querying enrichment providers",
     "Cross-referencing company domain",
     "Validating email pattern",
-    "Checking email deliverability",
-    "Confirming inbox exists",
+    "Bounce testing",
+    "Verified",
   ],
   phone: [
     "Matching contact profile",
     "Querying enrichment providers",
     "Checking direct dial databases",
     "Validating mobile number",
-    "Cross-referencing carrier data",
-    "Confirming number is active",
+    "Bounce testing",
+    "Verified",
   ],
 };
 
@@ -1197,7 +1216,7 @@ function initProgressTooltip(tooltipEl, messages) {
   // Build once — all rows start as pending
   tooltipEl.innerHTML = messages.map((msg, i) =>
     `<div class="step-row" style="--i:${i}" data-step="${i}"><div class="step-check">${checkEmptyHTML}</div><span>${msg}</span></div>`
-  ).join('');
+  ).join('') + `<div class="tooltip-note" style="--i:${messages.length}">This can take up to 1 minute as we check dozens of providers</div>`;
 }
 
 function updateProgressStep(tooltipEl, newActiveIndex) {
@@ -1303,17 +1322,33 @@ function startEnrich(btn) {
     loadingTextEl.style.animation = 'textFade 3s var(--ease-in-out) infinite';
   }, 3000);
 
-  // 3. After ~12-15 seconds, show result
+  // 3. After ~12-15 seconds, show "Verified" with check, then result
   const totalTime = 10000 + Math.random() * 5000;
   setTimeout(() => {
     clearInterval(interval);
-    isLoading = false;
-    hideProgressTip();
-    loadingEl.removeEventListener('mouseenter', showProgressTip);
-    loadingEl.removeEventListener('mouseleave', hideProgressTip);
 
-    // Morph loading pill back to button size, then reveal result
-    loadingEl.classList.remove('morphed');
+    // Swap spinner → green check, show "Verified"
+    const spinner = loadingEl.querySelector('.loading-spinner');
+    spinner.style.transition = 'opacity 150ms var(--ease-in)';
+    spinner.style.opacity = '0';
+    setTimeout(() => {
+      spinner.outerHTML = checkDoneSVG.replace('class="check-done"', 'class="check-done" style="width:14px;height:14px;flex-shrink:0"');
+    }, 150);
+    loadingTextEl.style.animation = 'none';
+    loadingTextEl.offsetHeight;
+    textInner.textContent = 'Verified';
+    loadingTextEl.style.animation = 'textFade 3s var(--ease-in-out) infinite';
+    updateProgressStep(progressTooltip, messages.length);
+
+    // After a beat, transition to result
+    setTimeout(() => {
+      isLoading = false;
+      hideProgressTip();
+      loadingEl.removeEventListener('mouseenter', showProgressTip);
+      loadingEl.removeEventListener('mouseleave', hideProgressTip);
+
+      // Morph loading pill back, then reveal result
+      loadingEl.classList.remove('morphed');
     setTimeout(() => {
       loadingEl.classList.remove('active');
       loadingEl.style.width = '';
@@ -1321,12 +1356,11 @@ function startEnrich(btn) {
       // Show result with staggered character reveal
       const result = getResult(type);
       const staggerDelay = 25;
-      const resultStarSVG = starSVG.replace('class="star-icon"', 'class="result-star"');
       const charsHTML = result.split('').map((ch, i) => {
         if (ch === ' ') return `<span class="char space" style="animation-delay:${i * staggerDelay}ms"></span>`;
         return `<span class="char" style="animation-delay:${i * staggerDelay}ms">${ch}</span>`;
       }).join('');
-      resultEl.innerHTML = resultStarSVG + `<span class="result-text">${charsHTML}</span>`;
+      resultEl.innerHTML = `<span class="result-text">${charsHTML}</span>`;
       resultEl.classList.add('visible');
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -1361,6 +1395,7 @@ function startEnrich(btn) {
         setTimeout(() => resultTooltip.classList.remove('hiding'), 150);
       });
     }, 300);
+    }, 1200);
   }, totalTime);
 }
 </script>
