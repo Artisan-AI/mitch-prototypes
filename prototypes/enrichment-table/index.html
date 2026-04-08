@@ -262,7 +262,10 @@ body {
 .table-container {
   flex: 1;
   padding: 0 24px 24px;
-  overflow: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .table-toolbar {
@@ -270,6 +273,42 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.batch-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.batch-hint {
+  font-size: 12px;
+  color: var(--text-helper);
+  max-width: 280px;
+  line-height: 16px;
+}
+
+/* Horizontal scroll for wide tables */
+.table-horizontal-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  margin: 0 -24px;
+  padding: 0 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-horizontal-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-horizontal-scroll::-webkit-scrollbar-thumb {
+  background: var(--tan-30);
+  border-radius: 4px;
 }
 
 .search-input {
@@ -309,13 +348,13 @@ body {
 
 /* ── Data table ───────────────────────────────────── */
 .data-table {
-  width: 100%;
-  table-layout: fixed;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   background: var(--layer-01);
   border: 1px solid var(--border-subtle-01);
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .data-table thead th {
@@ -336,6 +375,157 @@ body {
   margin-left: 4px;
   opacity: 0.4;
   vertical-align: middle;
+}
+
+.th-enrich-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.th-enrich-head .th-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.col-batch-cb {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--purple-60);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.col-run-dropdown {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.col-run-dropdown.open {
+  z-index: 25;
+}
+
+.col-run-menu li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.col-run-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border-subtle-01);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--tan-90);
+  cursor: pointer;
+  transition:
+    background var(--duration-micro) var(--ease-out),
+    border-color var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out),
+    box-shadow var(--duration-micro) var(--ease-out);
+}
+
+.col-run-trigger .star-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.col-run-trigger:hover {
+  background: #fff;
+  border-color: var(--tan-40);
+  color: var(--tan-100);
+}
+
+.col-run-dropdown.open .col-run-trigger {
+  background: #fff;
+  border-color: var(--purple-50);
+  color: var(--purple-65);
+  box-shadow: 0 0 0 1px var(--purple-30);
+}
+
+.col-run-trigger:focus-visible {
+  outline: 2px solid var(--purple-50);
+  outline-offset: 1px;
+}
+
+.col-run-menu {
+  display: block;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 212px;
+  padding: 4px;
+  margin: 0;
+  list-style: none;
+  background: var(--layer-01);
+  border: 1px solid var(--border-subtle-01);
+  border-radius: 12pt;
+  box-shadow:
+    0 4px 16px rgba(24, 24, 27, 0.08),
+    0 0 0 1px rgba(24, 24, 27, 0.04);
+  z-index: 40;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px) scale(0.98);
+  transform-origin: top right;
+  transition:
+    opacity var(--duration-moderate) var(--ease-out),
+    transform var(--duration-moderate) var(--spring-snappy),
+    visibility 0ms linear var(--duration-moderate);
+}
+
+.col-run-dropdown.open .col-run-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity var(--duration-moderate) var(--ease-out),
+    transform var(--duration-moderate) var(--spring-snappy),
+    visibility 0ms linear 0ms;
+}
+
+.col-run-item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.col-run-item:hover {
+  background: var(--background-hover);
+}
+
+.col-run-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.col-run-item .col-run-count {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
 }
 
 .data-table tbody tr {
@@ -466,14 +656,19 @@ tr:hover .row-menu { opacity: 1; }
 }
 
 .enrich-btn:active {
-  transform: scale(0.97);
+  opacity: 0.92;
 }
 
 .enrich-btn .star-icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  color: var(--tan-90);
+}
+
+/* Static rainbow gradient fill (no shimmer animation) */
+.enrich-btn .star-icon path,
+.col-run-trigger .star-icon path {
+  fill: url(#enrich-rainbow-fill);
 }
 
 .enrich-btn .btn-label {
@@ -853,9 +1048,9 @@ tr:hover .row-menu { opacity: 1; }
   font-size: 11px;
   line-height: 14px;
   color: var(--text-placeholder);
-  padding-top: 4px;
-  border-top: 1px solid var(--border-subtle-01);
-  margin-top: 2px;
+  margin-top: 0;
+  padding-bottom: 4px;
+  white-space: normal;
   opacity: 0;
   transform: translateY(4px);
   transition: opacity var(--duration-fast) var(--ease-out),
@@ -940,6 +1135,19 @@ tr:hover .row-menu { opacity: 1; }
 </head>
 <body>
 
+<!-- Shared fill for enrichment stars: static rainbow (no animated shimmer) -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" class="svg-defs-enrich">
+  <defs>
+    <linearGradient id="enrich-rainbow-fill" x1="0%" y1="100%" x2="100%" y2="0%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#F8A36F"/>
+      <stop offset="28%" stop-color="#E848B4"/>
+      <stop offset="52%" stop-color="#A85EF9"/>
+      <stop offset="76%" stop-color="#6B8CF9"/>
+      <stop offset="100%" stop-color="#3EC9D6"/>
+    </linearGradient>
+  </defs>
+</svg>
+
 <div class="app-shell">
   <!-- Sidebar -->
   <nav class="sidebar">
@@ -988,28 +1196,21 @@ tr:hover .row-menu { opacity: 1; }
           </div>
           <div class="table-count">Showing 1-20 of 1,927 people</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button class="btn btn-outline">Manage columns</button>
+        <div class="batch-toolbar">
+          <button type="button" class="btn btn-outline" id="btnAddColumn">Add column</button>
+          <button type="button" class="btn btn-brand" id="btnEnrichSelectedCols">Enrich selected columns</button>
+          <button type="button" class="btn btn-outline" id="btnEnrichAllMissing">Enrich all missing</button>
+          <span class="batch-hint">Select columns with the checkboxes in headers, or enrich every row that still shows <strong>Enrich</strong>.</span>
           <button class="btn btn-outline btn-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg></button>
         </div>
       </div>
 
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th style="width:32px"><div class="checkbox"></div></th>
-            <th style="width:18%">Prospect name <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
-            <th style="width:14%">Company <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
-            <th style="width:18%">Email <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
-            <th style="width:15%">Phone <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
-            <th style="width:13%">Person location <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
-            <th style="width:9%">Status <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
-            <th style="width:9%">ICP score <span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span></th>
-            <th style="width:32px"></th>
-          </tr>
-        </thead>
+      <div class="table-horizontal-scroll">
+      <table class="data-table" id="dataTable">
+        <thead id="tableHead"></thead>
         <tbody id="tableBody"></tbody>
       </table>
+      </div>
 
       <div class="pagination">
         <div class="pagination-left">Show 20 list at once <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5l3 3 3-3"/></svg></div>
@@ -1033,14 +1234,15 @@ const starSVG = `<svg class="star-icon" width="16" height="16" viewBox="0 0 16 1
 
 const coinSVG = `<svg class="coin-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.1" d="M8 2C11.3137 2 14 4.68629 14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2Z" fill="#682FC5"/><path d="M8 1.5C11.5899 1.5 14.5 4.41015 14.5 8C14.5 11.5899 11.5899 14.5 8 14.5C4.41015 14.5 1.5 11.5899 1.5 8C1.5 4.41015 4.41015 1.5 8 1.5ZM8 2.4668C4.94402 2.4668 2.4668 4.94402 2.4668 8C2.4668 11.056 4.94402 13.5332 8 13.5332C11.056 13.5332 13.5332 11.056 13.5332 8C13.5332 4.94402 11.056 2.4668 8 2.4668ZM11.3643 10.2588C10.2825 10.3389 9.20165 9.62445 8.15723 8.97754L7.16992 8.33008L6.66699 8C6.45316 7.85901 6.38596 7.57775 6.51367 7.35742C7.01415 6.49722 7.74155 5.30864 8.11426 4.66699L11.3643 10.2588ZM5.67871 8.85449C5.81891 8.61479 6.13283 8.54005 6.36621 8.69336L7.56348 9.48047C6.74362 9.96164 5.82587 10.2763 4.8623 10.2588L5.67871 8.85449Z" fill="#682FC5"/></svg>`;
 
-// ── Credit costs per enrichment type ─────────────────
+// ── Credit costs per enrichment type (tooltip only; buttons always say "Enrich") ──
 const ENRICHMENT_COSTS = {
-  email: { credits: 1, label: "Find email" },
-  phone: { credits: 2, label: "Find phone" },
-  message: { credits: 3, label: "Generate message" },
+  email: { credits: 1, label: "find this email" },
+  phone: { credits: 2, label: "find a direct mobile number" },
+  custom: { credits: 1, label: "run FullEnrich on this field" },
+  message: { credits: 3, label: "generate message" },
 };
 
-// ── Enrichment rotating messages by type ─────────────
+// Email/phone: focused provider-style copy. Custom: async aggregation / waterfall (FullEnrich-style).
 const ENRICHMENT_MESSAGES = {
   email: [
     "Matching contact profile",
@@ -1058,9 +1260,21 @@ const ENRICHMENT_MESSAGES = {
     "Bounce testing",
     "Verified",
   ],
+  custom: [
+    "Queued for enrichment",
+    "Routing provider waterfall",
+    "Aggregating 20+ B2B sources",
+    "Reconciling signals",
+    "Verification pass",
+    "Complete",
+  ],
 };
 
-// ── Fake results ─────────────────────────────────────
+const PROGRESS_NOTE_DEFAULT =
+  "This can take up to about a minute while we query many providers.";
+const PROGRESS_NOTE_CUSTOM =
+  "FullEnrich aggregates 20+ providers asynchronously — typical turnaround is about 30–90 seconds, with verified fields and credits only when data is found.";
+
 const FAKE_RESULTS = {
   email: [
     "aknox@acmecorp.com",
@@ -1083,6 +1297,14 @@ const FAKE_RESULTS = {
     "+1 (555) 937-1125",
     "+1 (555) 284-7701",
   ],
+  custom: [
+    "Director, People Analytics",
+    "linkedin.com/in/avery-knox",
+    "VP, Total Rewards",
+    "San Francisco Bay Area",
+    "$180–220K OTE band",
+    "Series C · 240 employees",
+  ],
   message: [
     "Hi Avery, saw ACME Corp is...",
     "Message 1 draft ready",
@@ -1090,17 +1312,33 @@ const FAKE_RESULTS = {
   ],
 };
 
-let emailIdx = 0, phoneIdx = 0, msgIdx = 0;
+let emailIdx = 0, phoneIdx = 0, msgIdx = 0, customIdx = 0;
 function getResult(type) {
   if (type === 'email') return FAKE_RESULTS.email[emailIdx++ % FAKE_RESULTS.email.length];
   if (type === 'phone') return FAKE_RESULTS.phone[phoneIdx++ % FAKE_RESULTS.phone.length];
+  if (type === 'custom') return FAKE_RESULTS.custom[customIdx++ % FAKE_RESULTS.custom.length];
   return FAKE_RESULTS.message[msgIdx++ % FAKE_RESULTS.message.length];
 }
 
-// ── Avatar colors ────────────────────────────────────
 const avatarColors = ['#682FC5','#43AD5B','#3068E2','#DA3784','#E16931','#D94638','#E49E0C','#524E48','#A17BDF','#5EC575'];
 
-// ── Row data ─────────────────────────────────────────
+const sortIconHTML = `<span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span>`;
+
+const BASE_COLUMN_DEFS = [
+  { id: 'cb', kind: 'checkbox', width: '32px' },
+  { id: 'prospect', kind: 'prospect', label: 'Prospect name', width: '220px' },
+  { id: 'company', kind: 'text', key: 'company', label: 'Company', width: '150px' },
+  { id: 'email', kind: 'enrich', enrichType: 'email', key: 'email', label: 'Email', width: '200px' },
+  { id: 'phone', kind: 'enrich', enrichType: 'phone', key: 'phone', label: 'Phone', width: '170px' },
+  { id: 'location', kind: 'text', key: 'location', label: 'Person location', width: '170px' },
+  { id: 'status', kind: 'status', key: 'status', label: 'Status', width: '120px' },
+  { id: 'icp', kind: 'icp', key: 'icp', label: 'ICP score', width: '104px' },
+  { id: 'menu', kind: 'menu', width: '40px' },
+];
+
+let columnDefs = BASE_COLUMN_DEFS.map((c) => ({ ...c }));
+let customColumnCounter = 0;
+
 const rows = [
   { name: "Avery Knox", title: "VP, People Operations", company: "ACME Corp", email: null, phone: null, location: "Port Jasper, AR", status: "positive", icp: 80 },
   { name: "Jude Carver", title: "Director of Workforce Strategy", company: "Beta Innovations", email: "jcarver@betainnov...", phone: null, location: "New Hope, PA", status: "positive", icp: 89 },
@@ -1114,20 +1352,19 @@ const rows = [
   { name: "Calen Pryor", title: "Director of Employee Experie...", company: "Kappa Labs", email: null, phone: null, location: "Cape York, ND", status: "positive", icp: 90 },
 ];
 
-// ── Build enrich button HTML ─────────────────────────
-function enrichBtnHTML(type, label) {
-  const cost = ENRICHMENT_COSTS[type];
+function enrichBtnHTML(enrichType, columnKey) {
+  const cost = ENRICHMENT_COSTS[enrichType] || ENRICHMENT_COSTS.custom;
   return `
     <div class="enrich-cell">
-      <button class="enrich-btn" data-type="${type}" onclick="startEnrich(this)">
+      <button type="button" class="enrich-btn" data-type="${enrichType}" data-column-key="${columnKey}">
         ${starSVG}
-        <span class="btn-label">${label}</span>
+        <span class="btn-label">Enrich</span>
       </button>
       <div class="enrich-tooltip">
         ${coinSVG}
-        <span class="tooltip-cost"><span class="tooltip-cost-value">${cost.credits} credit${cost.credits > 1 ? 's' : ''}</span> to ${cost.label.toLowerCase()}</span>
+        <span class="tooltip-cost"><span class="tooltip-cost-value">${cost.credits} credit${cost.credits > 1 ? 's' : ''}</span> to ${cost.label}</span>
       </div>
-      <div class="enrich-loading" data-type="${type}">
+      <div class="enrich-loading" data-type="${enrichType}">
         <div class="loading-spinner"></div>
         <div class="loading-text"><span class="loading-text-inner"></span></div>
       </div>
@@ -1137,32 +1374,141 @@ function enrichBtnHTML(type, label) {
     </div>`;
 }
 
-// ── Render table ─────────────────────────────────────
-const tbody = document.getElementById('tableBody');
-rows.forEach((row, i) => {
-  const initials = row.name.split(' ').map(n => n[0]).join('');
-  const color = avatarColors[i % avatarColors.length];
-
-  const statusHTML = {
+function statusCellHTML(status) {
+  return {
     positive: '<span class="status-positive">Positive</span>',
     negative: '<span class="status-negative">Negative</span>',
     'not-found': '<span class="status-not-found">Not found</span>',
     'no-response': '<span class="status-no-response">No response</span>',
-  }[row.status];
+  }[status];
+}
 
-  const icpClass = row.icp >= 80 ? 'icp-high' : row.icp >= 50 ? 'icp-medium' : 'icp-low';
+function addCustomColumn(label) {
+  const id = 'custom_' + (++customColumnCounter);
+  const idx = columnDefs.findIndex((c) => c.id === 'status');
+  columnDefs.splice(idx === -1 ? columnDefs.length - 2 : idx, 0, {
+    id,
+    kind: 'enrich',
+    enrichType: 'custom',
+    key: id,
+    label: (label && label.trim()) || 'Custom field',
+    width: '180px',
+  });
+  rows.forEach((r) => {
+    r[id] = null;
+  });
+  renderTable();
+}
 
-  const emailCell = row.email
-    ? `<td>${row.email}</td>`
-    : `<td>${enrichBtnHTML('email', 'Find email')}</td>`;
+function enrichBtnIsPending(btn) {
+  const cell = btn.closest('.enrich-cell');
+  if (!cell) return false;
+  const loading = cell.querySelector('.enrich-loading');
+  return btn.offsetParent !== null && loading && !loading.classList.contains('active');
+}
 
-  const phoneCell = `<td>${enrichBtnHTML('phone', 'Find phone')}</td>`;
+function collectEnrichButtonsForColumnKeys(keys) {
+  const set = new Set(keys);
+  return [...document.querySelectorAll('.enrich-btn')].filter((btn) => {
+    if (!set.has(btn.dataset.columnKey)) return false;
+    return enrichBtnIsPending(btn);
+  });
+}
 
-  // Grant Hollis has both email enrichment
+function collectAllPendingEnrichButtons() {
+  return [...document.querySelectorAll('.enrich-btn')].filter(enrichBtnIsPending);
+}
+
+function staggerStartEnrich(buttons, gapMs) {
+  buttons.forEach((btn, i) => {
+    setTimeout(() => {
+      if (enrichBtnIsPending(btn)) startEnrich(btn);
+    }, i * gapMs);
+  });
+}
+
+function enrichColumnsByKeys(keys) {
+  const buttons = collectEnrichButtonsForColumnKeys(keys);
+  staggerStartEnrich(buttons, 120);
+}
+
+function enrichColumnScoped(columnKey, maxRows) {
+  let buttons = collectEnrichButtonsForColumnKeys([columnKey]);
+  if (Number.isFinite(maxRows) && maxRows > 0) buttons = buttons.slice(0, maxRows);
+  staggerStartEnrich(buttons, 120);
+}
+
+function refreshColumnRunCounts() {
+  document.querySelectorAll('.col-run-dropdown').forEach((wrap) => {
+    const key = wrap.dataset.colKey;
+    const n = collectEnrichButtonsForColumnKeys([key]).length;
+    const span = wrap.querySelector('.col-run-count');
+    if (span) span.textContent = String(n);
+    const firstBtn = wrap.querySelector('[data-run-scope="first20"]');
+    const allBtn = wrap.querySelector('[data-run-scope="all"]');
+    if (firstBtn) firstBtn.disabled = n === 0;
+    if (allBtn) allBtn.disabled = n === 0;
+    if (n === 0) {
+      setColRunDropdownOpen(wrap, false);
+      wrap.hidden = true;
+    } else {
+      wrap.hidden = false;
+    }
+  });
+}
+
+function renderHead() {
+  const thead = document.getElementById('tableHead');
   const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td><div class="checkbox"></div></td>
-    <td>
+  tr.innerHTML = columnDefs
+    .map((col) => {
+      const w = col.width || 'auto';
+      if (col.kind === 'checkbox') return `<th style="width:${w}"><div class="checkbox"></div></th>`;
+      if (col.kind === 'prospect')
+        return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
+      if (col.kind === 'text')
+        return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
+      if (col.kind === 'enrich')
+        return `<th style="width:${w};min-width:${w}">
+        <div class="th-enrich-head">
+          <label class="th-label" title="Include in multi-column enrich"><input type="checkbox" class="col-batch-cb" data-col-key="${col.key}"></label>
+          <span>${col.label} ${sortIconHTML}</span>
+          <div class="col-run-dropdown" data-col-key="${col.key}">
+            <button type="button" class="col-run-trigger" aria-label="Open column run options" aria-expanded="false" aria-haspopup="true" aria-controls="col-run-menu-${col.key}">
+              ${starSVG}
+            </button>
+            <ul class="col-run-menu" id="col-run-menu-${col.key}" role="menu" aria-label="Run enrichment for column">
+              <li><button type="button" class="col-run-item" role="menuitem" data-run-scope="first20">Run for first 20 rows</button></li>
+              <li><button type="button" class="col-run-item" role="menuitem" data-run-scope="all">Run for all <span class="col-run-count">0</span></button></li>
+            </ul>
+          </div>
+        </div>
+      </th>`;
+      if (col.kind === 'status')
+        return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
+      if (col.kind === 'icp')
+        return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
+      if (col.kind === 'menu') return `<th style="width:${w}"></th>`;
+      return '';
+    })
+    .join('');
+  thead.innerHTML = '';
+  thead.appendChild(tr);
+}
+
+function renderBody() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  rows.forEach((row, i) => {
+    const initials = row.name.split(' ').map((n) => n[0]).join('');
+    const color = avatarColors[i % avatarColors.length];
+    const icpClass = row.icp >= 80 ? 'icp-high' : row.icp >= 50 ? 'icp-medium' : 'icp-low';
+
+    const cells = columnDefs
+      .map((col) => {
+        if (col.kind === 'checkbox') return '<td><div class="checkbox"></div></td>';
+        if (col.kind === 'prospect')
+          return `<td>
       <div class="prospect-cell">
         <div class="avatar" style="background:${color}">${initials}</div>
         <div class="prospect-info">
@@ -1170,61 +1516,143 @@ rows.forEach((row, i) => {
           <span class="prospect-title">${row.title}</span>
         </div>
       </div>
-    </td>
-    <td>${row.company}</td>
-    ${emailCell}
-    ${phoneCell}
-    <td>${row.location}</td>
-    <td>${statusHTML}</td>
-    <td><span class="icp-score ${icpClass}">${row.icp}</span></td>
-    <td><div class="row-menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="4" r="0.5"/><circle cx="8" cy="8" r="0.5"/><circle cx="8" cy="12" r="0.5"/></svg></div></td>
-  `;
-  tbody.appendChild(tr);
-});
+    </td>`;
+        if (col.kind === 'text') return `<td>${row[col.key]}</td>`;
+        if (col.kind === 'enrich') {
+          const val = row[col.key];
+          if (val) return `<td>${val}</td>`;
+          return `<td>${enrichBtnHTML(col.enrichType, col.key)}</td>`;
+        }
+        if (col.kind === 'status') return `<td>${statusCellHTML(row.status)}</td>`;
+        if (col.kind === 'icp')
+          return `<td><span class="icp-score ${icpClass}">${row.icp}</span></td>`;
+        if (col.kind === 'menu')
+          return `<td><div class="row-menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="4" r="0.5"/><circle cx="8" cy="8" r="0.5"/><circle cx="8" cy="12" r="0.5"/></svg></div></td>`;
+        return '<td></td>';
+      })
+      .join('');
 
-// ── Enrichment interaction ───────────────────────────
-// ── Tooltip hover positioning ────────────────────────
-document.querySelectorAll('.enrich-btn').forEach(btn => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  });
+  bindEnrichCreditTooltips();
+  refreshColumnRunCounts();
+}
+
+function renderTable() {
+  renderHead();
+  renderBody();
+}
+
+function bindEnrichCreditTooltips() {
+  document.querySelectorAll('.enrich-btn').forEach((btn) => {
+    const tooltip = btn.closest('.enrich-cell')?.querySelector('.enrich-tooltip');
+    if (!tooltip) return;
+    btn.addEventListener('mouseenter', onCreditEnter);
+    btn.addEventListener('mouseleave', onCreditLeave);
+  });
+}
+
+function onCreditEnter(e) {
+  const btn = e.currentTarget;
   const tooltip = btn.closest('.enrich-cell').querySelector('.enrich-tooltip');
-  if (!tooltip) return;
-
-  btn.addEventListener('mouseenter', () => {
-    const rect = btn.getBoundingClientRect();
-    // Position off-screen to measure width
-    tooltip.style.left = '-9999px';
-    tooltip.style.top = '-9999px';
-    tooltip.classList.add('show');
-    // Wait a frame so tooltip has layout
-    requestAnimationFrame(() => {
-      const tw = tooltip.offsetWidth;
-      const th = tooltip.offsetHeight;
-      tooltip.style.left = Math.round(rect.left + rect.width / 2 - tw / 2) + 'px';
-      tooltip.style.top = Math.round(rect.top - th - 8) + 'px';
-    });
+  const rect = btn.getBoundingClientRect();
+  tooltip.style.left = '-9999px';
+  tooltip.style.top = '-9999px';
+  tooltip.classList.add('show');
+  requestAnimationFrame(() => {
+    const tw = tooltip.offsetWidth;
+    const th = tooltip.offsetHeight;
+    tooltip.style.left = Math.round(rect.left + rect.width / 2 - tw / 2) + 'px';
+    tooltip.style.top = Math.round(rect.top - th - 8) + 'px';
   });
+}
 
-  btn.addEventListener('mouseleave', () => {
-    tooltip.classList.remove('show');
-  });
+function onCreditLeave(e) {
+  const btn = e.currentTarget;
+  const tooltip = btn.closest('.enrich-cell').querySelector('.enrich-tooltip');
+  tooltip.classList.remove('show');
+}
+
+function setColRunDropdownOpen(wrap, open) {
+  const trigger = wrap.querySelector('.col-run-trigger');
+  if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  wrap.classList.toggle('open', open);
+}
+
+document.getElementById('dataTable').addEventListener('click', (e) => {
+  const trigger = e.target.closest('.col-run-trigger');
+  if (trigger) {
+    e.preventDefault();
+    e.stopPropagation();
+    const wrap = trigger.closest('.col-run-dropdown');
+    if (wrap.hidden) return;
+    const willOpen = !wrap.classList.contains('open');
+    document.querySelectorAll('.col-run-dropdown.open').forEach((el) => setColRunDropdownOpen(el, false));
+    setColRunDropdownOpen(wrap, willOpen);
+    return;
+  }
+  const item = e.target.closest('.col-run-item');
+  if (item && !item.disabled) {
+    e.preventDefault();
+    e.stopPropagation();
+    const wrap = item.closest('.col-run-dropdown');
+    const key = wrap.dataset.colKey;
+    setColRunDropdownOpen(wrap, false);
+    if (item.dataset.runScope === 'first20') enrichColumnScoped(key, 20);
+    else enrichColumnScoped(key, Infinity);
+    return;
+  }
+  const btn = e.target.closest('.enrich-btn');
+  if (btn) {
+    e.preventDefault();
+    startEnrich(btn);
+  }
 });
 
-// ── SVG fragments for progress tooltip ───────────────
+document.addEventListener('click', () => {
+  document.querySelectorAll('.col-run-dropdown.open').forEach((el) => setColRunDropdownOpen(el, false));
+});
+
+document.getElementById('btnAddColumn').addEventListener('click', () => {
+  const name = window.prompt('Custom column name (FullEnrich-backed field)', 'Job title');
+  if (name === null) return;
+  addCustomColumn(name);
+});
+
+document.getElementById('btnEnrichSelectedCols').addEventListener('click', () => {
+  const keys = [...document.querySelectorAll('.col-batch-cb:checked')].map((cb) => cb.dataset.colKey);
+  if (!keys.length) {
+    window.alert('Select one or more column checkboxes in the table header, then try again.');
+    return;
+  }
+  enrichColumnsByKeys(keys);
+});
+
+document.getElementById('btnEnrichAllMissing').addEventListener('click', () => {
+  staggerStartEnrich(collectAllPendingEnrichButtons(), 100);
+});
+
 const checkDoneSVG = `<svg class="check-done" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" fill="#43AD5B"/><path d="M4.5 7l2 2 3.5-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const checkEmptyHTML = `<div class="check-empty"></div>`;
 
-function initProgressTooltip(tooltipEl, messages) {
-  // Build once — all rows start as pending
-  tooltipEl.innerHTML = messages.map((msg, i) =>
-    `<div class="step-row" style="--i:${i}" data-step="${i}"><div class="step-check">${checkEmptyHTML}</div><span>${msg}</span></div>`
-  ).join('') + `<div class="tooltip-note" style="--i:${messages.length}">This can take up to 1 minute as we check dozens of providers</div>`;
+function initProgressTooltip(tooltipEl, messages, footerNote) {
+  const note = footerNote ?? PROGRESS_NOTE_DEFAULT;
+  tooltipEl.innerHTML =
+    messages
+      .map(
+        (msg, i) =>
+          `<div class="step-row" style="--i:${i}" data-step="${i}"><div class="step-check">${checkEmptyHTML}</div><span>${msg}</span></div>`
+      )
+      .join('') + `<div class="tooltip-note" style="--i:${messages.length}">${note}</div>`;
 }
 
 function updateProgressStep(tooltipEl, newActiveIndex) {
-  const rows = tooltipEl.querySelectorAll('.step-row');
-  rows.forEach((row, i) => {
+  const stepRows = tooltipEl.querySelectorAll('.step-row');
+  stepRows.forEach((row, i) => {
     const checkEl = row.querySelector('.step-check');
     if (i < newActiveIndex) {
-      // Just completed — only swap icon if not already done
       if (!row.classList.contains('done')) {
         row.classList.remove('active');
         row.classList.add('done');
@@ -1233,7 +1661,6 @@ function updateProgressStep(tooltipEl, newActiveIndex) {
     } else if (i === newActiveIndex) {
       row.classList.remove('done');
       row.classList.add('active');
-      // Keep the empty circle, it gets purple ring via CSS
     } else {
       row.classList.remove('done', 'active');
     }
@@ -1247,25 +1674,28 @@ function startEnrich(btn) {
   const textInner = cell.querySelector('.loading-text-inner');
   const resultEl = cell.querySelector('.enrich-result');
   const progressTooltip = cell.querySelector('.progress-tooltip');
-  const messages = ENRICHMENT_MESSAGES[type];
+  const messages = ENRICHMENT_MESSAGES[type] || ENRICHMENT_MESSAGES.custom;
+  const footerNote = type === 'custom' ? PROGRESS_NOTE_CUSTOM : PROGRESS_NOTE_DEFAULT;
 
-  // 1. Morph button → loading pill
-  const tooltip = cell.querySelector('.enrich-tooltip');
-  if (tooltip) tooltip.style.display = 'none';
+  const creditTip = cell.querySelector('.enrich-tooltip');
+  if (creditTip) creditTip.style.display = 'none';
   btn.style.pointerEvents = 'none';
   btn.style.cursor = 'default';
 
-  // Snapshot button width, set explicitly so we can animate from it
   const btnWidth = btn.getBoundingClientRect().width;
   btn.style.width = btnWidth + 'px';
 
-  // Fade out the button label content
   const btnLabel = btn.querySelector('.btn-label');
   const btnIcon = btn.querySelector('.star-icon');
-  if (btnLabel) { btnLabel.style.transition = 'opacity 180ms var(--ease-in)'; btnLabel.style.opacity = '0'; }
-  if (btnIcon) { btnIcon.style.transition = 'opacity 180ms var(--ease-in)'; btnIcon.style.opacity = '0'; }
+  if (btnLabel) {
+    btnLabel.style.transition = 'opacity 180ms var(--ease-in)';
+    btnLabel.style.opacity = '0';
+  }
+  if (btnIcon) {
+    btnIcon.style.transition = 'opacity 180ms var(--ease-in)';
+    btnIcon.style.opacity = '0';
+  }
 
-  // Next frame: grow button to full width + pill radius
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       btn.style.width = '100%';
@@ -1273,7 +1703,6 @@ function startEnrich(btn) {
     });
   });
 
-  // After the grow transition, swap to loading element
   setTimeout(() => {
     btn.style.display = 'none';
     loadingEl.style.transition = 'none';
@@ -1283,12 +1712,10 @@ function startEnrich(btn) {
     textInner.textContent = messages[0];
   }, 340);
 
-  // Build tooltip once, then patch individual rows
   let isLoading = true;
-  initProgressTooltip(progressTooltip, messages);
+  initProgressTooltip(progressTooltip, messages, footerNote);
   updateProgressStep(progressTooltip, 0);
 
-  // Hover logic for loading area → show progress tooltip
   function showProgressTip() {
     if (!isLoading) return;
     const rect = loadingEl.getBoundingClientRect();
@@ -1310,94 +1737,111 @@ function startEnrich(btn) {
   loadingEl.addEventListener('mouseenter', showProgressTip);
   loadingEl.addEventListener('mouseleave', hideProgressTip);
 
-  // 2. Message rotation
   let msgIndex = 0;
   const loadingTextEl = cell.querySelector('.loading-text');
   const interval = setInterval(() => {
     msgIndex = (msgIndex + 1) % messages.length;
     updateProgressStep(progressTooltip, msgIndex);
     loadingTextEl.style.animation = 'none';
-    loadingTextEl.offsetHeight; // reflow
+    loadingTextEl.offsetHeight;
     textInner.textContent = messages[msgIndex];
     loadingTextEl.style.animation = 'textFade 3s var(--ease-in-out) infinite';
   }, 3000);
 
-  // 3. After ~12-15 seconds, show "Verified" with check, then result
   const totalTime = 10000 + Math.random() * 5000;
   setTimeout(() => {
     clearInterval(interval);
 
-    // Swap spinner → green check, show "Verified"
     const spinner = loadingEl.querySelector('.loading-spinner');
     spinner.style.transition = 'opacity 150ms var(--ease-in)';
     spinner.style.opacity = '0';
     setTimeout(() => {
-      spinner.outerHTML = checkDoneSVG.replace('class="check-done"', 'class="check-done" style="width:14px;height:14px;flex-shrink:0"');
+      spinner.outerHTML = checkDoneSVG.replace(
+        'class="check-done"',
+        'class="check-done" style="width:14px;height:14px;flex-shrink:0"'
+      );
     }, 150);
     loadingTextEl.style.animation = 'none';
     loadingTextEl.offsetHeight;
-    textInner.textContent = 'Verified';
+    textInner.textContent = type === 'custom' ? 'Complete' : 'Verified';
     loadingTextEl.style.animation = 'textFade 3s var(--ease-in-out) infinite';
     updateProgressStep(progressTooltip, messages.length);
 
-    // After a beat, transition to result
     setTimeout(() => {
       isLoading = false;
       hideProgressTip();
       loadingEl.removeEventListener('mouseenter', showProgressTip);
       loadingEl.removeEventListener('mouseleave', hideProgressTip);
 
-      // Morph loading pill back, then reveal result
-      loadingEl.classList.remove('morphed');
-    setTimeout(() => {
-      loadingEl.classList.remove('active');
-      loadingEl.style.width = '';
-
-      // Show result with staggered character reveal
-      const result = getResult(type);
-      const staggerDelay = 25;
-      const charsHTML = result.split('').map((ch, i) => {
-        if (ch === ' ') return `<span class="char space" style="animation-delay:${i * staggerDelay}ms"></span>`;
-        return `<span class="char" style="animation-delay:${i * staggerDelay}ms">${ch}</span>`;
-      }).join('');
-      resultEl.innerHTML = `<span class="result-text">${charsHTML}</span>`;
-      resultEl.classList.add('visible');
+      loadingTextEl.style.animation = 'none';
+      // Morph-in sets inline opacity:1 + transition:none, so CSS-only fades never run; drive exit explicitly.
+      loadingEl.style.transition = 'opacity 220ms var(--ease-out)';
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          resultEl.classList.add('animate');
+          loadingEl.style.opacity = '0';
         });
       });
+      const fadeMs = 280;
+      setTimeout(() => {
+        loadingEl.classList.remove('morphed');
+        loadingEl.classList.remove('active');
+        loadingEl.style.width = '';
+        loadingEl.style.removeProperty('opacity');
+        loadingEl.style.removeProperty('transition');
 
-      // Build result tooltip — all steps completed
-      const resultTooltip = cell.querySelector('.result-tooltip');
-      resultTooltip.innerHTML = messages.map((msg, i) =>
-        `<div class="step-row" style="--i:${i}">
+        const result = getResult(type);
+        const staggerDelay = 25;
+        const charsHTML = result
+          .split('')
+          .map((ch, j) => {
+            if (ch === ' ')
+              return `<span class="char space" style="animation-delay:${j * staggerDelay}ms"></span>`;
+            return `<span class="char" style="animation-delay:${j * staggerDelay}ms">${ch}</span>`;
+          })
+          .join('');
+        resultEl.innerHTML = `<span class="result-text">${charsHTML}</span>`;
+        resultEl.classList.add('visible');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            resultEl.classList.add('animate');
+          });
+        });
+
+        const resultTooltip = cell.querySelector('.result-tooltip');
+        resultTooltip.innerHTML = messages
+          .map(
+            (msg, i) =>
+              `<div class="step-row" style="--i:${i}">
           <span class="step-check">${checkDoneSVG}</span>
           <span>${msg}</span>
         </div>`
-      ).join('');
+          )
+          .join('');
 
-      resultEl.addEventListener('mouseenter', () => {
-        const rect = resultEl.getBoundingClientRect();
-        resultTooltip.style.left = '-9999px';
-        resultTooltip.style.top = '-9999px';
-        resultTooltip.classList.add('show');
-        requestAnimationFrame(() => {
-          const tw = resultTooltip.offsetWidth;
-          const th = resultTooltip.offsetHeight;
-          resultTooltip.style.left = Math.round(rect.left + rect.width / 2 - tw / 2) + 'px';
-          resultTooltip.style.top = Math.round(rect.top - th - 8) + 'px';
+        resultEl.addEventListener('mouseenter', () => {
+          const rect = resultEl.getBoundingClientRect();
+          resultTooltip.style.left = '-9999px';
+          resultTooltip.style.top = '-9999px';
+          resultTooltip.classList.add('show');
+          requestAnimationFrame(() => {
+            const tw = resultTooltip.offsetWidth;
+            const th = resultTooltip.offsetHeight;
+            resultTooltip.style.left = Math.round(rect.left + rect.width / 2 - tw / 2) + 'px';
+            resultTooltip.style.top = Math.round(rect.top - th - 8) + 'px';
+          });
         });
-      });
-      resultEl.addEventListener('mouseleave', () => {
-        resultTooltip.classList.add('hiding');
-        resultTooltip.classList.remove('show');
-        setTimeout(() => resultTooltip.classList.remove('hiding'), 150);
-      });
-    }, 300);
+        resultEl.addEventListener('mouseleave', () => {
+          resultTooltip.classList.add('hiding');
+          resultTooltip.classList.remove('show');
+          setTimeout(() => resultTooltip.classList.remove('hiding'), 150);
+        });
+        refreshColumnRunCounts();
+      }, fadeMs);
     }, 1200);
   }, totalTime);
 }
+
+renderTable();
 </script>
 </body>
 </html>
