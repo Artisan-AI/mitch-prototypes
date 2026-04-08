@@ -284,13 +284,6 @@ body {
   flex-wrap: wrap;
 }
 
-.batch-hint {
-  font-size: 12px;
-  color: var(--text-helper);
-  max-width: 280px;
-  line-height: 16px;
-}
-
 /* Horizontal scroll for wide tables */
 .table-horizontal-scroll {
   flex: 1;
@@ -384,20 +377,6 @@ body {
   flex-wrap: wrap;
 }
 
-.th-enrich-head .th-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.col-batch-cb {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--purple-60);
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
 .col-run-dropdown {
   position: relative;
   z-index: 2;
@@ -463,8 +442,8 @@ body {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  min-width: 212px;
-  padding: 4px;
+  min-width: 220px;
+  padding: 4pt;
   margin: 0;
   list-style: none;
   background: var(--layer-01);
@@ -497,12 +476,13 @@ body {
 }
 
 .col-run-item {
-  display: block;
+  display: flex;
+  align-items: stretch;
   width: 100%;
   margin: 0;
-  padding: 8px 10px;
+  padding: 4pt;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   font-size: 13px;
   font-weight: 400;
@@ -528,6 +508,39 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.col-run-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+
+.col-run-item-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.col-run-item-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.col-run-menu-coin {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  display: block;
+}
+
 .data-table tbody tr {
   border-bottom: 1px solid var(--border-subtle-01);
   transition: background var(--duration-micro) var(--ease-out);
@@ -536,6 +549,14 @@ body {
 .data-table tbody tr:last-child { border-bottom: none; }
 
 .data-table tbody tr:hover { background: var(--background-hover); }
+
+.data-table tbody tr.row-selected {
+  background: var(--purple-10);
+}
+
+.data-table tbody tr.row-selected:hover {
+  background: var(--purple-15);
+}
 
 .data-table tbody td {
   padding: 10px 16px;
@@ -587,14 +608,20 @@ body {
 .icp-medium { color: var(--orange-60); }
 .icp-low { color: var(--red-60); }
 
-/* ── Checkbox ─────────────────────────────────────── */
-.checkbox {
+/* ── Row selection checkboxes ─────────────────────── */
+.row-select-all,
+.row-select-cb {
   width: 16px;
   height: 16px;
-  border: 1.5px solid var(--border-subtle-02);
-  border-radius: 4px;
+  margin: 0;
+  accent-color: var(--purple-60);
   cursor: pointer;
   flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.data-table thead th .row-select-all {
+  display: block;
 }
 
 /* ── Three dot menu ───────────────────────────────── */
@@ -613,6 +640,46 @@ body {
 
 tr:hover .row-menu { opacity: 1; }
 .row-menu:hover { background: var(--tan-20); color: var(--text-secondary); }
+
+.th-add-column-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--purple-60);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+.th-add-column-btn:hover {
+  color: var(--purple-65);
+}
+
+.th-add-column-btn .th-add-column-icon {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+.th-add-column-btn:focus-visible {
+  outline: 2px solid var(--purple-50);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.data-table thead th.th-add-column-cell {
+  text-align: right;
+  vertical-align: middle;
+}
 
 /* ═══════════════════════════════════════════════════
    ENRICHMENT BUTTON — the star of the show
@@ -1194,14 +1261,10 @@ tr:hover .row-menu { opacity: 1; }
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
             <input class="search-input" placeholder="Search people lists..." />
           </div>
-          <div class="table-count">Showing 1-20 of 1,927 people</div>
+          <div class="table-count">Showing 1-110 of 110 people</div>
         </div>
         <div class="batch-toolbar">
-          <button type="button" class="btn btn-outline" id="btnAddColumn">Add column</button>
-          <button type="button" class="btn btn-brand" id="btnEnrichSelectedCols">Enrich selected columns</button>
-          <button type="button" class="btn btn-outline" id="btnEnrichAllMissing">Enrich all missing</button>
-          <span class="batch-hint">Select columns with the checkboxes in headers, or enrich every row that still shows <strong>Enrich</strong>.</span>
-          <button class="btn btn-outline btn-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg></button>
+          <button type="button" class="btn btn-outline btn-icon" aria-label="View options"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg></button>
         </div>
       </div>
 
@@ -1234,6 +1297,11 @@ const starSVG = `<svg class="star-icon" width="16" height="16" viewBox="0 0 16 1
 
 const coinSVG = `<svg class="coin-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.1" d="M8 2C11.3137 2 14 4.68629 14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2Z" fill="#682FC5"/><path d="M8 1.5C11.5899 1.5 14.5 4.41015 14.5 8C14.5 11.5899 11.5899 14.5 8 14.5C4.41015 14.5 1.5 11.5899 1.5 8C1.5 4.41015 4.41015 1.5 8 1.5ZM8 2.4668C4.94402 2.4668 2.4668 4.94402 2.4668 8C2.4668 11.056 4.94402 13.5332 8 13.5332C11.056 13.5332 13.5332 11.056 13.5332 8C13.5332 4.94402 11.056 2.4668 8 2.4668ZM11.3643 10.2588C10.2825 10.3389 9.20165 9.62445 8.15723 8.97754L7.16992 8.33008L6.66699 8C6.45316 7.85901 6.38596 7.57775 6.51367 7.35742C7.01415 6.49722 7.74155 5.30864 8.11426 4.66699L11.3643 10.2588ZM5.67871 8.85449C5.81891 8.61479 6.13283 8.54005 6.36621 8.69336L7.56348 9.48047C6.74362 9.96164 5.82587 10.2763 4.8623 10.2588L5.67871 8.85449Z" fill="#682FC5"/></svg>`;
 
+const colRunMenuCoinSVG = coinSVG.replace(
+  '<svg class="coin-icon"',
+  '<svg class="coin-icon col-run-menu-coin"'
+);
+
 // ── Credit costs per enrichment type (tooltip only; buttons always say "Enrich") ──
 const ENRICHMENT_COSTS = {
   email: { credits: 1, label: "find this email" },
@@ -1241,6 +1309,10 @@ const ENRICHMENT_COSTS = {
   custom: { credits: 1, label: "run FullEnrich on this field" },
   message: { credits: 3, label: "generate message" },
 };
+
+function creditsPerCell(enrichType) {
+  return (ENRICHMENT_COSTS[enrichType] || ENRICHMENT_COSTS.custom).credits;
+}
 
 // Email/phone: focused provider-style copy. Custom: async aggregation / waterfall (FullEnrich-style).
 const ENRICHMENT_MESSAGES = {
@@ -1333,13 +1405,13 @@ const BASE_COLUMN_DEFS = [
   { id: 'location', kind: 'text', key: 'location', label: 'Person location', width: '170px' },
   { id: 'status', kind: 'status', key: 'status', label: 'Status', width: '120px' },
   { id: 'icp', kind: 'icp', key: 'icp', label: 'ICP score', width: '104px' },
-  { id: 'menu', kind: 'menu', width: '40px' },
+  { id: 'menu', kind: 'menu', width: '132px' },
 ];
 
 let columnDefs = BASE_COLUMN_DEFS.map((c) => ({ ...c }));
 let customColumnCounter = 0;
 
-const rows = [
+const SEED_ROWS = [
   { name: "Avery Knox", title: "VP, People Operations", company: "ACME Corp", email: null, phone: null, location: "Port Jasper, AR", status: "positive", icp: 80 },
   { name: "Jude Carver", title: "Director of Workforce Strategy", company: "Beta Innovations", email: "jcarver@betainnov...", phone: null, location: "New Hope, PA", status: "positive", icp: 89 },
   { name: "Tessa Rowen", title: "Head of Organizational Effect...", company: "Gamma Solutions", email: "erourke@betainno...", phone: null, location: "North Gate, CA", status: "not-found", icp: 93 },
@@ -1351,6 +1423,58 @@ const rows = [
   { name: "Zara Flint", title: "Senior HR Architect", company: "Iota Services", email: null, phone: null, location: "Port Pirie, SC", status: "not-found", icp: 32 },
   { name: "Calen Pryor", title: "Director of Employee Experie...", company: "Kappa Labs", email: null, phone: null, location: "Cape York, ND", status: "positive", icp: 90 },
 ];
+
+const GEN_FIRST = [
+  "Jordan", "Riley", "Morgan", "Casey", "Taylor", "Quinn", "Skyler", "Reese", "Alex", "Cameron",
+  "Dana", "Jamie", "Blake", "Avery", "Emerson", "Parker", "Rowan", "Hayden", "Logan", "Drew",
+  "Sam", "Charlie", "Finley", "Harper", "Peyton", "Kendall", "Sloane", "Remy", "Jules", "Marlowe",
+];
+const GEN_LAST = [
+  "Chen", "Patel", "Nguyen", "Garcia", "Kim", "Singh", "Okonkwo", "Thompson", "Ibrahim", "Larsson",
+  "Frost", "Delgado", "Yamamoto", "Okafor", "Nielsen", "Volkov", "Martinez", "Reyes", "Cho", "Abbasi",
+  "Bak", "Haddad", "Kowalski", "Santos", "Lin", "Murphy", "Obi", "Rahman", "Sato", "Walsh",
+];
+const GEN_TITLE = [
+  "VP, People Operations", "Director of Talent", "Head of People", "Chief People Officer", "HR Director",
+  "Sr. People Partner", "Director, Total Rewards", "Head of L&D", "VP, Human Resources", "People Ops Lead",
+  "Director, DEI", "Sr. HRBP", "Talent Acquisition Lead", "Comp & Benefits Mgr", "Employee Experience Dir",
+];
+const GEN_COMPANY = [
+  "Lambda Health", "Northwind Bio", "Orbit Systems", "Cedar Works", "Brightline Data", "Maritime Tech",
+  "Silverline Ops", "Harbor Cloud", "Stellar Finance", "Velvet AI", "Granite Labs", "Pioneer Retail",
+  "Summit Energy", "Blue River Co", "Kinship Media", "Atlas Security", "Clearwater SCM", "Foxglove Design",
+  "Nimbus Robotics", "Highland Care", "Copperline Inc", "Driftwood Apps", "Ironwood Legal", "Juniper HR Tech",
+];
+const GEN_LOC = [
+  "Austin, TX", "Denver, CO", "Seattle, WA", "Chicago, IL", "Atlanta, GA", "Boston, MA", "Portland, OR",
+  "Miami, FL", "Phoenix, AZ", "Nashville, TN", "Salt Lake City, UT", "Raleigh, NC", "Minneapolis, MN",
+  "San Diego, CA", "Detroit, MI", "Philadelphia, PA", "Dallas, TX", "Columbus, OH", "Las Vegas, NV",
+];
+const GEN_STATUS = ["positive", "positive", "not-found", "no-response", "negative"];
+
+function buildExtraRows(count) {
+  const slug = (s) => s.toLowerCase().replace(/[^a-z]+/g, "").slice(0, 10);
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    const f = GEN_FIRST[i % GEN_FIRST.length];
+    const l = GEN_LAST[(i * 3) % GEN_LAST.length];
+    const name = `${f} ${l}`;
+    const title = GEN_TITLE[i % GEN_TITLE.length];
+    const company = GEN_COMPANY[(i * 5) % GEN_COMPANY.length];
+    const location = GEN_LOC[(i * 7) % GEN_LOC.length];
+    const status = GEN_STATUS[i % GEN_STATUS.length];
+    const icp = 32 + ((i * 11 + 17) % 68);
+    const email =
+      i % 5 === 0
+        ? null
+        : `${slug(f)}.${slug(l)}@${slug(company).slice(0, 8) || "co"}.com...`.slice(0, 28);
+    const phone = i % 11 === 0 ? "+1 (555) 100-" + String(4400 + i).padStart(4, "0") : null;
+    out.push({ name, title, company, email, phone, location, status, icp });
+  }
+  return out;
+}
+
+const rows = SEED_ROWS.concat(buildExtraRows(100));
 
 function enrichBtnHTML(enrichType, columnKey) {
   const cost = ENRICHMENT_COSTS[enrichType] || ENRICHMENT_COSTS.custom;
@@ -1415,8 +1539,14 @@ function collectEnrichButtonsForColumnKeys(keys) {
   });
 }
 
-function collectAllPendingEnrichButtons() {
-  return [...document.querySelectorAll('.enrich-btn')].filter(enrichBtnIsPending);
+function updateRowSelectAllState() {
+  const all = document.querySelector('.row-select-all');
+  if (!all) return;
+  const boxes = [...document.querySelectorAll('.row-select-cb')];
+  const n = boxes.length;
+  const c = boxes.filter((x) => x.checked).length;
+  all.checked = n > 0 && c === n;
+  all.indeterminate = c > 0 && c < n;
 }
 
 function staggerStartEnrich(buttons, gapMs) {
@@ -1441,13 +1571,34 @@ function enrichColumnScoped(columnKey, maxRows) {
 function refreshColumnRunCounts() {
   document.querySelectorAll('.col-run-dropdown').forEach((wrap) => {
     const key = wrap.dataset.colKey;
+    const enrichType = wrap.dataset.enrichType || 'custom';
+    const per = creditsPerCell(enrichType);
     const n = collectEnrichButtonsForColumnKeys([key]).length;
+    const firstN = Math.min(n, 20);
     const span = wrap.querySelector('.col-run-count');
     if (span) span.textContent = String(n);
+    const firstCostEl = wrap.querySelector('.col-run-credits-first20');
+    const allCostEl = wrap.querySelector('.col-run-credits-all');
+    if (firstCostEl) firstCostEl.textContent = String(firstN * per);
+    if (allCostEl) allCostEl.textContent = String(n * per);
     const firstBtn = wrap.querySelector('[data-run-scope="first20"]');
     const allBtn = wrap.querySelector('[data-run-scope="all"]');
-    if (firstBtn) firstBtn.disabled = n === 0;
-    if (allBtn) allBtn.disabled = n === 0;
+    if (firstBtn) {
+      firstBtn.disabled = n === 0;
+      firstBtn.setAttribute(
+        'aria-label',
+        n === 0
+          ? 'Run for first 20 rows'
+          : `Run for first ${firstN} rows, ${firstN * per} credits`
+      );
+    }
+    if (allBtn) {
+      allBtn.disabled = n === 0;
+      allBtn.setAttribute(
+        'aria-label',
+        n === 0 ? 'Run for all rows' : `Run for all ${n} rows, ${n * per} credits`
+      );
+    }
     if (n === 0) {
       setColRunDropdownOpen(wrap, false);
       wrap.hidden = true;
@@ -1463,7 +1614,8 @@ function renderHead() {
   tr.innerHTML = columnDefs
     .map((col) => {
       const w = col.width || 'auto';
-      if (col.kind === 'checkbox') return `<th style="width:${w}"><div class="checkbox"></div></th>`;
+      if (col.kind === 'checkbox')
+        return `<th style="width:${w}"><input type="checkbox" class="row-select-all" aria-label="Select all rows in view" title="Select all"></th>`;
       if (col.kind === 'prospect')
         return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
       if (col.kind === 'text')
@@ -1471,15 +1623,24 @@ function renderHead() {
       if (col.kind === 'enrich')
         return `<th style="width:${w};min-width:${w}">
         <div class="th-enrich-head">
-          <label class="th-label" title="Include in multi-column enrich"><input type="checkbox" class="col-batch-cb" data-col-key="${col.key}"></label>
           <span>${col.label} ${sortIconHTML}</span>
-          <div class="col-run-dropdown" data-col-key="${col.key}">
+          <div class="col-run-dropdown" data-col-key="${col.key}" data-enrich-type="${col.enrichType}">
             <button type="button" class="col-run-trigger" aria-label="Open column run options" aria-expanded="false" aria-haspopup="true" aria-controls="col-run-menu-${col.key}">
               ${starSVG}
             </button>
             <ul class="col-run-menu" id="col-run-menu-${col.key}" role="menu" aria-label="Run enrichment for column">
-              <li><button type="button" class="col-run-item" role="menuitem" data-run-scope="first20">Run for first 20 rows</button></li>
-              <li><button type="button" class="col-run-item" role="menuitem" data-run-scope="all">Run for all <span class="col-run-count">0</span></button></li>
+              <li><button type="button" class="col-run-item" role="menuitem" data-run-scope="first20" aria-label="Run for first 20 rows">
+                <span class="col-run-item-row">
+                  <span class="col-run-item-label">Run for first 20 rows</span>
+                  <span class="col-run-item-cost">${colRunMenuCoinSVG}<span class="col-run-credits-first20">0</span></span>
+                </span>
+              </button></li>
+              <li><button type="button" class="col-run-item" role="menuitem" data-run-scope="all" aria-label="Run for all rows">
+                <span class="col-run-item-row">
+                  <span class="col-run-item-label">Run for all <span class="col-run-count">0</span></span>
+                  <span class="col-run-item-cost">${colRunMenuCoinSVG}<span class="col-run-credits-all">0</span></span>
+                </span>
+              </button></li>
             </ul>
           </div>
         </div>
@@ -1488,7 +1649,8 @@ function renderHead() {
         return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
       if (col.kind === 'icp')
         return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
-      if (col.kind === 'menu') return `<th style="width:${w}"></th>`;
+      if (col.kind === 'menu')
+        return `<th class="th-add-column-cell" style="width:${w};min-width:${w}"><button type="button" class="th-add-column-btn" id="btnAddColumn"><svg class="th-add-column-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 3v8M3 7h8"/></svg><span>Add column</span></button></th>`;
       return '';
     })
     .join('');
@@ -1506,7 +1668,8 @@ function renderBody() {
 
     const cells = columnDefs
       .map((col) => {
-        if (col.kind === 'checkbox') return '<td><div class="checkbox"></div></td>';
+        if (col.kind === 'checkbox')
+          return '<td><input type="checkbox" class="row-select-cb" aria-label="Select row"></td>';
         if (col.kind === 'prospect')
           return `<td>
       <div class="prospect-cell">
@@ -1538,6 +1701,7 @@ function renderBody() {
   });
   bindEnrichCreditTooltips();
   refreshColumnRunCounts();
+  updateRowSelectAllState();
 }
 
 function renderTable() {
@@ -1581,7 +1745,32 @@ function setColRunDropdownOpen(wrap, open) {
   wrap.classList.toggle('open', open);
 }
 
+document.getElementById('dataTable').addEventListener('change', (e) => {
+  const t = e.target;
+  if (t.classList.contains('row-select-all')) {
+    const on = t.checked;
+    t.indeterminate = false;
+    document.querySelectorAll('.row-select-cb').forEach((cb) => {
+      cb.checked = on;
+      cb.closest('tr')?.classList.toggle('row-selected', on);
+    });
+    return;
+  }
+  if (t.classList.contains('row-select-cb')) {
+    t.closest('tr')?.classList.toggle('row-selected', t.checked);
+    updateRowSelectAllState();
+  }
+});
+
 document.getElementById('dataTable').addEventListener('click', (e) => {
+  const addCol = e.target.closest('.th-add-column-btn');
+  if (addCol) {
+    e.preventDefault();
+    const name = window.prompt('Custom column name (FullEnrich-backed field)', 'Job title');
+    if (name === null) return;
+    addCustomColumn(name);
+    return;
+  }
   const trigger = e.target.closest('.col-run-trigger');
   if (trigger) {
     e.preventDefault();
@@ -1613,25 +1802,6 @@ document.getElementById('dataTable').addEventListener('click', (e) => {
 
 document.addEventListener('click', () => {
   document.querySelectorAll('.col-run-dropdown.open').forEach((el) => setColRunDropdownOpen(el, false));
-});
-
-document.getElementById('btnAddColumn').addEventListener('click', () => {
-  const name = window.prompt('Custom column name (FullEnrich-backed field)', 'Job title');
-  if (name === null) return;
-  addCustomColumn(name);
-});
-
-document.getElementById('btnEnrichSelectedCols').addEventListener('click', () => {
-  const keys = [...document.querySelectorAll('.col-batch-cb:checked')].map((cb) => cb.dataset.colKey);
-  if (!keys.length) {
-    window.alert('Select one or more column checkboxes in the table header, then try again.');
-    return;
-  }
-  enrichColumnsByKeys(keys);
-});
-
-document.getElementById('btnEnrichAllMissing').addEventListener('click', () => {
-  staggerStartEnrich(collectAllPendingEnrichButtons(), 100);
 });
 
 const checkDoneSVG = `<svg class="check-done" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" fill="#43AD5B"/><path d="M4.5 7l2 2 3.5-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
