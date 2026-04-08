@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequence Generation Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple-10: #F3EFFB;
+  --purple-15: #E9E1F8;
+  --purple-20: #DFD2F4;
+  --purple-30: #CAB5ED;
+  --purple-40: #B598E6;
+  --purple-50: #A17BDF;
+  --purple-60: #682FC5;
+  --purple-65: #5E2BB2;
+  --purple-70: #53269E;
+  --purple-80: #3F1D77;
+  --tan-10: #FAF8F5;
+  --tan-15: #F1EEE9;
+  --tan-20: #E8E3DC;
+  --tan-25: #DED8D1;
+  --tan-30: #D3CCC5;
+  --tan-40: #C0B4A7;
+  --tan-50: #A89D90;
+  --tan-60: #8E847A;
+  --tan-65: #7F776E;
+  --tan-70: #6A6358;
+  --tan-80: #524E48;
+  --tan-90: #373431;
+  --tan-100: #201F1D;
+  --green-60: #43AD5B;
+  --green-10: #F3FCF5;
+  --orange-60: #E16931;
+  --blue-60: #5488F8;
+  --blue-10: #EEF3FE;
+  /* Figma Message preview (12995:185828) */
+  --msg-border: #dbdadd;
+  --msg-surface-header: #f7f7f8;
+  --msg-text-secondary: #646069;
+  --msg-text-default: #28272a;
+  --msg-tabs-bg: #e8e8e8;
+  --duration-instant: 0ms;
+  --duration-micro: 150ms;
+  --duration-fast: 200ms;
+  --duration-moderate: 300ms;
+  --duration-slow: 400ms;
+  --duration-deliberate: 500ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--tan-10);
+  color: var(--tan-100);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.4;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Layout ─────────────────────────────────────── */
+.app { display: flex; height: 100vh; }
+
+/* ── Sidebar Nav ────────────────────────────────── */
+.sidebar-nav {
+  width: 56px;
+  height: 100vh;
+  background: var(--purple-10);
+  border-right: 1px solid var(--tan-20);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.nav-logo {
+  width: 32px; height: 32px; margin-bottom: 16px;
+}
+
+.nav-logo svg { width: 32px; height: 32px; }
+
+.nav-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background var(--duration-micro) var(--ease-out);
+}
+
+.nav-icon:hover { background: var(--purple-15); }
+.nav-icon.active { background: var(--purple-20); }
+.nav-icon svg { width: 20px; height: 20px; color: var(--tan-60); }
+.nav-icon.active svg { color: var(--purple-60); }
+
+/* ── Main ───────────────────────────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── Top Nav ────────────────────────────────────── */
+.top-nav { border-bottom: 1px solid var(--tan-20); background: white; padding: 0 24px; flex-shrink: 0; }
+
+.top-nav-upper {
+  display: flex; align-items: center; justify-content: space-between; height: 56px;
+}
+
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.breadcrumb-link { color: var(--tan-65); text-decoration: none; }
+.breadcrumb-link:hover { color: var(--tan-80); }
+.breadcrumb-sep { color: var(--tan-40); font-size: 12px; }
+.breadcrumb-current { color: var(--tan-100); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.breadcrumb-chevron { width: 14px; height: 14px; color: var(--tan-50); }
+
+.badge-type {
+  font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 999px;
+  background: var(--purple-10); color: var(--purple-60); margin-left: 4px;
+}
+
+.top-nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.badge-draft {
+  font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 999px;
+  background: var(--tan-15); color: var(--tan-65);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.badge-draft::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%; background: var(--tan-50);
+}
+
+.btn-launch {
+  padding: 8px 20px; background: var(--purple-60); color: white;
+  border: none; border-radius: 10px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; gap: 6px;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.btn-launch:hover { background: var(--purple-65); }
+.btn-launch svg { width: 14px; height: 14px; }
+
+/* ── Sub Nav Tabs ───────────────────────────────── */
+.sub-tabs {
+  display: flex; gap: 0; height: 44px; padding: 0 24px;
+  border-bottom: 1px solid var(--tan-20); background: white; flex-shrink: 0;
+}
+
+.sub-tab {
+  padding: 0 14px; font-size: 13px; font-weight: 500; color: var(--tan-65);
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+.sub-tab:hover { color: var(--tan-80); }
+.sub-tab.active { color: var(--purple-60); border-bottom-color: var(--purple-60); }
+.sub-tab svg { width: 15px; height: 15px; }
+
+/* ── Top-level Tabs (Build / Leads / Analytics) ── */
+.main-tabs {
+  display: flex; gap: 0; height: 44px; margin-left: auto;
+}
+
+.main-tab-group {
+  display: flex; align-items: center; gap: 24px;
+}
+
+.main-tab {
+  font-size: 13px; font-weight: 500; color: var(--tan-65);
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  padding: 0 2px; height: 100%;
+  border-bottom: 2px solid transparent;
+}
+
+.main-tab:hover { color: var(--tan-80); }
+.main-tab.active { color: var(--tan-100); border-bottom-color: var(--purple-60); }
+.main-tab svg { width: 16px; height: 16px; }
+
+/* ── Split Panel ────────────────────────────────── */
+.split-panel { flex: 1; display: flex; overflow: hidden; }
+
+/* ── Config Panel (Left) ────────────────────────── */
+.config-panel {
+  flex: 1; border-right: 1px solid var(--tan-20); background: var(--tan-10);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.config-scroll {
+  flex: 1; overflow-y: auto; padding: 32px 40px 120px;
+}
+
+.config-scroll::-webkit-scrollbar { width: 6px; }
+.config-scroll::-webkit-scrollbar-track { background: transparent; }
+.config-scroll::-webkit-scrollbar-thumb { background: var(--tan-30); border-radius: 3px; }
+
+/* ── Card Sections ──────────────────────────────── */
+.card-section {
+  background: white; border: 1px solid var(--tan-20); border-radius: 12px;
+  padding: 24px; margin-bottom: 16px; max-width: 680px;
+}
+
+.card-section-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 4px; cursor: pointer;
+}
+
+.card-section-title { font-size: 16px; font-weight: 600; color: var(--tan-100); }
+
+.card-section-desc {
+  font-size: 13px; color: var(--tan-65); margin-bottom: 20px; line-height: 1.5;
+}
+
+.card-section-collapse {
+  width: 20px; height: 20px; color: var(--tan-50); flex-shrink: 0; margin-top: 2px;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+/* ── Form Fields ────────────────────────────────── */
+.field-group { margin-bottom: 20px; }
+.field-group:last-child { margin-bottom: 0; }
+
+.field-label {
+  font-size: 13px; font-weight: 600; color: var(--tan-100); margin-bottom: 8px;
+}
+
+.field-sublabel {
+  font-size: 12px; color: var(--tan-65); margin-bottom: 8px;
+}
+
+.text-input {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--tan-20); border-radius: 8px;
+  font-size: 13px; color: var(--tan-80); background: white; font-family: inherit;
+  resize: vertical; line-height: 1.5;
+}
+
+.text-input:focus { outline: none; border-color: var(--purple-40); }
+
+.text-input::placeholder { color: var(--tan-50); }
+
+.url-input-row {
+  display: flex; align-items: center; border: 1px solid var(--tan-20); border-radius: 8px;
+  overflow: hidden; background: white;
+}
+
+.url-prefix {
+  padding: 10px 12px; font-size: 13px; color: var(--tan-50);
+  background: var(--tan-10); border-right: 1px solid var(--tan-20);
+  white-space: nowrap;
+}
+
+.url-input-row input {
+  flex: 1; padding: 10px 14px; border: none; font-size: 13px;
+  color: var(--tan-80); font-family: inherit; outline: none;
+}
+
+.url-input-row input::placeholder { color: var(--tan-50); }
+
+.icon-btn {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--tan-50); flex-shrink: 0; border: none; background: none;
+  border-radius: 6px;
+  transition:
+    background var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out);
+}
+
+.icon-btn:hover { background: var(--tan-15); color: var(--tan-70); }
+
+.add-btn {
+  display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px;
+  border: 1px dashed var(--tan-30); border-radius: 8px; background: none;
+  font-size: 13px; color: var(--tan-65); cursor: pointer; font-family: inherit;
+  margin-top: 8px;
+  transition:
+    border-color var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out);
+}
+
+.add-btn:hover { border-color: var(--tan-50); color: var(--tan-80); }
+
+.file-row {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  border: 1px solid var(--tan-20); border-radius: 8px; background: white;
+}
+
+.file-icon { width: 16px; height: 16px; color: var(--tan-50); flex-shrink: 0; }
+.file-name { flex: 1; font-size: 13px; color: var(--tan-80); }
+
+/* ── Pain / Solution rows ───────────────────────── */
+.pain-solution-block { margin-bottom: 16px; }
+.pain-solution-block:last-child { margin-bottom: 0; }
+
+.pain-solution-label {
+  font-size: 12px; font-weight: 500; color: var(--tan-65); margin-bottom: 6px;
+}
+
+.pain-solution-row {
+  display: flex; align-items: flex-start; gap: 8px;
+}
+
+.pain-solution-row .text-input { flex: 1; }
+
+/* ── Selects & Toggles ──────────────────────────── */
+.select-field {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--tan-20); border-radius: 8px;
+  font-size: 13px; color: var(--tan-80); background: white; font-family: inherit;
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%237F776E' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+
+.select-with-icon {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border: 1px solid var(--tan-20); border-radius: 8px;
+  font-size: 13px; color: var(--tan-80); background: white;
+}
+
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.toggle-label { font-size: 13px; color: var(--tan-80); display: flex; align-items: center; gap: 6px; }
+
+.toggle {
+  width: 36px; height: 20px; border-radius: 10px; background: var(--tan-30);
+  cursor: pointer; position: relative; flex-shrink: 0;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.toggle.on { background: var(--purple-60); }
+
+.toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%; background: white;
+  transition: transform var(--duration-micro) var(--ease-out);
+}
+
+.toggle.on::after { transform: translateX(16px); }
+
+.info-icon { width: 14px; height: 14px; color: var(--tan-50); cursor: help; }
+
+/* ── Radio pills ────────────────────────────────── */
+.radio-group {
+  display: flex; gap: 0; border: 1px solid var(--tan-20); border-radius: 8px;
+  overflow: hidden;
+}
+
+.radio-pill {
+  flex: 1; padding: 10px 16px; font-size: 13px; color: var(--tan-65);
+  cursor: pointer; text-align: center; border-right: 1px solid var(--tan-20);
+  transition: all var(--duration-micro) var(--ease-out);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+.radio-pill:last-child { border-right: none; }
+.radio-pill:hover { background: var(--tan-10); }
+
+.radio-pill.active {
+  background: var(--purple-10); color: var(--purple-60); font-weight: 500;
+}
+
+.radio-dot {
+  width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--tan-30);
+  flex-shrink: 0;
+}
+
+.radio-pill.active .radio-dot {
+  border-color: var(--purple-60);
+  background: radial-gradient(circle, var(--purple-60) 40%, transparent 40%);
+}
+
+/* ── Bundle rows ────────────────────────────────── */
+.bundle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--tan-15);
+}
+
+.bundle-row:last-child { border-bottom: none; }
+
+.bundle-info-title { font-size: 14px; font-weight: 500; color: var(--tan-100); }
+.bundle-info-meta { font-size: 12px; color: var(--tan-65); margin-top: 2px; }
+
+.bundle-actions { display: flex; gap: 4px; }
+
+/* ── Accordion ──────────────────────────────────── */
+.accordion-trigger {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  margin-bottom: 16px; user-select: none;
+}
+
+.accordion-trigger h3 { font-size: 16px; font-weight: 600; }
+
+.accordion-trigger svg {
+  width: 16px; height: 16px; color: var(--tan-50);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.accordion-trigger.open svg { transform: rotate(180deg); }
+
+/* ── Config Footer ──────────────────────────────── */
+.config-footer {
+  position: sticky; bottom: 0; padding: 16px 40px;
+  background: white; border-top: 1px solid var(--tan-20);
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 100%;
+}
+
+.config-footer-left { display: flex; align-items: center; gap: 16px; }
+
+.link-back {
+  font-size: 13px; color: var(--purple-60); cursor: pointer;
+  text-decoration: none; font-weight: 500;
+}
+
+.link-skip {
+  font-size: 13px; color: var(--tan-65); cursor: pointer; font-weight: 500;
+}
+
+.btn-generate {
+  padding: 10px 24px; background: var(--purple-60); color: white;
+  border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; gap: 8px;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.btn-generate:hover { background: var(--purple-65); }
+.btn-generate:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.btn-generate svg { width: 16px; height: 16px; }
+
+.btn-generate.generating svg { animation: spin 1s linear infinite; }
+
+.btn-regen {
+  width: 100%; padding: 10px 24px;
+  background: white; color: var(--tan-80);
+  border: 1px solid var(--tan-20); border-radius: 10px;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition:
+    background var(--duration-micro) var(--ease-out),
+    border-color var(--duration-micro) var(--ease-out);
+}
+
+.btn-regen:hover { background: var(--tan-10); border-color: var(--tan-30); }
+.btn-regen svg { width: 16px; height: 16px; }
+
+.btn-continue {
+  padding: 10px 24px; background: var(--purple-60); color: white;
+  border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.btn-continue:hover { background: var(--purple-65); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Preview Panel (Right) ──────────────────────── */
+.preview-panel {
+  width: 440px; background: white; display: flex; flex-direction: column;
+  overflow: hidden; flex-shrink: 0; border-left: 1px solid var(--tan-20);
+}
+
+.preview-header {
+  padding: 24px 24px 20px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--tan-15);
+}
+
+.preview-header h2 { font-size: 18px; font-weight: 600; }
+
+.close-btn {
+  width: 28px; height: 28px; border-radius: 6px; border: none; background: none;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--tan-50);
+}
+
+.close-btn:hover { background: var(--tan-15); color: var(--tan-70); }
+.close-btn svg { width: 18px; height: 18px; }
+
+/* ── Send To ────────────────────────────────────── */
+.send-to {
+  padding: 16px 24px; border-bottom: 1px solid var(--tan-15);
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.send-to-label {
+  font-size: 14px; font-weight: 600; color: var(--msg-text-default);
+  display: flex; align-items: center; gap: 8px;
+  line-height: 24px;
+}
+
+.send-to-label svg { width: 20px; height: 20px; color: var(--tan-60); }
+
+.send-to-dropdown {
+  position: relative;
+}
+
+.send-to-trigger {
+  width: 100%;
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid var(--msg-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.send-to-trigger:hover {
+  border-color: var(--tan-40);
+}
+
+.send-to-dropdown.open .send-to-trigger {
+  border-color: var(--purple-40);
+}
+
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  border: 1px solid white;
+  background: var(--purple-30); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: white;
+}
+
+.avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.send-to-text {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+}
+
+.person-name {
+  font-size: 14px; font-weight: 500; color: var(--msg-text-default);
+  line-height: 24px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.person-title {
+  font-size: 12px; font-weight: 500; color: var(--msg-text-secondary);
+  line-height: 16px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.person-title .company-link {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--tan-30);
+  color: inherit; font-weight: 500;
+}
+
+.send-to-chevron {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--tan-50);
+  transition: transform var(--duration-micro) var(--ease-out);
+}
+
+.send-to-dropdown.open .send-to-chevron {
+  transform: rotate(180deg);
+}
+
+.send-to-chevron svg { width: 20px; height: 20px; }
+
+/* ── Send To Popover ──────────────────────────── */
+.send-to-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: white;
+  border: 1px solid var(--tan-20);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(32, 31, 29, 0.1);
+  z-index: 30;
+  opacity: 0;
+  scale: 0.96;
+  transform-origin: top center;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-micro) var(--ease-in),
+    scale var(--duration-micro) var(--ease-in);
+  display: flex; flex-direction: column;
+  max-height: 320px;
+}
+
+.send-to-dropdown.open .send-to-popover {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+  transition:
+    opacity var(--duration-fast) var(--spring-snappy),
+    scale var(--duration-fast) var(--spring-snappy);
+}
+
+.send-to-search {
+  padding: 8px;
+  border-bottom: 1px solid var(--tan-15);
+  flex-shrink: 0;
+}
+
+.send-to-search-input {
+  width: 100%;
+  padding: 8px 10px 8px 32px;
+  border: 1px solid var(--tan-20);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--msg-text-default);
+  background: white;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237F776E' stroke-width='2' stroke-linecap='round' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 8px center;
+  background-size: 16px;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.send-to-search-input:focus {
+  border-color: var(--purple-40);
+}
+
+.send-to-search-input::placeholder {
+  color: var(--tan-50);
+}
+
+.send-to-results {
+  overflow-y: auto; padding: 4px;
+  flex: 1;
+}
+
+.send-to-results::-webkit-scrollbar { width: 4px; }
+.send-to-results::-webkit-scrollbar-thumb { background: var(--tan-30); border-radius: 2px; }
+
+.send-to-option {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 8px;
+  border: none; background: none; border-radius: 6px;
+  cursor: pointer; font-family: inherit;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.send-to-option:hover {
+  background: var(--tan-10);
+}
+
+.send-to-option.selected {
+  background: var(--purple-10);
+}
+
+.send-to-option .avatar {
+  width: 32px; height: 32px;
+  font-size: 11px;
+}
+
+.send-to-option-text {
+  flex: 1; min-width: 0; text-align: left;
+}
+
+.send-to-option-name {
+  font-size: 13px; font-weight: 500; color: var(--msg-text-default);
+  line-height: 20px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.send-to-option-title {
+  font-size: 12px; color: var(--msg-text-secondary);
+  line-height: 16px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.send-to-no-results {
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--tan-50);
+}
+
+/* ── Sequence section ───────────────────────────── */
+.sequence-label {
+  padding: 16px 24px 12px;
+  font-size: 13px; font-weight: 600; color: var(--tan-100);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.sequence-label svg { width: 16px; height: 16px; color: var(--tan-60); }
+
+.preview-scroll-wrap {
+  flex: 1; position: relative; overflow: hidden;
+  min-height: 0;
+}
+
+.preview-scroll-wrap::before,
+.preview-scroll-wrap::after {
+  content: '';
+  position: absolute; left: 0; right: 0;
+  height: 28px; z-index: 5; pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-micro) var(--ease-out);
+}
+
+.preview-scroll-wrap::before {
+  top: 0;
+  background: linear-gradient(to bottom, white, rgba(255, 255, 255, 0));
+}
+
+.preview-scroll-wrap::after {
+  bottom: 0;
+  background: linear-gradient(to top, white, rgba(255, 255, 255, 0));
+}
+
+.preview-scroll-wrap.show-fade-top::before {
+  opacity: 1;
+}
+
+.preview-scroll-wrap.show-fade-bottom::after {
+  opacity: 1;
+}
+
+.preview-scroll {
+  height: 100%; overflow-y: auto; padding: 0 24px 24px;
+}
+
+.preview-scroll::-webkit-scrollbar { width: 6px; }
+.preview-scroll::-webkit-scrollbar-track { background: transparent; }
+.preview-scroll::-webkit-scrollbar-thumb { background: var(--tan-30); border-radius: 3px; }
+
+/* ── Step Cards (Figma Message preview) ─────────── */
+.step-card {
+  background: white;
+  border: 1px solid var(--msg-border);
+  border-radius: 8px;
+  padding: 0;
+  margin-bottom: 12px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: cardSlideIn var(--duration-moderate) var(--ease-out) forwards;
+}
+
+.step-card:has(+ .path-connector) {
+  margin-bottom: 0;
+}
+
+.path-connector + .step-card {
+  margin-top: 0;
+}
+
+.step-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  background: var(--tan-10);
+  border-bottom: 1px solid var(--tan-20);
+}
+
+.step-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.step-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--msg-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon svg { width: 20px; height: 20px; }
+
+.step-card.email .step-icon { color: var(--purple-60); }
+.step-card.linkedin .step-icon { color: var(--blue-60); }
+
+.step-card-titles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.step-day-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--msg-text-secondary);
+}
+
+.step-action-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--msg-text-default);
+}
+
+.step-segmented {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--msg-tabs-bg);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.step-segment {
+  box-sizing: border-box;
+  height: 36px;
+  width: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  cursor: pointer;
+  background: transparent;
+  color: var(--msg-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-segment svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.step-segment:hover:not(.active) {
+  color: var(--msg-text-default);
+}
+
+.step-segment.active {
+  background: white;
+  border-color: var(--msg-border);
+  color: var(--msg-text-default);
+}
+
+.step-card-body {
+  padding: 0;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--msg-text-default);
+}
+
+.step-panel-view {
+  padding: 12px;
+}
+
+.step-panel-components {
+  display: none;
+  padding: 12px;
+  border-top: 1px solid var(--msg-border);
+  background: white;
+}
+
+.step-card.show-components .step-panel-view {
+  display: none;
+}
+
+.step-card.show-components .step-panel-components {
+  display: block;
+}
+
+.comp-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.comp-section-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--msg-text-default);
+  margin-bottom: 4px;
+}
+
+.comp-card {
+  border: 1px solid var(--msg-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.comp-feature-rows {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comp-feature-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.comp-feature-row > p {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--msg-text-default);
+}
+
+.comp-feature-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.comp-feature-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.comp-feature-icon--pain {
+  background: #D94638;
+  color: white;
+}
+
+.comp-feature-icon--ok {
+  background: var(--green-60);
+  color: white;
+}
+
+.comp-divider-h {
+  height: 1px;
+  background: var(--msg-border);
+  width: 100%;
+}
+
+.comp-sp-stack .comp-sp-title {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--msg-text-default);
+}
+
+.comp-sp-stack .comp-sp-sub {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--msg-text-secondary);
+  margin-top: 0;
+}
+
+.comp-sp-row {
+  padding: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.comp-sp-row > p:only-child {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--msg-text-default);
+}
+
+.comp-cta-row {
+  padding: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.comp-cta-row p {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--msg-text-default);
+}
+
+.comp-pers-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 0 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.comp-pers-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: center;
+}
+
+.comp-pers-main > p {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--msg-text-default);
+}
+
+.comp-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--msg-text-secondary);
+  background: var(--msg-surface-header);
+  border: 1px solid var(--msg-border);
+}
+
+.comp-info-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--tan-60);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--duration-micro) var(--ease-out), color var(--duration-micro) var(--ease-out);
+}
+
+.comp-info-btn:hover {
+  background: var(--tan-15);
+  color: var(--tan-80);
+}
+
+.comp-info-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Path connector between cards ────────────────── */
+.path-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  position: relative;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: cardSlideIn var(--duration-moderate) var(--ease-out) forwards;
+}
+
+.step-card + .path-connector {
+  margin-top: -1px;
+}
+
+.path-connector + .step-card {
+  margin-top: -1px;
+}
+
+.path-line {
+  width: 1.5px;
+  height: 12px;
+  background: var(--tan-30);
+}
+
+.path-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--tan-30);
+  border-radius: 8px;
+  background: white;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tan-100);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-micro) var(--ease-out),
+    box-shadow var(--duration-micro) var(--ease-out),
+    background var(--duration-micro) var(--ease-out);
+  position: relative;
+}
+
+.path-dropdown:hover {
+  border-color: var(--tan-40);
+  box-shadow: 0 1px 4px rgba(32, 31, 29, 0.06);
+  background: var(--tan-10);
+}
+
+.path-dropdown .path-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--tan-90);
+  flex-shrink: 0;
+}
+
+.path-dropdown .path-chevron {
+  width: 12px;
+  height: 12px;
+  color: var(--tan-60);
+  flex-shrink: 0;
+  transition: transform var(--duration-micro) var(--ease-out);
+}
+
+.path-dropdown.open .path-chevron {
+  transform: rotate(180deg);
+}
+
+.path-menu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  background: white;
+  border: 1px solid var(--tan-20);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(32, 31, 29, 0.1);
+  padding: 4px;
+  z-index: 20;
+  opacity: 0;
+  scale: 0.96;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-micro) var(--ease-in),
+    scale var(--duration-micro) var(--ease-in);
+}
+
+.path-dropdown.open .path-menu {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+  transition:
+    opacity var(--duration-fast) var(--spring-snappy),
+    scale var(--duration-fast) var(--spring-snappy);
+}
+
+.path-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tan-80);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.path-option:hover {
+  background: var(--tan-10);
+}
+
+.path-option.selected {
+  color: var(--purple-60);
+  background: var(--purple-10);
+}
+
+.path-option svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.step-subject {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--msg-text-default);
+  margin-bottom: 8px;
+}
+
+/* ── Empty state ────────────────────────────────── */
+.preview-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; color: var(--tan-50); text-align: center; padding: 40px;
+}
+
+.preview-empty svg { width: 48px; height: 48px; color: var(--tan-30); margin-bottom: 16px; }
+.preview-empty p { font-size: 14px; max-width: 240px; line-height: 1.5; }
+
+/* ── Regen footer ───────────────────────────────── */
+.preview-footer {
+  padding: 16px 24px;
+  flex-shrink: 0;
+  background: white;
+}
+
+/* ── Bottom bar ─────────────────────────────────── */
+.bottom-bar {
+  height: 64px; border-top: 1px solid var(--tan-20); background: white;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; flex-shrink: 0;
+}
+
+/* ── Loader ──────────────────────────────────────── */
+.loader-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100%; padding: 24px 20px;
+}
+
+/* Fixed-size container — nothing inside changes its dimensions */
+.loader-stage {
+  position: relative; width: 100%; height: 440px;
+}
+
+/* Fade masks so top/bottom cards dissolve into background */
+.loader-stage::before,
+.loader-stage::after {
+  content: '';
+  position: absolute; left: -20px; right: -20px; height: 80px;
+  z-index: 10; pointer-events: none;
+}
+
+.loader-stage::before {
+  top: 0;
+  background: linear-gradient(to bottom, white 15%, rgba(255,255,255,0) 100%);
+}
+
+.loader-stage::after {
+  bottom: 0;
+  background: linear-gradient(to top, white 15%, rgba(255,255,255,0) 100%);
+}
+
+.loader-status {
+  font-size: 14px; font-weight: 500; color: var(--tan-80);
+  margin-top: 28px; text-align: center;
+}
+
+/* ── Card in a fixed slot ────────────────────────── */
+.loader-row {
+  position: absolute;
+  left: 6%; width: 88%;
+  background: white; border: 1.5px solid var(--tan-15);
+  border-radius: 12px; padding: 18px 18px;
+  display: flex; align-items: flex-start; gap: 12px;
+  overflow: hidden;
+  translate: 0 186px;
+  scale: 1;
+  transition:
+    translate var(--duration-deliberate) var(--ease-in-out),
+    scale var(--duration-slow) var(--ease-out),
+    opacity var(--duration-slow) var(--ease-out),
+    box-shadow var(--duration-moderate) var(--ease-out);
+  will-change: translate, scale, opacity;
+}
+
+/* ── Slot positions (translate, not top) ─────────── */
+.loader-row[data-slot="0"] { translate: 0 10px; }
+.loader-row[data-slot="1"] { translate: 0 98px; }
+.loader-row[data-slot="2"] { translate: 0 186px; }
+.loader-row[data-slot="3"] { translate: 0 274px; }
+.loader-row[data-slot="4"] { translate: 0 362px; }
+
+/* ── Visual roles — only opacity/scale, never position ── */
+.loader-row.ghost-2 {
+  opacity: 0.2;
+  scale: 0.94;
+}
+
+.loader-row.ghost-1 {
+  opacity: 0.5;
+  scale: 0.97;
+}
+
+/* Grey border stays during the move; rainbow ::before layers on top after landing */
+.loader-row.active {
+  opacity: 1;
+  scale: 1.05;
+  box-shadow: 0 4px 24px rgba(104, 47, 197, 0.08);
+  overflow: visible;
+  z-index: 2;
+}
+
+/* ── Rainbow outline ─────────────────────────────── */
+.loader-row::before {
+  content: '';
+  position: absolute; inset: -2px; border-radius: 13px; padding: 2px;
+  background: linear-gradient(
+    135deg,
+    #F8A36F 0%, #B74EF9 25%, #5488F8 50%, #B74EF9 75%, #F8A36F 100%
+  );
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  animation: none;
+  pointer-events: none;
+  /* Instant hide when leaving active */
+  transition: opacity var(--duration-fast) var(--ease-in) 0s;
+}
+
+/* Rainbow fades in AFTER the card finishes travelling into center */
+.loader-row.active::before {
+  opacity: 1;
+  transition: opacity var(--duration-slow) var(--ease-out) var(--duration-deliberate);
+  animation: rainbowBorder 2.5s linear infinite, rainbowPulse 1.6s ease-in-out infinite;
+}
+
+.loader-row.ghost-1::before,
+.loader-row.ghost-2::before,
+.loader-row.exiting::before {
+  opacity: 0;
+  animation: none;
+  transition: opacity var(--duration-fast) var(--ease-in) 0s;
+}
+
+/* ── Enter / exit ────────────────────────────────── */
+.loader-row.entering {
+  opacity: 0;
+  scale: 0.96;
+  translate: 0 374px;
+}
+
+.loader-row.exiting {
+  opacity: 0;
+  scale: 0.96;
+  translate: 0 -2px;
+  pointer-events: none;
+  transition:
+    translate var(--duration-slow) var(--ease-in),
+    scale var(--duration-slow) var(--ease-in),
+    opacity var(--duration-slow) var(--ease-in);
+}
+
+/* ── Letter circle ───────────────────────────────── */
+.loader-letter {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--tan-25); background: var(--tan-10);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--tan-50);
+  flex-shrink: 0; margin-top: 2px;
+  transition:
+    border-color var(--duration-moderate) var(--ease-out),
+    color var(--duration-moderate) var(--ease-out),
+    background var(--duration-moderate) var(--ease-out);
+}
+
+.loader-row.active .loader-letter {
+  border-color: var(--purple-30); color: var(--purple-60); background: var(--purple-10);
+  transition-delay: var(--duration-deliberate);
+}
+
+/* ── Shimmer blocks ──────────────────────────────── */
+.loader-blocks {
+  display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0;
+}
+
+.loader-block-row {
+  display: flex; gap: 8px; align-items: center; width: 100%;
+}
+
+.skel-block {
+  height: 10px; border-radius: 5px; flex-shrink: 1; min-width: 0;
+  background: linear-gradient(90deg, var(--tan-15) 0%, var(--tan-25) 50%, var(--tan-15) 100%);
+  background-size: 200% 100%;
+  animation: shimmerPulse 1.5s linear infinite;
+}
+
+@keyframes rainbowBorder {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes rainbowPulse {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+@keyframes shimmerPulse {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Real card skeleton (used during phase 1 only) */
+.step-card.skeleton {
+  border: 2px solid transparent; position: relative; padding: 16px 20px;
+  background: white;
+}
+
+.step-card.skeleton::before {
+  content: '';
+  position: absolute; inset: -2px; border-radius: 13px; padding: 2px;
+  background: linear-gradient(
+    135deg,
+    #F8A36F 0%, #B74EF9 25%, #5488F8 50%, #B74EF9 75%, #F8A36F 100%
+  );
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: rainbowBorder 2s linear infinite;
+}
+
+.skeleton-line {
+  height: 10px; border-radius: 5px;
+  background: linear-gradient(90deg, var(--tan-15) 0%, var(--tan-25) 50%, var(--tan-15) 100%);
+  background-size: 200% 100%;
+  animation: shimmerPulse 1.5s linear infinite;
+}
+
+.skeleton-line.w40 { width: 40%; }
+.skeleton-line.w60 { width: 60%; }
+.skeleton-line.w80 { width: 80%; }
+.skeleton-line.w100 { width: 100%; }
+.skeleton-line + .skeleton-line { margin-top: 8px; }
+
+.skeleton-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+
+/* ── Card Animations ────────────────────────────── */
+@keyframes cardSlideIn {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.step-card.filling { border-color: var(--tan-20); }
+.step-card.filling::before { animation: rainbowFadeOut 0.4s var(--ease-out) forwards; }
+
+@keyframes rainbowFadeOut {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── Line-by-line reveal with rainbow sweep ──────── */
+.reveal-line {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.reveal-line.visible {
+  animation: lineReveal 0.8s var(--ease-out) forwards;
+}
+
+@keyframes lineReveal {
+  0%   { opacity: 0; transform: translateY(4px); color: #F8A36F; }
+  20%  { opacity: 1; transform: translateY(0); color: #F8A36F; }
+  40%  { color: #B74EF9; }
+  60%  { color: #5488F8; }
+  80%  { color: inherit; }
+  100% { opacity: 1; transform: translateY(0); color: inherit; }
+}
+
+/* ── In-place content regeneration ────────────── */
+.step-card-body {
+  transform: translateY(0);
+}
+
+.step-card-body.regen-out {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--duration-micro) var(--ease-in),
+    transform var(--duration-micro) var(--ease-in);
+}
+
+.step-card-body.regen-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-card-body.regen-out,
+  .step-card-body.regen-in {
+    transition: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <nav class="sidebar-nav">
+    <div class="nav-logo">
+      <svg viewBox="0 0 32 32" fill="none"><path d="M16 4L6 10v12l10 6 10-6V10L16 4z" fill="#682FC5"/><path d="M16 10l-5 3v6l5 3 5-3v-6l-5-3z" fill="white" fill-opacity="0.9"/></svg>
+    </div>
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+    <div class="nav-icon active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.11 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></div>
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+    <div style="flex:1"></div>
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5"/></svg></div>
+    <div class="nav-icon" style="margin-bottom: 4px;">
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#F8A36F,#B74EF9);display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:11px;font-weight:600;color:white;">M</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <!-- Top Nav -->
+    <div class="top-nav">
+      <div class="top-nav-upper">
+        <div class="breadcrumb">
+          <a class="breadcrumb-link" href="#">Campaigns</a>
+          <span class="breadcrumb-sep">&rsaquo;</span>
+          <span class="breadcrumb-current">
+            New campaign
+            <svg class="breadcrumb-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+          </span>
+          <span class="badge-type">Cold outbound</span>
+        </div>
+        <div class="top-nav-actions">
+          <div class="main-tab-group">
+            <div class="main-tab active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Build
+            </div>
+            <div class="main-tab">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              Leads
+            </div>
+            <div class="main-tab">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+              Analytics
+            </div>
+          </div>
+          <div style="width:1px;height:24px;background:var(--tan-20);margin:0 8px"></div>
+          <span class="badge-draft">Draft</span>
+          <button class="btn-launch">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Launch
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub Tabs -->
+    <div class="sub-tabs">
+      <div class="sub-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        Targeting
+      </div>
+      <div class="sub-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Sequence
+      </div>
+      <div class="sub-tab active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messaging
+      </div>
+      <div class="sub-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Senders
+      </div>
+      <div class="sub-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+    </div>
+
+    <!-- Split Panel -->
+    <div class="split-panel">
+      <!-- Config (Left) -->
+      <div class="config-panel">
+        <div class="config-scroll">
+
+          <!-- Give Ava context -->
+          <div class="card-section">
+            <div class="card-section-header">
+              <div>
+                <div class="card-section-title">Give Ava context to generate messaging</div>
+              </div>
+              <svg class="card-section-collapse" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 12.5l5-5 5 5"/></svg>
+            </div>
+            <div class="card-section-desc">Ava uses this as context to generate messaging, it will never be shared with prospects.</div>
+
+            <div class="field-group">
+              <div class="field-label">Links</div>
+              <div class="url-input-row">
+                <span class="url-prefix">https://</span>
+                <input type="text" placeholder="yourwebsite.com">
+                <button class="icon-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+              <button class="add-btn">+ Add link</button>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">Files</div>
+              <div class="file-row">
+                <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span class="file-name">ACME Services 2025.pdf</span>
+                <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+              </div>
+              <button class="add-btn">+ Add file</button>
+            </div>
+          </div>
+
+          <!-- Offering & features -->
+          <div class="card-section">
+            <div class="card-section-title">Offering & features</div>
+            <div class="card-section-desc">Describe your offering and how it solves your prospects' pain points.</div>
+
+            <div class="field-group">
+              <div class="field-label">Describe your offering in one sentence</div>
+              <textarea class="text-input" rows="2">ACME sets up local entities through which companies can scale operations across 100+ countries, ensuring strong compliance standards and a great customer experience.</textarea>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">Features</div>
+
+              <div class="pain-solution-block">
+                <div class="pain-solution-label">Pain point</div>
+                <div class="pain-solution-row">
+                  <textarea class="text-input" rows="2">Data protection laws vary widely, potentially exposing businesses to significant risks.</textarea>
+                  <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+                </div>
+              </div>
+
+              <div class="pain-solution-block">
+                <div class="pain-solution-label">Solution</div>
+                <div class="pain-solution-row">
+                  <textarea class="text-input" rows="2">Our services include robust data compliance solutions tailored to meet the regulations of each country, safeguarding your business from penalties.</textarea>
+                </div>
+              </div>
+
+              <div class="pain-solution-block">
+                <div class="pain-solution-label">Pain point</div>
+                <div class="pain-solution-row">
+                  <textarea class="text-input" rows="2">Compliance and bureaucracy are the biggest roadblocks for companies looking to scale globally.</textarea>
+                  <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+                </div>
+              </div>
+
+              <div class="pain-solution-block">
+                <div class="pain-solution-label">Solution</div>
+                <div class="pain-solution-row">
+                  <textarea class="text-input" rows="2">We handle compliance in more than 160 countries without requiring you to setup a local entity.</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Advanced accordion -->
+          <div class="accordion-trigger open" id="advancedToggle">
+            <h3>Advanced</h3>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 7.5l5 5 5-5"/></svg>
+          </div>
+
+          <div id="advancedContent">
+            <!-- Persona-based messaging -->
+            <div class="card-section">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div class="card-section-title">Persona-based messaging</div>
+                  <div style="font-size:13px;color:var(--tan-65);margin-top:4px;">Personas allow you to override base messaging when specific prospect characteristics match.</div>
+                </div>
+                <div class="toggle" data-toggle></div>
+              </div>
+            </div>
+
+            <!-- Message styling -->
+            <div class="card-section">
+              <div class="card-section-title" style="margin-bottom:20px">Message styling</div>
+
+              <div class="field-group">
+                <div class="field-label">Language</div>
+                <div class="select-with-icon">
+                  <span style="font-size:16px">🇺🇸</span>
+                  <span style="flex:1">English (US)</span>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--tan-50)" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="toggle-row">
+                  <div class="toggle-label">Tone of voice</div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="toggle on" data-toggle></div>
+                    <span style="font-size:12px;color:var(--tan-65)">Let Ava choose</span>
+                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                  </div>
+                </div>
+                <div class="select-with-icon" style="opacity:0.5">
+                  <span style="font-size:14px">🎯</span>
+                  <span style="flex:1">Direct</span>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--tan-50)" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="toggle-row">
+                  <div class="toggle-label">Length of messages</div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="toggle on" data-toggle></div>
+                    <span style="font-size:12px;color:var(--tan-65)">Let Ava choose</span>
+                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                  </div>
+                </div>
+                <div class="radio-group" style="opacity:0.5">
+                  <div class="radio-pill"><span class="radio-dot"></span> Short</div>
+                  <div class="radio-pill"><span class="radio-dot"></span> Medium</div>
+                  <div class="radio-pill"><span class="radio-dot"></span> Long</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exclusive message bundles -->
+            <div class="card-section">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                <div class="card-section-title">Exclusive message bundles</div>
+                <button class="add-btn" style="margin-top:0">+ Add</button>
+              </div>
+              <div class="card-section-desc" style="margin-bottom:16px">Have Ava exclusively use specific combinations of content and personalizations together.</div>
+
+              <div class="bundle-row">
+                <div>
+                  <div class="bundle-info-title">Enterprise security angle</div>
+                  <div class="bundle-info-meta">2 features · 1 proof point · 1 CTA</div>
+                </div>
+                <div class="bundle-actions">
+                  <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                  <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+                </div>
+              </div>
+              <div class="bundle-row">
+                <div>
+                  <div class="bundle-info-title">SMB quick win pitch</div>
+                  <div class="bundle-info-meta">2 features · 1 proof point · 1 CTA</div>
+                </div>
+                <div class="bundle-actions">
+                  <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                  <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="config-footer">
+          <div class="config-footer-left">
+            <a class="link-back" href="#">Back</a>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <span class="link-skip">Skip for now</span>
+            <button class="btn-generate" id="generateBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Generate messaging
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Panel (Right) -->
+      <div class="preview-panel" id="previewPanel">
+        <div class="preview-header">
+          <h2>Generated sequence</h2>
+          <button class="close-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Send to -->
+        <div class="send-to">
+          <div class="send-to-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Send to
+          </div>
+          <div class="send-to-dropdown" id="sendToDropdown">
+            <div class="send-to-trigger" id="sendToTrigger">
+              <div class="avatar" id="sendToAvatar">AK</div>
+              <div class="send-to-text">
+                <span class="person-name" id="sendToName">Avery Knox</span>
+                <span class="person-title" id="sendToTitle">VP, People Operations at <span class="company-link">Northbeam Dynamics</span></span>
+              </div>
+              <div class="send-to-chevron">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7.5L10 12.5L15 7.5"/></svg>
+              </div>
+            </div>
+            <div class="send-to-popover" id="sendToPopover">
+              <div class="send-to-search">
+                <input class="send-to-search-input" id="sendToSearch" type="text" placeholder="Search people...">
+              </div>
+              <div class="send-to-results" id="sendToResults"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sequence label -->
+        <div class="sequence-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Sequence
+        </div>
+
+        <!-- Cards scroll area -->
+        <div class="preview-scroll-wrap">
+          <div class="preview-scroll" id="previewScroll">
+            <div class="preview-empty" id="emptyState">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <p>Click <strong>Generate messaging</strong> to preview the sequence Ava will create</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regen footer -->
+        <div class="preview-footer" id="previewFooter" style="display:none">
+          <button class="btn-regen" id="regenBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 01-9 9m0 0A9 9 0 013 12m9 9v-4m0 0h4M3 12a9 9 0 019-9m0 0V7m0 0H8"/></svg>
+            Regenerate sequence
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="bottom-bar">
+      <a class="link-back" href="#">Back</a>
+      <button class="btn-continue">Continue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Toggles ─────────────────────────────────────
+document.querySelectorAll('[data-toggle]').forEach(el => {
+  el.addEventListener('click', () => el.classList.toggle('on'));
+});
+
+// ── Accordion ───────────────────────────────────
+const advToggle = document.getElementById('advancedToggle');
+const advContent = document.getElementById('advancedContent');
+advToggle.addEventListener('click', () => {
+  advToggle.classList.toggle('open');
+  advContent.style.display = advToggle.classList.contains('open') ? '' : 'none';
+});
+
+// ── Send To Dropdown ────────────────────────────
+const PEOPLE = [
+  { id: 'avery', initials: 'AK', name: 'Avery Knox', role: 'VP, People Operations', company: 'Northbeam Dynamics' },
+  { id: 'jordan', initials: 'JM', name: 'Jordan Morales', role: 'Head of Engineering', company: 'Luminary AI' },
+  { id: 'sarah', initials: 'SC', name: 'Sarah Chen', role: 'Director of Operations', company: 'Atlas Commerce' },
+  { id: 'marcus', initials: 'MW', name: 'Marcus Webb', role: 'CTO', company: 'Prism Analytics' },
+  { id: 'elena', initials: 'EP', name: 'Elena Petrov', role: 'VP of Sales', company: 'Orbital Labs' },
+  { id: 'david', initials: 'DK', name: 'David Kim', role: 'Chief People Officer', company: 'Vantage Health' },
+  { id: 'rachel', initials: 'RT', name: 'Rachel Torres', role: 'SVP, Global Expansion', company: 'NovaCrest' },
+];
+
+let selectedPersonId = 'avery';
+
+const sendToDropdown = document.getElementById('sendToDropdown');
+const sendToTrigger = document.getElementById('sendToTrigger');
+const sendToPopover = document.getElementById('sendToPopover');
+const sendToSearch = document.getElementById('sendToSearch');
+const sendToResults = document.getElementById('sendToResults');
+const sendToAvatar = document.getElementById('sendToAvatar');
+const sendToName = document.getElementById('sendToName');
+const sendToTitle = document.getElementById('sendToTitle');
+
+function renderPeopleList(filter = '') {
+  const query = filter.toLowerCase();
+  const filtered = PEOPLE.filter(p =>
+    p.name.toLowerCase().includes(query) ||
+    p.role.toLowerCase().includes(query) ||
+    p.company.toLowerCase().includes(query)
+  );
+
+  if (!filtered.length) {
+    sendToResults.innerHTML = '<div class="send-to-no-results">No results found</div>';
+    return;
+  }
+
+  sendToResults.innerHTML = filtered.map(p => `
+    <button class="send-to-option ${p.id === selectedPersonId ? 'selected' : ''}" data-person-id="${p.id}">
+      <div class="avatar">${p.initials}</div>
+      <div class="send-to-option-text">
+        <div class="send-to-option-name">${p.name}</div>
+        <div class="send-to-option-title">${p.role} at ${p.company}</div>
+      </div>
+    </button>
+  `).join('');
+
+  sendToResults.querySelectorAll('.send-to-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const person = PEOPLE.find(p => p.id === btn.dataset.personId);
+      if (!person || person.id === selectedPersonId) return;
+      selectedPersonId = person.id;
+      sendToAvatar.textContent = person.initials;
+      sendToName.textContent = person.name;
+      sendToTitle.innerHTML = `${person.role} at <span class="company-link">${person.company}</span>`;
+      closeSendToDropdown();
+
+      const scroll = document.getElementById('previewScroll');
+      const empty = document.getElementById('emptyState');
+      if (scroll && (!empty || !scroll.contains(empty))) {
+        startGeneration();
+      }
+    });
+  });
+}
+
+function openSendToDropdown() {
+  sendToDropdown.classList.add('open');
+  sendToSearch.value = '';
+  renderPeopleList();
+  requestAnimationFrame(() => sendToSearch.focus());
+}
+
+function closeSendToDropdown() {
+  sendToDropdown.classList.remove('open');
+  sendToSearch.value = '';
+}
+
+sendToTrigger.addEventListener('click', () => {
+  if (sendToDropdown.classList.contains('open')) {
+    closeSendToDropdown();
+  } else {
+    openSendToDropdown();
+  }
+});
+
+sendToSearch.addEventListener('input', () => {
+  renderPeopleList(sendToSearch.value);
+});
+
+document.addEventListener('click', (e) => {
+  if (!sendToDropdown.contains(e.target)) {
+    closeSendToDropdown();
+  }
+});
+
+sendToSearch.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSendToDropdown();
+});
+
+// ── Sequence Data ───────────────────────────────
+const STEPS = [
+  {
+    type: 'email', day: 'Day 1', action: 'Send email',
+    subject: 'Avery, are you looking to scale operations globally?',
+    body: `Hi Avery,
+
+I hope you're having a productive week. I wanted to share how ACME can revolutionize your HR-Ops, especially for your remote teams. Clients like Nebula Solutions have seen a 40% boost in efficiency and a 25% reduction in operational costs. ACME automates onboarding, manages compliance across 100+ countries, letting your team focus on strategic growth.
+
+Mind if I send over a sales deck for you to check out?
+
+Best,
+Maya`,
+    pathAfter: {
+      selected: 'no-reply',
+      options: [
+        { id: 'no-reply', label: 'No reply after 3 days', icon: 'clock' },
+        { id: 'opened', label: 'Email opened', icon: 'eye' },
+        { id: 'clicked', label: 'Link clicked', icon: 'cursor' },
+      ]
+    },
+    components: {
+      feature: {
+        pain: 'Data protection laws vary widely across regions, exposing People teams to compliance risk as you scale hiring globally.',
+        solution: 'ACME standardizes onboarding and entity setup in 100+ countries so HR-Ops stays efficient without manual workarounds.'
+      },
+      socialProof: [
+        { type: 'text', text: 'Nebula Solutions improved HR throughput 40% and cut operational costs 25% after consolidating on ACME.' },
+        { type: 'stack', title: 'Nebula Solutions', subtitle: 'nebula.io' },
+        { type: 'stack', title: 'ACME', subtitle: 'Trusted by People leaders at remote-first companies past 500 employees worldwide.' }
+      ],
+      cta: 'Mind if I send over a sales deck for you to check out?',
+      personalization: [
+        { label: 'Recent company hiring announcements', badge: 'CRM' },
+        { label: 'Person seniority & People team scope', badge: 'CRM' }
+      ]
+    }
+  },
+  {
+    type: 'linkedin', day: 'Day 4', action: 'Send LinkedIn message',
+    subject: '',
+    body: `Hi Avery, I've been seeing Northbeam Dynamics a lot on my LinkedIn feed lately and I couldn't help myself but notice how we, ACME, could be a perfect catalyst for you to scale global operations!
+
+Mind if I send over a sales deck for you to check out?
+
+Best,
+Maya`,
+    pathAfter: {
+      selected: 'no-reply',
+      options: [
+        { id: 'no-reply', label: 'No reply after 3 days', icon: 'clock' },
+        { id: 'accepted', label: 'Connection accepted', icon: 'check' },
+        { id: 'replied', label: 'Replied to message', icon: 'reply' },
+      ]
+    },
+    components: {
+      feature: {
+        pain: 'Manual data entry wastes hours, leading to missed opportunities and decreased efficiency.',
+        solution: 'Automatically sync data across all your marketing and sales tools in real-time, ensuring consistent and up-to-date information.'
+      },
+      socialProof: [
+        { type: 'text', text: 'Rated #1 in G2 for Sales Productivity (2024 Winter)' },
+        { type: 'stack', title: 'Acme Corp', subtitle: 'acme.com' },
+        { type: 'stack', title: 'Artisan', subtitle: 'TechStart scaled to over 10,000 users in under 3 weeks using Artisan ...' }
+      ],
+      cta: 'Are you free to chat next week?',
+      personalization: [
+        { label: 'CRM notes / last call summary', badge: 'CRM' },
+        { label: 'Lifecycle stage / plan tier', badge: 'CRM' }
+      ]
+    }
+  },
+  {
+    type: 'linkedin', day: 'Day 7', action: 'Send LinkedIn message',
+    subject: '',
+    body: `Hi Avery, trying my luck again to see if I can pop-up in your notifications. I'd love to share how ACME helps companies like Northbeam Dynamics scale their global ops without the compliance headaches.
+
+Would a 15-min call this week work?
+
+Best,
+Maya`,
+    pathAfter: {
+      selected: 'no-reply',
+      options: [
+        { id: 'no-reply', label: 'No reply after 3 days', icon: 'clock' },
+        { id: 'replied', label: 'Replied to message', icon: 'reply' },
+      ]
+    },
+    components: {
+      feature: {
+        pain: 'Outbound noise makes it easy for high-intent buyers to ignore follow-ups that don\'t reflect their actual constraints.',
+        solution: 'ACME sequences combine compliance context with timing so each touch feels relevant without adding prep work for reps.'
+      },
+      socialProof: [
+        { type: 'text', text: 'Teams using persona-AI personalization see ~2× reply rates vs. generic LinkedIn templates (internal study).' },
+        { type: 'stack', title: 'Northbeam Dynamics', subtitle: 'northbeam.example' },
+        { type: 'stack', title: 'ACME', subtitle: 'Scaling global entities without local hiring spikes — case pack available on request.' }
+      ],
+      cta: 'Would a 15-min call this week work?',
+      personalization: [
+        { label: 'LinkedIn engagement / last content interaction', badge: 'CRM' },
+        { label: 'ICP segment & expansion stage', badge: 'CRM' }
+      ]
+    }
+  },
+  {
+    type: 'email', day: 'Day 10', action: 'Send email',
+    subject: 'Quick follow-up on global expansion',
+    body: `Hi Avery,
+
+Just circling back — I know things get busy. I wanted to share a quick case study showing how a company similar to Northbeam Dynamics saved 200+ hours/month on international compliance using ACME.
+
+Happy to walk you through it if helpful. Would Tuesday or Wednesday work for a quick chat?
+
+Best,
+Maya`,
+    components: {
+      feature: {
+        pain: 'Leaders postpone global hiring when compliance reviews stack up — deals slow and teams burn through legal bandwidth.',
+        solution: 'ACME removes the entity-by-entity grind: one workflow for contracts, payroll readiness, and local policy checks.'
+      },
+      socialProof: [
+        { type: 'text', text: 'Similar mid-market People orgs saved 200+ hours/month on international compliance after switching to ACME.' },
+        { type: 'stack', title: 'Atlas Foods Co.', subtitle: 'atlasfoods.example' },
+        { type: 'stack', title: 'ACME', subtitle: 'Downloadable case study: how one VP People recovered a quarter of their team\'s week.' }
+      ],
+      cta: 'Would Tuesday or Wednesday work for a quick chat?',
+      personalization: [
+        { label: 'Open opportunities / stalled global hire reqs', badge: 'CRM' },
+        { label: 'Time zone & calendar density', badge: 'CRM' }
+      ]
+    }
+  }
+];
+
+const TYPE_ICONS = {
+  email: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+  linkedin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`
+};
+
+const PATH_ICONS = {
+  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  eye: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  cursor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  reply: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>`,
+  split: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>`,
+};
+
+const SEGMENT_ICONS = {
+  view: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  manage: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`,
+};
+
+const COMP_SVG_PAIN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+const COMP_SVG_OK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+const COMP_SVG_INFO = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
+
+function escapeHtml(str) {
+  const el = document.createElement('div');
+  el.textContent = str;
+  return el.innerHTML;
+}
+
+function buildComponentsPanelHTML(step) {
+  const c = step.components;
+  if (!c) return '<div class="comp-sections"></div>';
+
+  const spRows = c.socialProof.map(row => {
+    if (row.type === 'text') {
+      return `<div class="comp-sp-row"><p>${escapeHtml(row.text)}</p></div>`;
+    }
+    return `<div class="comp-sp-row"><div class="comp-sp-stack"><p class="comp-sp-title">${escapeHtml(row.title)}</p><p class="comp-sp-sub">${escapeHtml(row.subtitle)}</p></div></div>`;
+  }).join('');
+
+  const persRows = c.personalization.map(p => `
+    <div class="comp-pers-row">
+      <div class="comp-pers-main">
+        <p>${escapeHtml(p.label)}</p>
+        <span class="comp-badge">${escapeHtml(p.badge)}</span>
+      </div>
+      <button type="button" class="comp-info-btn" aria-label="Source details">${COMP_SVG_INFO}</button>
+    </div>
+  `).join('');
+
+  return `
+    <div class="comp-sections">
+      <div class="comp-section">
+        <p class="comp-section-label">Feature</p>
+        <div class="comp-card">
+          <div class="comp-feature-rows">
+            <div class="comp-feature-row">
+              <div class="comp-feature-icon comp-feature-icon--pain">${COMP_SVG_PAIN}</div>
+              <p>${escapeHtml(c.feature.pain)}</p>
+            </div>
+            <div class="comp-divider-h"></div>
+            <div class="comp-feature-row">
+              <div class="comp-feature-icon comp-feature-icon--ok">${COMP_SVG_OK}</div>
+              <p>${escapeHtml(c.feature.solution)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="comp-section">
+        <p class="comp-section-label">Social proof</p>
+        <div class="comp-card">${spRows}</div>
+      </div>
+      <div class="comp-section">
+        <p class="comp-section-label">Call to action</p>
+        <div class="comp-card">
+          <div class="comp-cta-row"><p>${escapeHtml(c.cta)}</p></div>
+        </div>
+      </div>
+      <div class="comp-section">
+        <p class="comp-section-label">Personalization sources</p>
+        <div class="comp-card">${persRows}</div>
+      </div>
+    </div>
+  `;
+}
+
+function createPathConnector(pathData, connectorIndex) {
+  const connector = document.createElement('div');
+  connector.className = 'path-connector';
+  connector.setAttribute('data-connector-index', connectorIndex);
+
+  const selected = pathData.options.find(o => o.id === pathData.selected);
+
+  connector.innerHTML = `
+    <div class="path-line"></div>
+    <div class="path-dropdown" tabindex="0">
+      <span class="path-icon">${PATH_ICONS.split}</span>
+      <span class="path-label">${selected.label}</span>
+      <svg class="path-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+      <div class="path-menu">
+        ${pathData.options.map(opt => `
+          <button type="button" class="path-option ${opt.id === pathData.selected ? 'selected' : ''}" data-id="${opt.id}">
+            ${PATH_ICONS[opt.icon]}
+            ${opt.label}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="path-line"></div>
+  `;
+
+  const dropdown = connector.querySelector('.path-dropdown');
+  const menu = connector.querySelector('.path-menu');
+  const label = connector.querySelector('.path-label');
+
+  dropdown.addEventListener('click', (e) => {
+    if (e.target.closest('.path-option')) return;
+    dropdown.classList.toggle('open');
+  });
+
+  menu.querySelectorAll('.path-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const wasAlreadySelected = btn.classList.contains('selected');
+      menu.querySelectorAll('.path-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      label.textContent = btn.textContent.trim();
+      dropdown.classList.remove('open');
+
+      if (!wasAlreadySelected) {
+        regenerateAfterConnector(connector);
+      }
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!connector.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  return connector;
+}
+
+function regenerateAfterConnector(connectorEl) {
+  const cardsAfter = [];
+  let sibling = connectorEl.nextElementSibling;
+  while (sibling) {
+    if (sibling.classList.contains('step-card')) {
+      cardsAfter.push(sibling);
+    }
+    sibling = sibling.nextElementSibling;
+  }
+  if (!cardsAfter.length) return;
+
+  // Phase 1: fade out all card bodies simultaneously (150ms, ease-in)
+  cardsAfter.forEach(card => {
+    const body = card.querySelector('.step-card-body');
+    if (body) {
+      body.classList.remove('regen-in');
+      body.classList.add('regen-out');
+    }
+  });
+
+  // Phase 2: after exit completes, clear and re-reveal with stagger
+  // Exit = duration-micro (150ms); stagger = 50ms (DS: 30-60ms range)
+  // Total orchestration stays under 600ms
+  const exitDuration = 150;
+  const staggerMs = 50;
+
+  setTimeout(() => {
+    cardsAfter.forEach((card, i) => {
+      const body = card.querySelector('.step-card-body');
+      if (!body) return;
+      const stepIdx = parseInt(card.getAttribute('data-step-index'), 10);
+      const step = STEPS[stepIdx];
+      if (!step) return;
+
+      setTimeout(() => {
+        card.classList.remove('show-components');
+        const viewPanel = body.querySelector('.step-panel-view');
+        const compPanel = body.querySelector('.step-panel-components');
+        if (viewPanel) {
+          viewPanel.hidden = false;
+          viewPanel.setAttribute('aria-hidden', 'false');
+        }
+        if (compPanel) {
+          compPanel.hidden = true;
+          compPanel.setAttribute('aria-hidden', 'true');
+        }
+        card.querySelectorAll('.step-segment').forEach((b, j) => {
+          b.classList.toggle('active', j === 0);
+          b.setAttribute('aria-selected', j === 0 ? 'true' : 'false');
+        });
+
+        const subjectEl = body.querySelector('.step-panel-view .step-subject');
+        const bodyTextEl = body.querySelector('.step-panel-view .step-body-text');
+
+        if (subjectEl) subjectEl.innerHTML = '';
+        if (bodyTextEl) bodyTextEl.innerHTML = '';
+
+        body.classList.remove('regen-out');
+        body.classList.add('regen-in');
+
+        if (subjectEl && step.subject) {
+          revealText(subjectEl, step.subject, 60);
+        }
+        const bodyDelay = step.subject ? 200 : 0;
+        setTimeout(() => {
+          if (bodyTextEl) revealText(bodyTextEl, step.body, 60);
+        }, bodyDelay);
+      }, i * staggerMs);
+    });
+  }, exitDuration);
+}
+
+// ── Elements ────────────────────────────────────
+const genBtn = document.getElementById('generateBtn');
+const regenBtn = document.getElementById('regenBtn');
+const previewScroll = document.getElementById('previewScroll');
+const previewFooter = document.getElementById('previewFooter');
+const previewScrollWrap = document.querySelector('.preview-scroll-wrap');
+
+function updatePreviewScrollFades() {
+  if (!previewScrollWrap || !previewScroll) return;
+  const st = previewScroll.scrollTop;
+  const sh = previewScroll.scrollHeight;
+  const ch = previewScroll.clientHeight;
+  const epsilon = 2;
+  const canScroll = sh > ch + epsilon;
+  const atTop = st <= epsilon;
+  const atBottom = st + ch >= sh - epsilon;
+  previewScrollWrap.classList.toggle('show-fade-top', canScroll && !atTop);
+  previewScrollWrap.classList.toggle('show-fade-bottom', canScroll && !atBottom);
+}
+
+previewScroll.addEventListener('scroll', () => {
+  updatePreviewScrollFades();
+}, { passive: true });
+
+window.addEventListener('resize', () => {
+  updatePreviewScrollFades();
+});
+
+const previewScrollFadeMo = new MutationObserver(() => {
+  requestAnimationFrame(updatePreviewScrollFades);
+});
+previewScrollFadeMo.observe(previewScroll, { childList: true, subtree: true });
+requestAnimationFrame(updatePreviewScrollFades);
+
+let isGenerating = false;
+let loaderInterval = null;
+
+// ── PHASE 1: Looping skeleton loader ────────────
+// Transition-driven: rows transition between ghost/active/exiting
+// Cycle: 500ms travel + 400ms rainbow dwell + ~600ms rest before next.
+const LOADER_CYCLE_MS = 2600;
+const LOADER_EXIT_REMOVE_MS = 500;
+
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+let letterIdx = 0;
+
+const ROLE_SEQUENCE = ['ghost-2', 'ghost-1', 'active', 'ghost-1', 'ghost-2'];
+
+function makeBlocksHTML() {
+  const rows = [
+    [[3, 2.5, 3, 1.2], [2, 3.5, 2], [2.5, 3, 2.5, 1.5]],
+    [[2.5, 3, 2.5, 1.5], [3.5, 2, 2.5], [2, 3, 2.5, 1.2]],
+    [[3, 2, 3.5, 1], [2, 3.5, 2.5], [2.5, 2.5, 3, 1.2]],
+    [[2.5, 2.5, 2.5, 1.5], [3, 2.5, 2], [2, 3, 2.5, 1]],
+  ];
+  const set = rows[letterIdx % rows.length];
+  return set.map(row =>
+    `<div class="loader-block-row">${row.map(f => `<div class="skel-block" style="flex:${f}"></div>`).join('')}</div>`
+  ).join('');
+}
+
+function createLoaderRow(slot) {
+  const row = document.createElement('div');
+  const letter = LETTERS[letterIdx % 26];
+  letterIdx++;
+
+  row.className = 'loader-row entering';
+  row.setAttribute('data-slot', slot);
+
+  row.innerHTML = `
+    <div class="loader-blocks">${makeBlocksHTML()}</div>
+  `;
+
+  return row;
+}
+
+function setRole(row, role) {
+  row.classList.remove('entering', 'ghost-1', 'ghost-2', 'active', 'exiting');
+  row.classList.add(role);
+}
+
+function setSlot(row, slot) {
+  row.setAttribute('data-slot', slot);
+}
+
+function startSkeletonLoader() {
+  previewScroll.innerHTML = '';
+  previewFooter.style.display = 'none';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'loader-wrap';
+
+  const stage = document.createElement('div');
+  stage.className = 'loader-stage';
+
+  const statusEl = document.createElement('div');
+  statusEl.className = 'loader-status';
+  statusEl.textContent = 'Generating sequence...';
+
+  wrap.appendChild(stage);
+  wrap.appendChild(statusEl);
+  previewScroll.appendChild(wrap);
+  requestAnimationFrame(updatePreviewScrollFades);
+
+  letterIdx = 0;
+
+  // 5 cards, each in a fixed slot (0–4), slot 2 is active center
+  const slots = []; // slots[i] = { el, slotIdx }
+
+  // Create initial 5 cards
+  for (let i = 0; i < 5; i++) {
+    const row = createLoaderRow(i);
+    stage.appendChild(row);
+    slots.push(row);
+  }
+
+  // Let entering state paint, then assign roles
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      slots.forEach((row, i) => {
+        setTimeout(() => {
+          setRole(row, ROLE_SEQUENCE[i]);
+        }, i * 60);
+      });
+    });
+  });
+
+  function cycle() {
+    // 1. The top card (slot 0) exits — fades out in place
+    const exitingRow = slots[0];
+    setRole(exitingRow, 'exiting');
+    setTimeout(() => exitingRow.remove(), LOADER_EXIT_REMOVE_MS);
+
+    // 2. Shift remaining cards up one slot
+    for (let i = 1; i < slots.length; i++) {
+      setSlot(slots[i], i - 1);
+    }
+    slots.shift();
+
+    // 3. Create new card entering at slot 4
+    const newRow = createLoaderRow(4);
+    stage.appendChild(newRow);
+    slots.push(newRow);
+
+    // 4. Assign visual roles based on new slot positions
+    requestAnimationFrame(() => {
+      slots.forEach((row, i) => {
+        setRole(row, ROLE_SEQUENCE[i]);
+      });
+    });
+  }
+
+  loaderInterval = setInterval(cycle, LOADER_CYCLE_MS);
+}
+
+function stopSkeletonLoader() {
+  if (loaderInterval) {
+    clearInterval(loaderInterval);
+    loaderInterval = null;
+  }
+}
+
+// ── PHASE 2: Show real cards ────────────────────
+
+function showRealCards() {
+  previewScroll.innerHTML = '';
+
+  let elapsed = 0;
+  let connectorIdx = 0;
+  STEPS.forEach((step, i) => {
+    const cardDelay = elapsed;
+
+    setTimeout(() => {
+      const card = createRealCard(step, i);
+      card.style.animationDelay = '0s';
+      previewScroll.appendChild(card);
+      previewScroll.scrollTo({ top: previewScroll.scrollHeight, behavior: 'smooth' });
+
+      setTimeout(() => {
+        const subjectEl = card.querySelector('.step-panel-view .step-subject');
+        if (subjectEl && step.subject) {
+          revealText(subjectEl, step.subject, 60);
+        }
+        const bodyEl = card.querySelector('.step-panel-view .step-body-text');
+        const bodyDelay = step.subject ? 200 : 0;
+        setTimeout(() => revealText(bodyEl, step.body, 60), bodyDelay);
+      }, 150);
+    }, cardDelay);
+
+    elapsed += 1200;
+
+    if (step.pathAfter) {
+      const cIdx = connectorIdx;
+      const connectorDelay = elapsed;
+      setTimeout(() => {
+        const connector = createPathConnector(step.pathAfter, cIdx);
+        previewScroll.appendChild(connector);
+        previewScroll.scrollTo({ top: previewScroll.scrollHeight, behavior: 'smooth' });
+      }, connectorDelay);
+      elapsed += 400;
+      connectorIdx++;
+    }
+  });
+
+  setTimeout(() => {
+    previewFooter.style.display = '';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(updatePreviewScrollFades);
+    });
+  }, elapsed + 400);
+}
+
+function createRealCard(step, stepIndex) {
+  const card = document.createElement('div');
+  card.className = `step-card ${step.type}`;
+  card.setAttribute('data-step-index', stepIndex);
+
+  card.innerHTML = `
+    <div class="step-card-header">
+      <div class="step-card-header-left">
+        <div class="step-icon-wrap">
+          <div class="step-icon">${TYPE_ICONS[step.type]}</div>
+        </div>
+        <div class="step-card-titles">
+          <div class="step-day-label">${step.day}</div>
+          <div class="step-action-label">${step.action}</div>
+        </div>
+      </div>
+      <div class="step-segmented" role="tablist" aria-label="Preview mode">
+        <button type="button" class="step-segment active" role="tab" aria-selected="true" aria-label="View preview">${SEGMENT_ICONS.view}</button>
+        <button type="button" class="step-segment" role="tab" aria-selected="false" aria-label="Sequence components">${SEGMENT_ICONS.manage}</button>
+      </div>
+    </div>
+    <div class="step-card-body">
+      <div class="step-panel step-panel-view" role="tabpanel" aria-hidden="false">
+        ${step.subject ? `<div class="step-subject"></div>` : ''}
+        <div class="step-body-text"></div>
+      </div>
+      <div class="step-panel step-panel-components" role="tabpanel" hidden aria-hidden="true">
+        ${buildComponentsPanelHTML(step)}
+      </div>
+    </div>
+  `;
+
+  const viewPanel = card.querySelector('.step-panel-view');
+  const compPanel = card.querySelector('.step-panel-components');
+  const tabs = card.querySelectorAll('.step-segment');
+  tabs.forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      tabs.forEach((b, j) => {
+        b.classList.toggle('active', j === i);
+        b.setAttribute('aria-selected', j === i ? 'true' : 'false');
+      });
+      const showComp = i === 1;
+      card.classList.toggle('show-components', showComp);
+      viewPanel.hidden = showComp;
+      viewPanel.setAttribute('aria-hidden', showComp ? 'true' : 'false');
+      compPanel.hidden = !showComp;
+      compPanel.setAttribute('aria-hidden', showComp ? 'false' : 'true');
+    });
+  });
+
+  return card;
+}
+
+// ── Orchestrate ─────────────────────────────────
+
+function startGeneration() {
+  if (isGenerating) return;
+  isGenerating = true;
+
+  genBtn.disabled = true;
+  genBtn.classList.add('generating');
+  genBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Generating...`;
+
+  // Phase 1: Start looping skeleton animation
+  startSkeletonLoader();
+
+  // After a few seconds (simulating "generation time"), transition to real cards
+  const loadTime = 4000 + Math.random() * 1500;
+  setTimeout(() => {
+    stopSkeletonLoader();
+
+    // Phase 2: Swap in real content
+    showRealCards();
+
+    // Reset button
+    isGenerating = false;
+    genBtn.disabled = false;
+    genBtn.classList.remove('generating');
+    genBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate messaging`;
+  }, loadTime);
+}
+
+// ── Line-by-line reveal ─────────────────────────
+// Splits text into visual lines (~50 chars at word boundaries)
+// then reveals each one with a staggered delay.
+
+function splitIntoLines(text, maxLen) {
+  const result = [];
+  const paragraphs = text.split('\n');
+  for (const para of paragraphs) {
+    if (para.trim() === '') {
+      result.push('');
+      continue;
+    }
+    const words = para.split(' ');
+    let current = '';
+    for (const word of words) {
+      if (current && (current.length + 1 + word.length) > maxLen) {
+        result.push(current);
+        current = word;
+      } else {
+        current = current ? current + ' ' + word : word;
+      }
+    }
+    if (current) result.push(current);
+  }
+  return result;
+}
+
+function revealText(container, text, lineDelay) {
+  const lines = splitIntoLines(text, 48);
+  lines.forEach((line, i) => {
+    const div = document.createElement('div');
+    div.className = 'reveal-line';
+    div.textContent = line || '\u00A0';
+    container.appendChild(div);
+
+    setTimeout(() => {
+      div.classList.add('visible');
+    }, i * lineDelay);
+  });
+}
+
+genBtn.addEventListener('click', startGeneration);
+regenBtn.addEventListener('click', startGeneration);
+</script>
+</body>
+</html>
