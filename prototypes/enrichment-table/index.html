@@ -52,6 +52,9 @@
   --text-helper: var(--tan-65);
   --text-placeholder: var(--tan-50);
   --text-interactive: var(--purple-60);
+  --text-01: var(--tan-100);
+  --icon-01: var(--tan-100);
+  --icon-02: var(--tan-70);
   --background-default: var(--tan-10);
   --background-hover: var(--tan-15);
   --layer-01: #FFFFFF;
@@ -341,6 +344,9 @@ body {
 
 /* ── Data table ───────────────────────────────────── */
 .data-table {
+  /* Fixed layout: column widths follow <th> / col defs, not the widest cell in each column.
+     Prevents enrichment loading / queued copy from resizing columns when strings change. */
+  table-layout: fixed;
   width: max-content;
   min-width: 100%;
   border-collapse: collapse;
@@ -363,6 +369,20 @@ body {
   user-select: none;
 }
 
+.data-table thead th.th-col-menu {
+  padding: 0;
+  vertical-align: top;
+  overflow: visible;
+}
+
+.data-table thead th.th-col-menu:hover {
+  background: var(--background-hover);
+}
+
+.data-table thead th.th-col-menu:has(.col-run-dropdown.open) {
+  background: var(--purple-10);
+}
+
 .data-table thead th .sort-icon {
   display: inline-flex;
   margin-left: 4px;
@@ -370,85 +390,161 @@ body {
   vertical-align: middle;
 }
 
-.th-enrich-head {
+.th-col-head {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.th-col-head--checkbox {
+  align-items: center;
+}
+
+.th-col-head-check {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  min-height: 44px;
+  padding-left: 16px;
+}
+
+.th-col-dropdown {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+}
+
+.th-col-head--checkbox .th-col-dropdown {
+  flex: 1;
+  min-width: 0;
+}
+
+.th-col-head-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  column-gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+.th-col-head--checkbox .th-col-head-trigger {
+  padding-left: 8px;
+  padding-right: 16px;
+  min-width: 0;
+}
+
+.th-col-head-trigger:hover {
+  color: var(--text-primary);
+}
+
+.th-col-dropdown.open .th-col-head-trigger {
+  color: var(--text-primary);
+}
+
+.th-col-head-trigger:focus-visible {
+  outline: 2px solid var(--purple-50);
+  outline-offset: -2px;
+}
+
+.th-col-head-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.th-col-head-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--icon-02);
+  transition:
+    transform var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out);
+}
+
+.th-col-head-chevron svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.th-col-head-trigger:hover .th-col-head-chevron,
+.th-col-dropdown.open .th-col-head-chevron {
+  color: var(--icon-01);
+}
+
+.th-col-dropdown.open .th-col-head-chevron {
+  transform: rotate(180deg);
+}
+
+.th-col-dropdown.col-run-dropdown {
+  flex: 1;
+  min-width: 0;
+}
+
+.th-col-dropdown .col-run-menu {
+  left: 0;
+  right: auto;
+  transform-origin: top left;
 }
 
 .col-run-dropdown {
   position: relative;
   z-index: 2;
   flex-shrink: 0;
+  overflow: visible;
+}
+
+.th-col-head .th-col-dropdown.col-run-dropdown {
+  flex-shrink: 1;
 }
 
 .col-run-dropdown.open {
   z-index: 25;
 }
 
-.col-run-menu li {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.col-run-trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 1px solid var(--border-subtle-01);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--tan-90);
-  cursor: pointer;
-  transition:
-    background var(--duration-micro) var(--ease-out),
-    border-color var(--duration-micro) var(--ease-out),
-    color var(--duration-micro) var(--ease-out),
-    box-shadow var(--duration-micro) var(--ease-out);
-}
-
-.col-run-trigger .star-icon {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-}
-
-.col-run-trigger:hover {
-  background: #fff;
-  border-color: var(--tan-40);
-  color: var(--tan-100);
-}
-
-.col-run-dropdown.open .col-run-trigger {
-  background: #fff;
-  border-color: var(--purple-50);
-  color: var(--purple-65);
-  box-shadow: 0 0 0 1px var(--purple-30);
-}
-
-.col-run-trigger:focus-visible {
-  outline: 2px solid var(--purple-50);
-  outline-offset: 1px;
-}
-
 .col-run-menu {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
   min-width: 220px;
-  padding: 4pt;
+  padding: 0;
   margin: 0;
   list-style: none;
   background: var(--layer-01);
   border: 1px solid var(--border-subtle-01);
-  border-radius: 12pt;
+  border-radius: 12px;
+  /* visible so Enrich flyout can extend to the left without clipping */
+  overflow: visible;
   box-shadow:
     0 4px 16px rgba(24, 24, 27, 0.08),
     0 0 0 1px rgba(24, 24, 27, 0.04);
@@ -475,19 +571,53 @@ body {
     visibility 0ms linear 0ms;
 }
 
+.col-run-menu > li {
+  margin: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.col-run-menu > li.col-run-menu-divider {
+  padding: 0;
+}
+
+.col-run-menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+.col-run-menu-divider {
+  list-style: none;
+  height: 1px;
+  min-height: 1px;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 100%;
+  background: var(--border-subtle-01);
+  border: none;
+}
+
 .col-run-item {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   width: 100%;
   margin: 0;
-  padding: 4pt;
+  padding: 0 12px;
+  min-height: 32px;
+  height: 32px;
+  box-sizing: border-box;
   border: none;
   border-radius: 8px;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 18px;
-  color: var(--text-primary);
+  line-height: 20px;
+  color: var(--text-01);
   text-align: left;
   cursor: pointer;
   font-family: inherit;
@@ -508,6 +638,58 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.col-run-item-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.col-run-item-inner--spread {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.col-run-item-leading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.col-run-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--text-01);
+}
+
+.col-run-item-icon-svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+/* Pencil artwork was optically right-heavy in the 16×16 box; nudge to match Sort / Hide / Pin */
+.col-run-item[data-col-header-action="edit-column"] .col-run-item-icon {
+  margin-left: -3px;
+  margin-right: 1px;
+}
+
+.col-run-item-text {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--text-01);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .col-run-item-row {
   display: flex;
   align-items: center;
@@ -520,6 +702,28 @@ body {
 .col-run-item-label {
   flex: 1;
   min-width: 0;
+}
+
+.col-run-item-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+}
+
+.col-run-item-primary {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--text-01);
+}
+
+.col-run-item-secondary {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--text-secondary);
 }
 
 .col-run-item-cost {
@@ -539,6 +743,82 @@ body {
   height: 14px;
   flex-shrink: 0;
   display: block;
+}
+
+/* Enrich → flyout submenu */
+.col-run-menu-group.col-run-menu-group--flyout {
+  padding: 0;
+  gap: 0;
+}
+
+.col-run-flyout-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.col-run-item--flyout-trigger {
+  width: 100%;
+}
+
+.col-run-flyout-chevron {
+  flex-shrink: 0;
+  display: block;
+  color: var(--text-helper);
+  opacity: 0.75;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.col-run-flyout-wrap:hover .col-run-flyout-chevron,
+.col-run-flyout-wrap.open .col-run-flyout-chevron {
+  transform: translateX(2px);
+}
+
+.col-run-flyout {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: absolute;
+  /* Tucked against parent panel — negative margin overlaps borders so there’s no white seam */
+  right: 100%;
+  top: 50%;
+  margin: 0 -1px 0 0;
+  min-width: 280px;
+  padding: 0;
+  list-style: none;
+  background: var(--layer-01);
+  border: 1px solid var(--border-subtle-01);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 16px rgba(24, 24, 27, 0.1),
+    0 0 0 1px rgba(24, 24, 27, 0.04);
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-50%) translateX(4px) scale(0.98);
+  transform-origin: center right;
+  transition:
+    opacity var(--duration-moderate) var(--ease-out),
+    transform var(--duration-moderate) var(--spring-snappy),
+    visibility 0ms linear var(--duration-moderate);
+}
+
+.col-run-flyout-wrap:hover .col-run-flyout,
+.col-run-flyout-wrap.open .col-run-flyout {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0) scale(1);
+  transition:
+    opacity var(--duration-moderate) var(--ease-out),
+    transform var(--duration-moderate) var(--spring-snappy),
+    visibility 0ms linear 0ms;
+}
+
+.col-run-flyout .col-run-menu-group {
+  padding: 4px;
 }
 
 .data-table tbody tr {
@@ -686,10 +966,26 @@ tr:hover .row-menu { opacity: 1; }
    ═══════════════════════════════════════════════════ */
 .enrich-cell {
   position: relative;
-  min-width: 100px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
   height: 100%;
   display: flex;
   align-items: center;
+}
+
+.enrich-cell--hover-only .enrich-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-micro) var(--ease-out);
+}
+
+tr:hover .enrich-cell--hover-only .enrich-btn,
+tr:focus-within .enrich-cell--hover-only .enrich-btn,
+.enrich-cell--hover-only .enrich-btn:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .enrich-btn {
@@ -733,8 +1029,11 @@ tr:hover .row-menu { opacity: 1; }
 }
 
 /* Static rainbow gradient fill (no shimmer animation) */
-.enrich-btn .star-icon path,
-.col-run-trigger .star-icon path {
+.enrich-btn .star-icon path {
+  fill: url(#enrich-rainbow-fill);
+}
+
+.col-run-item-icon .star-icon path {
   fill: url(#enrich-rainbow-fill);
 }
 
@@ -825,6 +1124,70 @@ tr:hover .row-menu { opacity: 1; }
 @keyframes aiShimmer {
   0%   { background-position: 250% 0; }
   100% { background-position: -250% 0; }
+}
+
+/* ── Queued (waiting for a slot; max 10 concurrent) ─ */
+.enrich-queued {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 26px;
+  height: 26px;
+  padding: 4px 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-subtle-02);
+  border-radius: 999px;
+  background: white;
+  overflow: hidden;
+}
+
+.enrich-queued.active {
+  display: flex;
+}
+
+.enrich-queued-clock-icon {
+  flex-shrink: 0;
+  display: block;
+  color: var(--text-secondary);
+}
+
+.enrich-queued-text {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enrich-queued-text-inner {
+  display: inline;
+  background: linear-gradient(
+    90deg,
+    var(--tan-60) 0%,
+    var(--tan-60) 35%,
+    var(--tan-30) 50%,
+    var(--tan-60) 65%,
+    var(--tan-60) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: aiShimmer 3s linear infinite;
+}
+
+.enrich-cell--queued {
+  min-height: 28px;
+}
+
+tr:hover .enrich-cell--hover-only.enrich-cell--queued .enrich-btn,
+tr:focus-within .enrich-cell--hover-only.enrich-cell--queued .enrich-btn {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ── Filled result ────────────────────────────────── */
@@ -934,6 +1297,9 @@ tr:hover .row-menu { opacity: 1; }
   pointer-events: none;
   z-index: 9999;
 
+  max-width: 320px;
+  box-sizing: border-box;
+
   background: white;
   border: 1px solid var(--border-subtle-01);
   border-radius: 8px;
@@ -993,6 +1359,9 @@ tr:hover .row-menu { opacity: 1; }
   pointer-events: none;
   z-index: 9999;
 
+  max-width: 320px;
+  box-sizing: border-box;
+
   background: white;
   border: 1px solid var(--border-subtle-01);
   border-radius: 10px;
@@ -1002,7 +1371,6 @@ tr:hover .row-menu { opacity: 1; }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  white-space: nowrap;
 
   /* Entrance: 200ms ease-out with opacity + translateY (tooltip spec)
      Exit: 150ms ease-in (exits faster than entrances) */
@@ -1036,8 +1404,9 @@ tr:hover .row-menu { opacity: 1; }
 /* Step rows — stagger entrance via opacity + translateY */
 .progress-tooltip .step-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  min-width: 0;
   font-size: 12px;
   line-height: 16px;
   font-weight: 400;
@@ -1070,6 +1439,12 @@ tr:hover .row-menu { opacity: 1; }
 /* Pending rows are dimmer */
 .progress-tooltip .step-row:not(.done):not(.active) {
   color: var(--text-placeholder);
+}
+
+.progress-tooltip .step-row > span:last-child {
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
 }
 
 /* Check icon container */
@@ -1136,6 +1511,8 @@ tr:hover .row-menu { opacity: 1; }
   opacity: 0;
   pointer-events: none;
   z-index: 9999;
+  max-width: 320px;
+  box-sizing: border-box;
   background: white;
   border: 1px solid var(--border-subtle-01);
   border-radius: 10px;
@@ -1144,7 +1521,6 @@ tr:hover .row-menu { opacity: 1; }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  white-space: nowrap;
   transition: opacity var(--duration-fast) var(--ease-out),
               transform var(--duration-fast) var(--ease-out);
   transform: translateY(4px);
@@ -1173,8 +1549,9 @@ tr:hover .row-menu { opacity: 1; }
 
 .result-tooltip .step-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  min-width: 0;
   font-size: 12px;
   line-height: 16px;
   font-weight: 400;
@@ -1183,6 +1560,12 @@ tr:hover .row-menu { opacity: 1; }
   transform: translateY(4px);
   transition: opacity var(--duration-fast) var(--ease-out),
               transform var(--duration-fast) var(--ease-out);
+}
+
+.result-tooltip .step-row > span:last-child {
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
 }
 
 .result-tooltip.show .step-row {
@@ -1293,7 +1676,30 @@ tr:hover .row-menu { opacity: 1; }
 
 <script>
 // ── Star SVG ─────────────────────────────────────────
+const chevronDownSVG = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>`;
+
+const chevronRightSVG = `<svg class="col-run-flyout-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg>`;
+
+const enrichQueuedClockIconSVG = `<svg class="enrich-queued-clock-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="8" cy="8" r="5.75" stroke="currentColor" stroke-width="1.25"/><path d="M8 8V5.25M8 8l2.25 1.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const colMenuIconSortAsc = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h4M3 8h6M3 11h8"/><path d="M12 3v3.5M10.25 4.25L12 2l1.75 2.25"/></svg>`;
+const colMenuIconSortDesc = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h8M3 8h6M3 11h4"/><path d="M12 10v3.5M10.25 11.75L12 14l1.75-2.25"/></svg>`;
+const colMenuIconMoveRight = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>`;
+const colMenuIconMoveLeft = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>`;
+/* Single-path pencil centered in viewBox (matches optical alignment of other menu icons) */
+const colMenuIconEdit = `<svg class="col-run-item-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`;
+const colMenuIconHide = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8s2.5-3.5 6-3.5S14 8 14 8"/><path d="M2 8s2.5 3.5 6 3.5S14 8 14 8"/><path d="M4 4l8 8"/></svg>`;
+const colMenuIconPin = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M5 6h6v2l-1.5 6H6.5L5 8V6z"/></svg>`;
+const colMenuIconSelectAll = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/><path d="M5 8l2 2 3.5-3.5"/></svg>`;
+const colMenuIconClearSel = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/><path d="M6 6l4 4M10 6l-4 4"/></svg>`;
+const colMenuIconAddCol = `<svg class="col-run-item-icon-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4v8M4 8h8"/></svg>`;
+
 const starSVG = `<svg class="star-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.1" fill-rule="evenodd" clip-rule="evenodd" d="M9.84604 3.68164C10.0769 3.68162 10.2778 3.83968 10.3321 4.06407C10.6847 5.52187 11.0461 6.43395 11.5913 7.09022C12.1279 7.73611 12.8879 8.18737 14.1593 8.61657C14.3625 8.68517 14.4994 8.87575 14.4994 9.09024C14.4994 9.30473 14.3627 9.49534 14.1595 9.564C12.944 9.97467 12.1929 10.3908 11.6463 11.0253C11.0928 11.6679 10.7011 12.5894 10.3321 14.117C10.2767 14.3462 10.0717 14.5001 9.84579 14.4998C9.61996 14.5001 9.41487 14.3464 9.35943 14.1172C9.00753 12.6628 8.64531 11.7501 8.09927 11.0927C7.56179 10.4455 6.80103 9.99272 5.53145 9.56403C5.32824 9.49541 5.19143 9.30484 5.19141 9.09036C5.19139 8.87587 5.32816 8.68527 5.53136 8.61661C6.74689 8.20592 7.4982 7.78988 8.04502 7.15552C8.59877 6.51312 8.99075 5.59171 9.36008 4.06414C9.41433 3.83974 9.61517 3.68166 9.84604 3.68164Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.30812 1.5C4.54441 1.50006 4.7484 1.66551 4.79721 1.8967C4.95812 2.65872 5.18306 3.15388 5.47869 3.49821C5.76908 3.83643 6.1657 4.07325 6.75639 4.24784C6.96886 4.31064 7.11467 4.50577 7.11467 4.72733C7.11467 4.94889 6.96886 5.14403 6.75639 5.20683C6.16571 5.38141 5.76906 5.61824 5.47857 5.9565C5.18283 6.30088 4.95773 6.7961 4.79651 7.55816C4.7476 7.7893 4.54359 7.95467 4.30733 7.95467C4.07108 7.95467 3.86706 7.7893 3.81816 7.55816C3.65693 6.79611 3.43183 6.30086 3.13606 5.95638C2.84553 5.618 2.44881 5.381 1.85806 5.2061C1.64565 5.14321 1.49995 4.94806 1.5 4.72655C1.50005 4.50503 1.64585 4.30996 1.85828 4.24717C2.4729 4.06552 2.87284 3.81401 3.15927 3.47058C3.45196 3.11964 3.6641 2.6275 3.81884 1.89646C3.86777 1.6653 4.07184 1.49994 4.30812 1.5ZM3.22778 4.72636C3.47545 4.88553 3.69795 5.07572 3.89477 5.30495C4.05251 5.48866 4.18892 5.69187 4.30734 5.91546C4.42576 5.69188 4.56218 5.48869 4.71993 5.305C4.91645 5.07616 5.13856 4.88626 5.38577 4.72733C5.13856 4.56839 4.91646 4.37848 4.71997 4.14963C4.56248 3.96619 4.42627 3.76332 4.30803 3.54012C4.19858 3.74626 4.07276 3.93659 3.92723 4.11108C3.72476 4.35385 3.49203 4.55659 3.22778 4.72636ZM9.84663 3.682C10.0775 3.68198 10.2784 3.84004 10.3326 4.06443C10.6853 5.52223 11.0467 6.43431 11.5919 7.09058C12.1285 7.73647 12.8885 8.18772 14.1599 8.61693C14.3631 8.68553 14.5 8.87611 14.5 9.0906C14.5 9.30509 14.3633 9.4957 14.16 9.56436C12.9446 9.97503 12.1935 10.3912 11.6469 11.0257C11.0934 11.6682 10.7017 12.5898 10.3327 14.1174C10.2773 14.3466 10.0722 14.5004 9.84638 14.5001C9.62055 14.5005 9.41547 14.3467 9.36002 14.1176C9.00812 12.6632 8.6459 11.7505 8.09986 11.093C7.56239 10.4459 6.80163 9.99308 5.53204 9.56439C5.32883 9.49577 5.19202 9.3052 5.192 9.09071C5.19198 8.87623 5.32875 8.68563 5.53195 8.61697C6.74749 8.20628 7.49879 7.79024 8.04562 7.15588C8.59937 6.51348 8.99135 5.59207 9.36067 4.0645C9.41492 3.8401 9.61576 3.68202 9.84663 3.682ZM9.84748 12.2337C10.1258 11.4821 10.4568 10.875 10.8893 10.373C11.3637 9.82223 11.9394 9.42203 12.6441 9.08919C11.8928 8.73151 11.2998 8.30387 10.8227 7.72959C10.4121 7.23529 10.1032 6.65086 9.845 5.9495C9.56655 6.70049 9.23546 7.30716 8.80305 7.80879C8.32829 8.35954 7.75236 8.75966 7.04736 9.09247C7.79852 9.4507 8.39175 9.87932 8.86914 10.4541C9.27992 10.9487 9.58914 11.5331 9.84748 12.2337Z" fill="currentColor"/></svg>`;
+
+const colMenuIconEnrichStar = starSVG.replace(
+  '<svg class="star-icon" width="16" height="16"',
+  '<svg class="star-icon col-run-item-icon-svg" width="16" height="16"'
+);
 
 const coinSVG = `<svg class="coin-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.1" d="M8 2C11.3137 2 14 4.68629 14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2Z" fill="#682FC5"/><path d="M8 1.5C11.5899 1.5 14.5 4.41015 14.5 8C14.5 11.5899 11.5899 14.5 8 14.5C4.41015 14.5 1.5 11.5899 1.5 8C1.5 4.41015 4.41015 1.5 8 1.5ZM8 2.4668C4.94402 2.4668 2.4668 4.94402 2.4668 8C2.4668 11.056 4.94402 13.5332 8 13.5332C11.056 13.5332 13.5332 11.056 13.5332 8C13.5332 4.94402 11.056 2.4668 8 2.4668ZM11.3643 10.2588C10.2825 10.3389 9.20165 9.62445 8.15723 8.97754L7.16992 8.33008L6.66699 8C6.45316 7.85901 6.38596 7.57775 6.51367 7.35742C7.01415 6.49722 7.74155 5.30864 8.11426 4.66699L11.3643 10.2588ZM5.67871 8.85449C5.81891 8.61479 6.13283 8.54005 6.36621 8.69336L7.56348 9.48047C6.74362 9.96164 5.82587 10.2763 4.8623 10.2588L5.67871 8.85449Z" fill="#682FC5"/></svg>`;
 
@@ -1304,17 +1710,17 @@ const colRunMenuCoinSVG = coinSVG.replace(
 
 // ── Credit costs per enrichment type (tooltip only; buttons always say "Enrich") ──
 const ENRICHMENT_COSTS = {
-  email: { credits: 1, label: "find this email" },
-  phone: { credits: 2, label: "find a direct mobile number" },
-  custom: { credits: 1, label: "run FullEnrich on this field" },
-  message: { credits: 3, label: "generate message" },
+  email: { credits: 1 },
+  phone: { credits: 2 },
+  custom: { credits: 1 },
+  message: { credits: 3 },
 };
 
 function creditsPerCell(enrichType) {
   return (ENRICHMENT_COSTS[enrichType] || ENRICHMENT_COSTS.custom).credits;
 }
 
-// Email/phone: focused provider-style copy. Custom: async aggregation / waterfall (FullEnrich-style).
+// Email/phone: focused provider-style copy. Custom: async aggregation / waterfall.
 const ENRICHMENT_MESSAGES = {
   email: [
     "Matching contact profile",
@@ -1332,7 +1738,7 @@ const ENRICHMENT_MESSAGES = {
     "Bounce testing",
     "Verified",
   ],
-  custom: [
+  general: [
     "Queued for enrichment",
     "Routing provider waterfall",
     "Aggregating 20+ B2B sources",
@@ -1340,12 +1746,29 @@ const ENRICHMENT_MESSAGES = {
     "Verification pass",
     "Complete",
   ],
+  webResearch: [
+    "Queued research task",
+    "Gathering sources",
+    "Synthesizing findings",
+    "Cross-checking details",
+    "Complete",
+  ],
+  aiQualification: [
+    "Loading saved profile",
+    "Applying qualification rules",
+    "Scoring fit",
+    "Complete",
+  ],
 };
 
 const PROGRESS_NOTE_DEFAULT =
   "This can take up to about a minute while we query many providers.";
-const PROGRESS_NOTE_CUSTOM =
-  "FullEnrich aggregates 20+ providers asynchronously — typical turnaround is about 30–90 seconds, with verified fields and credits only when data is found.";
+const PROGRESS_NOTE_GENERAL =
+  "Runs across 20+ providers asynchronously — typical turnaround is about 30–90 seconds; credits apply when data is found.";
+const PROGRESS_NOTE_WEB =
+  "Research tasks may explore multiple sources and drafts; timing depends on depth of inquiry.";
+const PROGRESS_NOTE_AI =
+  "Uses saved signals where available — usually finishes in a few seconds.";
 
 const FAKE_RESULTS = {
   email: [
@@ -1394,14 +1817,28 @@ function getResult(type) {
 
 const avatarColors = ['#682FC5','#43AD5B','#3068E2','#DA3784','#E16931','#D94638','#E49E0C','#524E48','#A17BDF','#5EC575'];
 
-const sortIconHTML = `<span class="sort-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 3-3"/></svg></span>`;
-
 const BASE_COLUMN_DEFS = [
   { id: 'cb', kind: 'checkbox', width: '32px' },
   { id: 'prospect', kind: 'prospect', label: 'Prospect name', width: '220px' },
   { id: 'company', kind: 'text', key: 'company', label: 'Company', width: '150px' },
-  { id: 'email', kind: 'enrich', enrichType: 'email', key: 'email', label: 'Email', width: '200px' },
-  { id: 'phone', kind: 'enrich', enrichType: 'phone', key: 'phone', label: 'Phone', width: '170px' },
+  {
+    id: 'email',
+    kind: 'enrich',
+    enrichType: 'email',
+    enrichmentCategory: 'email',
+    key: 'email',
+    label: 'Email',
+    width: '200px',
+  },
+  {
+    id: 'phone',
+    kind: 'enrich',
+    enrichType: 'phone',
+    enrichmentCategory: 'phone',
+    key: 'phone',
+    label: 'Phone',
+    width: '170px',
+  },
   { id: 'location', kind: 'text', key: 'location', label: 'Person location', width: '170px' },
   { id: 'status', kind: 'status', key: 'status', label: 'Status', width: '120px' },
   { id: 'icp', kind: 'icp', key: 'icp', label: 'ICP score', width: '104px' },
@@ -1410,6 +1847,241 @@ const BASE_COLUMN_DEFS = [
 
 let columnDefs = BASE_COLUMN_DEFS.map((c) => ({ ...c }));
 let customColumnCounter = 0;
+
+let sortState = { key: null, dir: 'asc' };
+
+function compareRowsByKey(a, b, key) {
+  const va = a[key];
+  const vb = b[key];
+  if (va == null && vb == null) return 0;
+  if (va == null) return 1;
+  if (vb == null) return -1;
+  if (typeof va === 'number' && typeof vb === 'number') return va - vb;
+  return String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: 'base' });
+}
+
+function applySortFromState() {
+  if (!sortState.key) return;
+  const key = sortState.key;
+  const dir = sortState.dir === 'asc' ? 1 : -1;
+  rows.sort((a, b) => compareRowsByKey(a, b, key) * dir);
+}
+
+function setSortColumn(key, dir) {
+  sortState = { key, dir };
+  applySortFromState();
+  renderTable();
+}
+
+function sortKeyForColumn(col) {
+  if (col.kind === 'prospect') return 'name';
+  if (col.kind === 'checkbox' || col.kind === 'menu') return '';
+  return col.key ?? '';
+}
+
+function menuDividerHTML() {
+  return '<li class="col-run-menu-divider" role="separator" aria-hidden="true"></li>';
+}
+
+function colMenuItemButton(dataAttrs, iconSvg, label) {
+  return `<button type="button" class="col-run-item" role="menuitem" ${dataAttrs}>
+    <span class="col-run-item-inner">
+      <span class="col-run-item-icon" aria-hidden="true">${iconSvg}</span>
+      <span class="col-run-item-text">${escapeHtmlText(label)}</span>
+    </span>
+  </button>`;
+}
+
+function colMenuGroupHTML(buttonHtmls) {
+  return `<li class="col-run-menu-group" role="group">${buttonHtmls.join('')}</li>`;
+}
+
+function columnMenuSortSectionHTML(col) {
+  const sk = sortKeyForColumn(col);
+  if (!sk) return '';
+  return (
+    colMenuGroupHTML([
+      colMenuItemButton(
+        `data-col-header-action="sort-asc" data-sort-key="${sk}" aria-label="Sort ascending"`,
+        colMenuIconSortAsc,
+        'Sort ascending'
+      ),
+      colMenuItemButton(
+        `data-col-header-action="sort-desc" data-sort-key="${sk}" aria-label="Sort descending"`,
+        colMenuIconSortDesc,
+        'Sort descending'
+      ),
+    ]) +
+    menuDividerHTML()
+  );
+}
+
+function columnMenuMoveAndActionsHTML(col) {
+  const moveBlock =
+    colMenuGroupHTML([
+      colMenuItemButton('data-col-header-action="move-right" aria-label="Move column right"', colMenuIconMoveRight, 'Move right'),
+      colMenuItemButton('data-col-header-action="move-left" aria-label="Move column left"', colMenuIconMoveLeft, 'Move left'),
+    ]) + menuDividerHTML();
+  if (!col || col.kind !== 'enrich') {
+    return (
+      moveBlock +
+      colMenuGroupHTML([
+        colMenuItemButton('data-col-header-action="edit-column" aria-label="Edit column"', colMenuIconEdit, 'Edit'),
+        colMenuItemButton('data-col-header-action="hide-column" aria-label="Hide column"', colMenuIconHide, 'Hide'),
+        colMenuItemButton('data-col-header-action="pin-column" aria-label="Pin column"', colMenuIconPin, 'Pin'),
+      ])
+    );
+  }
+  return (
+    moveBlock +
+    colMenuGroupHTML([
+      colMenuItemButton('data-col-header-action="edit-column" aria-label="Edit column"', colMenuIconEdit, 'Edit'),
+      colMenuItemButton('data-col-header-action="hide-column" aria-label="Hide column"', colMenuIconHide, 'Hide'),
+    ]) +
+    menuDividerHTML() +
+    colMenuGroupHTML([
+      colMenuItemButton('data-col-header-action="pin-column" aria-label="Pin column"', colMenuIconPin, 'Pin'),
+    ]) +
+    menuDividerHTML()
+  );
+}
+
+function columnMenuEnrichItemsHTML(col) {
+  if (col.kind !== 'enrich') return '';
+  const enrichActions = [
+    `<button type="button" class="col-run-item" role="menuitem" data-run-scope="allList" aria-label="All people in this list">
+    <span class="col-run-item-inner col-run-item-inner--spread">
+      <span class="col-run-item-leading">
+        <span class="col-run-item-icon" aria-hidden="true">${colMenuIconEnrichStar}</span>
+        <span class="col-run-item-text">All <span class="col-run-total-people">0</span> people</span>
+      </span>
+      <span class="col-run-item-cost">${colRunMenuCoinSVG}<span class="col-run-credits-all">0</span></span>
+    </span>
+  </button>`,
+    `<button type="button" class="col-run-item" role="menuitem" data-run-scope="first20" aria-label="20 people">
+    <span class="col-run-item-inner col-run-item-inner--spread">
+      <span class="col-run-item-leading">
+        <span class="col-run-item-icon" aria-hidden="true">${colMenuIconEnrichStar}</span>
+        <span class="col-run-item-text">20 people</span>
+      </span>
+      <span class="col-run-item-cost">${colRunMenuCoinSVG}<span class="col-run-credits-first20">0</span></span>
+    </span>
+  </button>`,
+    `<button type="button" class="col-run-item" role="menuitem" data-run-scope="unenriched" aria-label="All unenriched people">
+    <span class="col-run-item-inner col-run-item-inner--spread">
+      <span class="col-run-item-leading">
+        <span class="col-run-item-icon" aria-hidden="true">${colMenuIconEnrichStar}</span>
+        <span class="col-run-item-text">All unenriched people</span>
+      </span>
+      <span class="col-run-item-cost">${colRunMenuCoinSVG}<span class="col-run-credits-unenriched">0</span></span>
+    </span>
+  </button>`,
+  ].join('');
+  return `<li class="col-run-menu-group col-run-menu-group--flyout" role="none">
+    <div class="col-run-flyout-wrap">
+      <button type="button" class="col-run-item col-run-item--flyout-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false" data-col-submenu-trigger="enrich" aria-label="Enrich, open submenu">
+        <span class="col-run-item-inner col-run-item-inner--spread">
+          <span class="col-run-item-leading">
+            <span class="col-run-item-icon" aria-hidden="true">${colMenuIconEnrichStar}</span>
+            <span class="col-run-item-text">Enrich</span>
+          </span>
+          ${chevronRightSVG}
+        </span>
+      </button>
+      <ul class="col-run-flyout" role="menu" aria-label="Enrich options">
+        <li class="col-run-menu-group" role="group">${enrichActions}</li>
+      </ul>
+    </div>
+  </li>`;
+}
+
+function columnMenuDataColumnItemsHTML(col) {
+  let parts = columnMenuSortSectionHTML(col);
+  parts += columnMenuMoveAndActionsHTML(col);
+  if (col.kind === 'enrich') {
+    parts += columnMenuEnrichItemsHTML(col);
+  }
+  return parts;
+}
+
+function columnHeaderCellHTML(col) {
+  const w = col.width || 'auto';
+  const menuId = `col-menu-${col.id}`;
+  const enrichKind = col.kind === 'enrich';
+  const enrichClass = enrichKind ? ' col-run-dropdown--enrich' : '';
+  const wrapAttrs = enrichKind
+    ? `data-col-key="${col.key}" data-enrich-type="${col.enrichType}"`
+    : `data-col-key="${col.id}"`;
+
+  let menuItems = '';
+  if (col.kind === 'checkbox') {
+    menuItems =
+      colMenuGroupHTML([
+        colMenuItemButton(
+          'data-col-header-action="select-all" aria-label="Select all rows"',
+          colMenuIconSelectAll,
+          'Select all rows'
+        ),
+        colMenuItemButton(
+          'data-col-header-action="select-none" aria-label="Clear selection"',
+          colMenuIconClearSel,
+          'Clear selection'
+        ),
+      ]) +
+      menuDividerHTML() +
+      columnMenuMoveAndActionsHTML();
+  } else if (col.kind === 'menu') {
+    menuItems =
+      colMenuGroupHTML([
+        colMenuItemButton(
+          'data-col-header-action="add-column" aria-label="Add column"',
+          colMenuIconAddCol,
+          'Add column'
+        ),
+      ]) +
+      menuDividerHTML() +
+      columnMenuMoveAndActionsHTML();
+  } else {
+    menuItems = columnMenuDataColumnItemsHTML(col);
+  }
+
+  const labelText =
+    col.kind === 'checkbox' ? 'Rows' : col.kind === 'menu' ? 'Add column' : col.label || '';
+  const ariaLabel =
+    col.kind === 'checkbox'
+      ? 'Row selection column menu'
+      : col.kind === 'menu'
+        ? 'Add column menu'
+        : `Column menu for ${col.label || ''}`;
+
+  const dropdownBlock = `
+    <div class="th-col-dropdown col-run-dropdown${enrichClass}" ${wrapAttrs}>
+      <button type="button" class="th-col-head-trigger" aria-label="${escapeHtmlText(ariaLabel)}" aria-expanded="false" aria-haspopup="true" aria-controls="${menuId}">
+        <span class="th-col-head-label">${escapeHtmlText(labelText)}</span>
+        <span class="th-col-head-chevron" aria-hidden="true">${chevronDownSVG}</span>
+      </button>
+      <ul class="col-run-menu" id="${menuId}" role="menu" aria-label="Column menu">
+        ${menuItems}
+      </ul>
+    </div>`;
+
+  if (col.kind === 'checkbox') {
+    return `<th class="th-col-menu" style="width:${w};min-width:${w}">
+      <div class="th-col-head th-col-head--checkbox">
+        <div class="th-col-head-check">
+          <input type="checkbox" class="row-select-all" aria-label="Select all rows in view" title="Select all">
+        </div>
+        ${dropdownBlock}
+      </div>
+    </th>`;
+  }
+
+  return `<th class="th-col-menu" style="width:${w};min-width:${w}">
+    <div class="th-col-head">
+      ${dropdownBlock}
+    </div>
+  </th>`;
+}
 
 const SEED_ROWS = [
   { name: "Avery Knox", title: "VP, People Operations", company: "ACME Corp", email: null, phone: null, location: "Port Jasper, AR", status: "positive", icp: 80 },
@@ -1476,21 +2148,50 @@ function buildExtraRows(count) {
 
 const rows = SEED_ROWS.concat(buildExtraRows(100));
 
-function enrichBtnHTML(enrichType, columnKey) {
+function escapeHtmlText(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function enrichMessagesFor(category, enrichType) {
+  if (enrichType === 'email') return ENRICHMENT_MESSAGES.email;
+  if (enrichType === 'phone') return ENRICHMENT_MESSAGES.phone;
+  if (category === 'webResearch') return ENRICHMENT_MESSAGES.webResearch;
+  if (category === 'aiQualification') return ENRICHMENT_MESSAGES.aiQualification;
+  return ENRICHMENT_MESSAGES.general;
+}
+
+function progressFooterFor(category, enrichType) {
+  if (enrichType === 'email' || enrichType === 'phone') return PROGRESS_NOTE_DEFAULT;
+  if (category === 'webResearch') return PROGRESS_NOTE_WEB;
+  if (category === 'aiQualification') return PROGRESS_NOTE_AI;
+  return PROGRESS_NOTE_GENERAL;
+}
+
+function enrichBtnHTML(enrichType, columnKey, columnLabel, enrichmentCategory) {
+  const cat = enrichmentCategory || 'general';
   const cost = ENRICHMENT_COSTS[enrichType] || ENRICHMENT_COSTS.custom;
+  const colName = escapeHtmlText((columnLabel || 'column').toLowerCase());
+  const hoverOnly = cat !== 'email' && cat !== 'phone';
   return `
-    <div class="enrich-cell">
-      <button type="button" class="enrich-btn" data-type="${enrichType}" data-column-key="${columnKey}">
+    <div class="enrich-cell${hoverOnly ? ' enrich-cell--hover-only' : ''}">
+      <button type="button" class="enrich-btn" data-type="${enrichType}" data-column-key="${columnKey}" data-enrichment-category="${cat}">
         ${starSVG}
         <span class="btn-label">Enrich</span>
       </button>
       <div class="enrich-tooltip">
         ${coinSVG}
-        <span class="tooltip-cost"><span class="tooltip-cost-value">${cost.credits} credit${cost.credits > 1 ? 's' : ''}</span> to ${cost.label}</span>
+        <span class="tooltip-cost"><span class="tooltip-cost-value">${cost.credits} credit${cost.credits > 1 ? 's' : ''}</span> to enrich ${colName}</span>
       </div>
       <div class="enrich-loading" data-type="${enrichType}">
         <div class="loading-spinner"></div>
         <div class="loading-text"><span class="loading-text-inner"></span></div>
+      </div>
+      <div class="enrich-queued" aria-live="polite">
+        ${enrichQueuedClockIconSVG}
+        <span class="enrich-queued-text"><span class="enrich-queued-text-inner">Waiting enrichment...</span></span>
       </div>
       <div class="progress-tooltip"></div>
       <div class="enrich-result"></div>
@@ -1507,13 +2208,45 @@ function statusCellHTML(status) {
   }[status];
 }
 
-function addCustomColumn(label) {
+const ADD_COLUMN_NAME_POOL = [
+  'Job title',
+  'LinkedIn URL',
+  'Seniority',
+  'Department',
+  'Company size',
+  'Tech stack',
+  'Hiring signals',
+  'Last funding',
+  'Years of experience',
+  'Work location',
+  'Headcount',
+  'Industry',
+  'Intent signals',
+  'Compensation band',
+  'Education',
+];
+
+const ADD_COLUMN_ENRICHMENT_CATEGORIES = ['general', 'webResearch', 'aiQualification'];
+
+function pickRandomAddColumnName() {
+  return ADD_COLUMN_NAME_POOL[Math.floor(Math.random() * ADD_COLUMN_NAME_POOL.length)];
+}
+
+function pickRandomEnrichmentCategory() {
+  return ADD_COLUMN_ENRICHMENT_CATEGORIES[
+    Math.floor(Math.random() * ADD_COLUMN_ENRICHMENT_CATEGORIES.length)
+  ];
+}
+
+function addCustomColumn(label, enrichmentCategory) {
   const id = 'custom_' + (++customColumnCounter);
   const idx = columnDefs.findIndex((c) => c.id === 'status');
+  const cat = enrichmentCategory || 'general';
   columnDefs.splice(idx === -1 ? columnDefs.length - 2 : idx, 0, {
     id,
     kind: 'enrich',
     enrichType: 'custom',
+    enrichmentCategory: cat,
     key: id,
     label: (label && label.trim()) || 'Custom field',
     width: '180px',
@@ -1528,14 +2261,84 @@ function enrichBtnIsPending(btn) {
   const cell = btn.closest('.enrich-cell');
   if (!cell) return false;
   const loading = cell.querySelector('.enrich-loading');
+  if (!loading || loading.classList.contains('active')) return false;
+  const idle = btn.offsetParent !== null;
+  const queued = cell.classList.contains('enrich-cell--queued');
+  return idle || queued;
+}
+
+/** Idle enrich button only — not already queued or running (for starting new work). */
+function enrichBtnCanStart(btn) {
+  const cell = btn.closest('.enrich-cell');
+  if (!cell) return false;
+  if (cell.classList.contains('enrich-cell--queued')) return false;
+  const loading = cell.querySelector('.enrich-loading');
   return btn.offsetParent !== null && loading && !loading.classList.contains('active');
 }
 
-function collectEnrichButtonsForColumnKeys(keys) {
+const MAX_CONCURRENT_ENRICH = 10;
+let activeEnrichSlots = 0;
+const enrichWaitQueue = [];
+
+function showEnrichQueued(btn) {
+  const cell = btn.closest('.enrich-cell');
+  if (!cell) return;
+  const creditTip = cell.querySelector('.enrich-tooltip');
+  if (creditTip) creditTip.style.display = 'none';
+  btn.setAttribute('aria-hidden', 'true');
+  btn.style.display = 'none';
+  const q = cell.querySelector('.enrich-queued');
+  if (q) q.classList.add('active');
+  cell.classList.add('enrich-cell--queued');
+}
+
+function hideEnrichQueued(btn) {
+  const cell = btn.closest('.enrich-cell');
+  if (!cell) return;
+  const q = cell.querySelector('.enrich-queued');
+  if (q) q.classList.remove('active');
+  cell.classList.remove('enrich-cell--queued');
+  btn.removeAttribute('aria-hidden');
+  btn.style.display = '';
+}
+
+function requestEnrich(btn) {
+  const cell = btn.closest('.enrich-cell');
+  if (!cell || !enrichBtnIsPending(btn)) return;
+  if (cell.classList.contains('enrich-cell--queued')) return;
+  if (activeEnrichSlots < MAX_CONCURRENT_ENRICH) {
+    activeEnrichSlots++;
+    startEnrich(btn);
+  } else {
+    enrichWaitQueue.push(btn);
+    showEnrichQueued(btn);
+  }
+}
+
+function releaseEnrichSlot() {
+  activeEnrichSlots = Math.max(0, activeEnrichSlots - 1);
+  drainEnrichQueue();
+}
+
+function drainEnrichQueue() {
+  while (activeEnrichSlots < MAX_CONCURRENT_ENRICH && enrichWaitQueue.length > 0) {
+    const btn = enrichWaitQueue.shift();
+    if (!btn || !btn.isConnected) continue;
+    const cell = btn.closest('.enrich-cell');
+    if (!cell || !cell.classList.contains('enrich-cell--queued')) continue;
+    if (!btn.parentElement) continue;
+    hideEnrichQueued(btn);
+    activeEnrichSlots++;
+    startEnrich(btn);
+  }
+}
+
+function collectEnrichButtonsForColumnKeys(keys, onlyIdle = false) {
   const set = new Set(keys);
+  const pred = onlyIdle ? enrichBtnCanStart : enrichBtnIsPending;
   return [...document.querySelectorAll('.enrich-btn')].filter((btn) => {
     if (!set.has(btn.dataset.columnKey)) return false;
-    return enrichBtnIsPending(btn);
+    return pred(btn);
   });
 }
 
@@ -1549,61 +2352,65 @@ function updateRowSelectAllState() {
   all.indeterminate = c > 0 && c < n;
 }
 
-function staggerStartEnrich(buttons, gapMs) {
-  buttons.forEach((btn, i) => {
-    setTimeout(() => {
-      if (enrichBtnIsPending(btn)) startEnrich(btn);
-    }, i * gapMs);
+function enrichColumnsByKeys(keys) {
+  const buttons = collectEnrichButtonsForColumnKeys(keys, true);
+  buttons.forEach((btn) => {
+    if (enrichBtnCanStart(btn)) requestEnrich(btn);
   });
 }
 
-function enrichColumnsByKeys(keys) {
-  const buttons = collectEnrichButtonsForColumnKeys(keys);
-  staggerStartEnrich(buttons, 120);
-}
-
 function enrichColumnScoped(columnKey, maxRows) {
-  let buttons = collectEnrichButtonsForColumnKeys([columnKey]);
+  let buttons = collectEnrichButtonsForColumnKeys([columnKey], true);
   if (Number.isFinite(maxRows) && maxRows > 0) buttons = buttons.slice(0, maxRows);
-  staggerStartEnrich(buttons, 120);
+  buttons.forEach((btn) => {
+    if (enrichBtnCanStart(btn)) requestEnrich(btn);
+  });
 }
 
 function refreshColumnRunCounts() {
-  document.querySelectorAll('.col-run-dropdown').forEach((wrap) => {
+  document.querySelectorAll('.col-run-dropdown--enrich').forEach((wrap) => {
     const key = wrap.dataset.colKey;
     const enrichType = wrap.dataset.enrichType || 'custom';
     const per = creditsPerCell(enrichType);
     const n = collectEnrichButtonsForColumnKeys([key]).length;
     const firstN = Math.min(n, 20);
-    const span = wrap.querySelector('.col-run-count');
-    if (span) span.textContent = String(n);
+    const totalPeople = rows.length;
+    const totalPeopleEl = wrap.querySelector('.col-run-total-people');
+    if (totalPeopleEl) totalPeopleEl.textContent = String(totalPeople);
     const firstCostEl = wrap.querySelector('.col-run-credits-first20');
     const allCostEl = wrap.querySelector('.col-run-credits-all');
+    const unenrichedCostEl = wrap.querySelector('.col-run-credits-unenriched');
     if (firstCostEl) firstCostEl.textContent = String(firstN * per);
     if (allCostEl) allCostEl.textContent = String(n * per);
+    if (unenrichedCostEl) unenrichedCostEl.textContent = String(n * per);
     const firstBtn = wrap.querySelector('[data-run-scope="first20"]');
-    const allBtn = wrap.querySelector('[data-run-scope="all"]');
+    const allListBtn = wrap.querySelector('[data-run-scope="allList"]');
+    const unenrichedBtn = wrap.querySelector('[data-run-scope="unenriched"]');
     if (firstBtn) {
       firstBtn.disabled = n === 0;
       firstBtn.setAttribute(
         'aria-label',
-        n === 0
-          ? 'Run for first 20 rows'
-          : `Run for first ${firstN} rows, ${firstN * per} credits`
+        n === 0 ? '20 people' : `${firstN} people, ${firstN * per} credits`
       );
     }
-    if (allBtn) {
-      allBtn.disabled = n === 0;
-      allBtn.setAttribute(
+    if (allListBtn) {
+      allListBtn.disabled = n === 0;
+      allListBtn.setAttribute(
         'aria-label',
-        n === 0 ? 'Run for all rows' : `Run for all ${n} rows, ${n * per} credits`
+        n === 0
+          ? 'All people in this list'
+          : `All ${totalPeople} people in this list, ${n * per} credits for unenriched cells`
+      );
+    }
+    if (unenrichedBtn) {
+      unenrichedBtn.disabled = n === 0;
+      unenrichedBtn.setAttribute(
+        'aria-label',
+        n === 0 ? 'All unenriched people' : `All ${n} unenriched people, ${n * per} credits`
       );
     }
     if (n === 0) {
       setColRunDropdownOpen(wrap, false);
-      wrap.hidden = true;
-    } else {
-      wrap.hidden = false;
     }
   });
 }
@@ -1611,49 +2418,7 @@ function refreshColumnRunCounts() {
 function renderHead() {
   const thead = document.getElementById('tableHead');
   const tr = document.createElement('tr');
-  tr.innerHTML = columnDefs
-    .map((col) => {
-      const w = col.width || 'auto';
-      if (col.kind === 'checkbox')
-        return `<th style="width:${w}"><input type="checkbox" class="row-select-all" aria-label="Select all rows in view" title="Select all"></th>`;
-      if (col.kind === 'prospect')
-        return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
-      if (col.kind === 'text')
-        return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
-      if (col.kind === 'enrich')
-        return `<th style="width:${w};min-width:${w}">
-        <div class="th-enrich-head">
-          <span>${col.label} ${sortIconHTML}</span>
-          <div class="col-run-dropdown" data-col-key="${col.key}" data-enrich-type="${col.enrichType}">
-            <button type="button" class="col-run-trigger" aria-label="Open column run options" aria-expanded="false" aria-haspopup="true" aria-controls="col-run-menu-${col.key}">
-              ${starSVG}
-            </button>
-            <ul class="col-run-menu" id="col-run-menu-${col.key}" role="menu" aria-label="Run enrichment for column">
-              <li><button type="button" class="col-run-item" role="menuitem" data-run-scope="first20" aria-label="Run for first 20 rows">
-                <span class="col-run-item-row">
-                  <span class="col-run-item-label">Run for first 20 rows</span>
-                  <span class="col-run-item-cost">${colRunMenuCoinSVG}<span class="col-run-credits-first20">0</span></span>
-                </span>
-              </button></li>
-              <li><button type="button" class="col-run-item" role="menuitem" data-run-scope="all" aria-label="Run for all rows">
-                <span class="col-run-item-row">
-                  <span class="col-run-item-label">Run for all <span class="col-run-count">0</span></span>
-                  <span class="col-run-item-cost">${colRunMenuCoinSVG}<span class="col-run-credits-all">0</span></span>
-                </span>
-              </button></li>
-            </ul>
-          </div>
-        </div>
-      </th>`;
-      if (col.kind === 'status')
-        return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
-      if (col.kind === 'icp')
-        return `<th style="width:${w};min-width:${w}">${col.label} ${sortIconHTML}</th>`;
-      if (col.kind === 'menu')
-        return `<th class="th-add-column-cell" style="width:${w};min-width:${w}"><button type="button" class="th-add-column-btn" id="btnAddColumn"><svg class="th-add-column-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 3v8M3 7h8"/></svg><span>Add column</span></button></th>`;
-      return '';
-    })
-    .join('');
+  tr.innerHTML = columnDefs.map((col) => columnHeaderCellHTML(col)).join('');
   thead.innerHTML = '';
   thead.appendChild(tr);
 }
@@ -1684,7 +2449,7 @@ function renderBody() {
         if (col.kind === 'enrich') {
           const val = row[col.key];
           if (val) return `<td>${val}</td>`;
-          return `<td>${enrichBtnHTML(col.enrichType, col.key)}</td>`;
+          return `<td>${enrichBtnHTML(col.enrichType, col.key, col.label, col.enrichmentCategory)}</td>`;
         }
         if (col.kind === 'status') return `<td>${statusCellHTML(row.status)}</td>`;
         if (col.kind === 'icp')
@@ -1740,9 +2505,16 @@ function onCreditLeave(e) {
 }
 
 function setColRunDropdownOpen(wrap, open) {
-  const trigger = wrap.querySelector('.col-run-trigger');
+  const trigger = wrap.querySelector('.th-col-head-trigger');
   if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
   wrap.classList.toggle('open', open);
+  if (!open) {
+    wrap.querySelectorAll('.col-run-flyout-wrap.open').forEach((fw) => {
+      fw.classList.remove('open');
+      const sub = fw.querySelector('[data-col-submenu-trigger]');
+      if (sub) sub.setAttribute('aria-expanded', 'false');
+    });
+  }
 }
 
 document.getElementById('dataTable').addEventListener('change', (e) => {
@@ -1763,20 +2535,11 @@ document.getElementById('dataTable').addEventListener('change', (e) => {
 });
 
 document.getElementById('dataTable').addEventListener('click', (e) => {
-  const addCol = e.target.closest('.th-add-column-btn');
-  if (addCol) {
-    e.preventDefault();
-    const name = window.prompt('Custom column name (FullEnrich-backed field)', 'Job title');
-    if (name === null) return;
-    addCustomColumn(name);
-    return;
-  }
-  const trigger = e.target.closest('.col-run-trigger');
+  const trigger = e.target.closest('.th-col-head-trigger');
   if (trigger) {
     e.preventDefault();
     e.stopPropagation();
     const wrap = trigger.closest('.col-run-dropdown');
-    if (wrap.hidden) return;
     const willOpen = !wrap.classList.contains('open');
     document.querySelectorAll('.col-run-dropdown.open').forEach((el) => setColRunDropdownOpen(el, false));
     setColRunDropdownOpen(wrap, willOpen);
@@ -1788,19 +2551,84 @@ document.getElementById('dataTable').addEventListener('click', (e) => {
     e.stopPropagation();
     const wrap = item.closest('.col-run-dropdown');
     const key = wrap.dataset.colKey;
+    if (item.dataset.colSubmenuTrigger) {
+      const flyoutWrap = item.closest('.col-run-flyout-wrap');
+      if (flyoutWrap) {
+        const willOpen = !flyoutWrap.classList.contains('open');
+        wrap.querySelectorAll('.col-run-flyout-wrap.open').forEach((fw) => {
+          fw.classList.remove('open');
+          const sub = fw.querySelector('[data-col-submenu-trigger]');
+          if (sub) sub.setAttribute('aria-expanded', 'false');
+        });
+        if (willOpen) {
+          flyoutWrap.classList.add('open');
+          item.setAttribute('aria-expanded', 'true');
+        }
+      }
+      return;
+    }
     setColRunDropdownOpen(wrap, false);
+    if (item.dataset.colHeaderAction === 'select-all') {
+      document.querySelectorAll('.row-select-cb').forEach((cb) => {
+        cb.checked = true;
+        cb.closest('tr')?.classList.add('row-selected');
+      });
+      const all = document.querySelector('.row-select-all');
+      if (all) {
+        all.checked = true;
+        all.indeterminate = false;
+      }
+      return;
+    }
+    if (item.dataset.colHeaderAction === 'select-none') {
+      document.querySelectorAll('.row-select-cb').forEach((cb) => {
+        cb.checked = false;
+        cb.closest('tr')?.classList.remove('row-selected');
+      });
+      const all = document.querySelector('.row-select-all');
+      if (all) {
+        all.checked = false;
+        all.indeterminate = false;
+      }
+      return;
+    }
+    if (item.dataset.colHeaderAction === 'add-column') {
+      const name = window.prompt('Column name', pickRandomAddColumnName());
+      if (name === null) return;
+      addCustomColumn(name, pickRandomEnrichmentCategory());
+      return;
+    }
+    if (item.dataset.colHeaderAction === 'sort-asc' && item.dataset.sortKey) {
+      setSortColumn(item.dataset.sortKey, 'asc');
+      return;
+    }
+    if (item.dataset.colHeaderAction === 'sort-desc' && item.dataset.sortKey) {
+      setSortColumn(item.dataset.sortKey, 'desc');
+      return;
+    }
+    if (
+      item.dataset.colHeaderAction === 'move-right' ||
+      item.dataset.colHeaderAction === 'move-left' ||
+      item.dataset.colHeaderAction === 'edit-column' ||
+      item.dataset.colHeaderAction === 'hide-column' ||
+      item.dataset.colHeaderAction === 'pin-column'
+    ) {
+      return;
+    }
     if (item.dataset.runScope === 'first20') enrichColumnScoped(key, 20);
-    else enrichColumnScoped(key, Infinity);
+    else if (item.dataset.runScope === 'allList' || item.dataset.runScope === 'unenriched')
+      enrichColumnScoped(key, Infinity);
     return;
   }
   const btn = e.target.closest('.enrich-btn');
   if (btn) {
     e.preventDefault();
-    startEnrich(btn);
+    requestEnrich(btn);
   }
 });
 
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.col-run-dropdown')) return;
   document.querySelectorAll('.col-run-dropdown.open').forEach((el) => setColRunDropdownOpen(el, false));
 });
 
@@ -1840,12 +2668,13 @@ function updateProgressStep(tooltipEl, newActiveIndex) {
 function startEnrich(btn) {
   const cell = btn.closest('.enrich-cell');
   const type = btn.dataset.type;
+  const enrichmentCategory = btn.dataset.enrichmentCategory || 'general';
   const loadingEl = cell.querySelector('.enrich-loading');
   const textInner = cell.querySelector('.loading-text-inner');
   const resultEl = cell.querySelector('.enrich-result');
   const progressTooltip = cell.querySelector('.progress-tooltip');
-  const messages = ENRICHMENT_MESSAGES[type] || ENRICHMENT_MESSAGES.custom;
-  const footerNote = type === 'custom' ? PROGRESS_NOTE_CUSTOM : PROGRESS_NOTE_DEFAULT;
+  const messages = enrichMessagesFor(enrichmentCategory, type);
+  const footerNote = progressFooterFor(enrichmentCategory, type);
 
   const creditTip = cell.querySelector('.enrich-tooltip');
   if (creditTip) creditTip.style.display = 'none';
@@ -1918,9 +2747,15 @@ function startEnrich(btn) {
     loadingTextEl.style.animation = 'textFade 3s var(--ease-in-out) infinite';
   }, 3000);
 
-  const totalTime = 10000 + Math.random() * 5000;
+  let totalTime = 10000 + Math.random() * 5000;
+  if (enrichmentCategory === 'aiQualification') {
+    totalTime = 2200 + Math.random() * 1800;
+  } else if (enrichmentCategory === 'webResearch') {
+    totalTime = 12000 + Math.random() * 6000;
+  }
   setTimeout(() => {
     clearInterval(interval);
+    releaseEnrichSlot();
 
     const spinner = loadingEl.querySelector('.loading-spinner');
     spinner.style.transition = 'opacity 150ms var(--ease-in)';
@@ -1933,7 +2768,7 @@ function startEnrich(btn) {
     }, 150);
     loadingTextEl.style.animation = 'none';
     loadingTextEl.offsetHeight;
-    textInner.textContent = type === 'custom' ? 'Complete' : 'Verified';
+    textInner.textContent = type === 'email' || type === 'phone' ? 'Verified' : 'Complete';
     loadingTextEl.style.animation = 'textFade 3s var(--ease-in-out) infinite';
     updateProgressStep(progressTooltip, messages.length);
 
