@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Persona Targeting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple-10: #F3EFFB;
+  --purple-15: #E9E1F8;
+  --purple-20: #DFD2F4;
+  --purple-30: #CAB5ED;
+  --purple-40: #B598E6;
+  --purple-50: #A17BDF;
+  --purple-60: #682FC5;
+  --purple-65: #5E2BB2;
+  --purple-70: #53269E;
+  --purple-80: #3F1D77;
+  --tan-10: #FAF8F5;
+  --tan-15: #F1EEE9;
+  --tan-20: #E8E3DC;
+  --tan-25: #DED8D1;
+  --tan-30: #D3CCC5;
+  --tan-40: #C0B4A7;
+  --tan-50: #A89D90;
+  --tan-60: #8E847A;
+  --tan-65: #7F776E;
+  --tan-70: #6A6358;
+  --tan-80: #524E48;
+  --tan-90: #373431;
+  --tan-100: #201F1D;
+
+  --page-bg: #faf9f5;
+  --card-border: #dbdadd;
+  --card-shadow: 0px 4px 12px rgba(117, 113, 122, 0.08);
+  --text-primary: #28272a;
+  --text-secondary: #646069;
+  --border-default: #dbdadd;
+  --surface-white: white;
+  --brand-default: #682fc5;
+  --brand-subtler: #f3effb;
+  --gray-subtler: #f7f7f8;
+  --gray-subtle: #dbdadd;
+
+  --duration-micro: 150ms;
+  --duration-fast: 200ms;
+  --duration-moderate: 300ms;
+  --duration-slow: 400ms;
+  --duration-deliberate: 500ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --stagger-item: 40ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--page-bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+/* ─── Side Nav ─── */
+.side-nav {
+  width: 56px;
+  height: 100vh;
+  background: var(--surface-white);
+  border-right: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  z-index: 5;
+}
+.side-nav-header {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.side-nav-logo {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.side-nav-logo svg { width: 17px; height: 14px; }
+.side-nav-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px;
+}
+.nav-separator {
+  height: 1px;
+  background: var(--border-default);
+  opacity: 0.5;
+  width: 100%;
+}
+.nav-item {
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+.nav-item:hover { background: #f7f7f8; }
+.nav-item.active { background: #ecebed; }
+.nav-item svg { width: 16px; height: 16px; color: var(--text-secondary); }
+.nav-item.active svg { color: var(--text-primary); }
+.side-nav-footer {
+  border-top: 1px solid #ebebed;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.avatar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 12px;
+}
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--purple-40), var(--purple-60));
+  border: 1px solid var(--gray-subtler);
+}
+
+/* ─── Main Content ─── */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 0;
+  isolation: isolate;
+}
+
+/* ─── Top Nav ─── */
+.top-nav {
+  background: var(--surface-white);
+  padding: 0 24px;
+  flex-shrink: 0;
+  z-index: 3;
+}
+.top-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  gap: 16px;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.breadcrumb-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.breadcrumb-sep svg { width: 16px; height: 16px; color: var(--text-secondary); }
+.breadcrumb-current {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.breadcrumb-current svg { width: 20px; height: 20px; color: var(--text-secondary); }
+.badge-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: var(--brand-subtler);
+  border: 1px solid var(--purple-20);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--brand-default);
+}
+.badge-type svg { width: 16px; height: 16px; }
+
+.top-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--gray-subtler);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.top-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.top-tab.active {
+  background: var(--surface-white);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+}
+.top-tab svg { width: 20px; height: 20px; }
+
+.top-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  justify-content: flex-end;
+}
+.badge-draft {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: var(--gray-subtler);
+  border: 1px solid var(--gray-subtle);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.badge-draft svg { width: 16px; height: 16px; }
+.btn-launch-top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 12px;
+  background: var(--purple-40);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-launch-top svg { width: 20px; height: 20px; }
+
+/* ─── Secondary Nav (Steps) ─── */
+.secondary-nav {
+  background: var(--surface-white);
+  border-top: 1px solid #ececec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.step.active {
+  font-weight: 600;
+  color: var(--brand-default);
+}
+.step svg { width: 16px; height: 16px; }
+.step.active svg { color: var(--brand-default); }
+.step-divider {
+  width: 1px;
+  height: 12px;
+  background: var(--border-default);
+  border-radius: 1px;
+}
+
+/* ─── Content Zone (matches Figma: p-16, column gap-32 title block → grid) ─── */
+.content-zone {
+  flex: 1;
+  border-top: 1px solid #ececec;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  padding: 16px;
+  z-index: 2;
+  position: relative;
+}
+.content-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.content-zone.dealt {
+  overflow: auto;
+}
+.content-zone.proto-purple-bg {
+  background: var(--purple-10);
+}
+
+/* ─── Prototype: load animation switcher ─── */
+.proto-controls {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.proto-controls select {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-white);
+  color: var(--text-primary);
+  min-width: 240px;
+  cursor: pointer;
+}
+
+/* ─── Conic border shimmer (grid loading modes) ─── */
+@property --shimmer-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes shimmer-sweep {
+  from { --shimmer-angle: 0deg; }
+  to { --shimmer-angle: 360deg; }
+}
+
+.persona-card.loading-state {
+  cursor: default;
+  overflow: visible;
+  box-shadow: none;
+  --shimmer-speed: 2.2s;
+  --shimmer-delay: 0s;
+}
+.persona-card.loading-state::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  background: conic-gradient(
+    from var(--shimmer-angle),
+    #e5e2df 0deg,
+    #e5e2df 240deg,
+    #F8A36F 270deg,
+    #BD56EC 310deg,
+    #5488F8 340deg,
+    #e5e2df 360deg
+  );
+  z-index: 2;
+  animation: shimmer-sweep var(--shimmer-speed) linear infinite;
+  animation-delay: var(--shimmer-delay);
+  transition: opacity var(--duration-deliberate) var(--ease-out);
+}
+.persona-card.loading-state::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  background: var(--page-bg);
+  z-index: 3;
+  transition:
+    background var(--duration-moderate) var(--ease-out),
+    opacity var(--duration-slow) var(--ease-out) var(--duration-moderate);
+}
+.persona-card.loading-state .card-content {
+  position: relative;
+  z-index: 4;
+}
+
+/* Grid entrance: fade + rise */
+.persona-card.card-enter-pending {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.persona-card.card-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.55s var(--ease-out),
+    transform 0.6s var(--spring-smooth);
+}
+
+/* Radial bloom start */
+.persona-card.bloom-pending {
+  opacity: 0;
+  transform: scale(0.9);
+  transform-origin: center center;
+}
+.persona-card.bloom-active {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 0.5s var(--ease-out),
+    transform 0.65s var(--spring-snappy);
+}
+
+/* Progress bar (minimal mode) */
+.gen-progress-wrap {
+  width: min(360px, 90vw);
+  margin: 12px auto 0;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--tan-20);
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--duration-moderate) var(--ease-out);
+}
+.gen-progress-wrap.hidden { opacity: 0; pointer-events: none; }
+.gen-progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--purple-40), var(--purple-60));
+  transition: width 1.35s var(--ease-out);
+}
+.gen-progress-bar.fill { width: 100%; }
+
+/* Spotlight scan: beam lives on each card’s inner mask (::after) so it stays inside the rounded rect */
+.persona-card.loading-state.card-spotlight-scan::after {
+  background-image:
+    linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent 42%,
+      rgba(255, 255, 255, 0.58) 50%,
+      transparent 58%,
+      transparent 100%
+    ),
+    linear-gradient(var(--page-bg), var(--page-bg));
+  background-size: 200% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 130% 0, 0 0;
+  animation: card-scan-sweep 1.55s var(--ease-in-out) 2;
+  animation-delay: var(--scan-delay, 0s);
+}
+@keyframes card-scan-sweep {
+  0% { background-position: 130% 0, 0 0; opacity: 1; }
+  15% { opacity: 1; }
+  100% { background-position: -130% 0, 0 0; opacity: 1; }
+}
+
+/* Hero + strip stage */
+.hero-strip-stage {
+  width: 1200px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+  transition: opacity var(--duration-deliberate) var(--ease-out), transform var(--duration-deliberate) var(--ease-out);
+}
+.hero-strip-stage.fade-out {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+.hero-card-proto {
+  width: 100%;
+  max-width: 560px;
+  height: 200px;
+  border-radius: 12px;
+  position: relative;
+}
+.strip-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.strip-mini {
+  width: calc((100% - 40px) / 4);
+  min-width: 140px;
+  max-width: 200px;
+  height: 112px;
+  border-radius: 10px;
+  position: relative;
+}
+.strip-mini .strip-mini-label {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.3;
+  z-index: 5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Constellation / profile stream layer */
+.constellation-layer {
+  position: relative;
+  width: 1200px;
+  max-width: 100%;
+  min-height: 200px;
+  height: 220px;
+  margin-bottom: 4px;
+  z-index: 8;
+  overflow: visible;
+  transition: opacity var(--duration-deliberate) var(--ease-out);
+}
+.constellation-layer.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+.const-node {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 8px;
+  border-radius: 999px;
+  background: var(--surface-white);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 2px 10px rgba(40, 39, 42, 0.07);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  max-width: min(220px, 42vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+  transform-origin: center center;
+  opacity: 0;
+  transform: scale(0.88);
+  will-change: transform, opacity;
+}
+.const-node.pop-in {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 0.45s var(--ease-out),
+    transform 0.5s var(--spring-smooth);
+}
+.const-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--tan-15), var(--tan-25));
+  border: 1px solid var(--tan-30);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--tan-70);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.const-node .const-sparkle {
+  display: none;
+}
+@keyframes const-sway {
+  0%, 100% { transform: translateX(0) scale(1); }
+  50% { transform: translateX(var(--sway-x, 16px)) scale(1); }
+}
+.const-node.swaying {
+  animation: const-sway var(--sway-dur, 2.6s) ease-in-out infinite;
+}
+.const-node.exiting {
+  animation: none !important;
+  transition: transform 0.75s var(--ease-out), opacity 0.55s var(--ease-in) !important;
+}
+
+/* ─── Header (title area) — Figma text container: pt-32 pb-16, w-380 ─── */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 16px;
+  width: 380px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity var(--duration-deliberate) var(--ease-out);
+}
+.page-header.visible {
+  opacity: 1;
+}
+.page-title {
+  font-family: 'Intrinseca', 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+  color: var(--text-primary);
+}
+.page-subtitle {
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* ─── Header stack (loading + loaded text overlap) ─── */
+.header-stack {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+}
+.header-stack > * {
+  grid-area: 1 / 1;
+}
+
+/* ─── Loading Center Text (same vertical rhythm as page header) ─── */
+.loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 16px;
+  width: 380px;
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+.loading-center.hidden { opacity: 0; pointer-events: none; }
+.loading-title {
+  font-family: 'Intrinseca', 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+  white-space: nowrap;
+  background: linear-gradient(-90deg, #F8A36F 2.5%, #BD56EC 26.85%, #5488F8 56.19%, #28272A 73.78%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.loading-subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 24px;
+  margin-top: 8px;
+}
+.loading-skip {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--brand-default);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* ─── Card Grid ─── */
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 1200px;
+  max-width: 100%;
+  position: relative;
+}
+.card-grid.deck-mode {
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  flex: 1;
+}
+.card-grid.deck-mode .persona-card {
+  position: absolute;
+}
+
+/* ─── Fill shimmer ─── */
+@keyframes shimmer-fill-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ─── Card ─── */
+.persona-card {
+  width: calc((100% - 32px) / 3);
+  height: 216px;
+  min-height: 64px;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  border: 1px solid var(--card-border);
+  background: var(--surface-white);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  transition:
+    box-shadow var(--duration-slow) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-moderate) var(--ease-out),
+    opacity var(--duration-moderate) var(--ease-out);
+}
+.persona-card:hover:not(.selected) {
+  border-color: #c7c1d0;
+}
+/* Figma: selected card = brand border + brand-subtler (#f3effb) fill */
+.persona-card.selected:not(.loading-state):not(.deck-state):not(.cta-card) {
+  background: var(--brand-subtler);
+  border-color: var(--brand-default);
+}
+.persona-card.selection-fill-first:not(.loading-state):not(.deck-state):not(.cta-card) {
+  background: var(--brand-subtler);
+  opacity: 1;
+}
+/* Softer unselected tiles on prototype lavender field (no opacity dip — was 0.94 vs loading cards at 1, so each reveal looked like a random “dark flash”) */
+.content-zone.proto-purple-bg .persona-card:not(.cta-card):not(.selected):not(.selection-fill-first):not(.loading-state):not(.deck-state) {
+  background: var(--purple-15);
+}
+/* Same fill while loading so removing .loading-state doesn’t animate white → purple-15 (read as a dark flash per card in the stagger) */
+.content-zone.proto-purple-bg .persona-card.loading-state:not(.cta-card):not(.deck-state) {
+  background: var(--purple-15);
+}
+
+/* ─── Deck state: cards stacked in center ─── */
+.persona-card.deck-state {
+  cursor: default;
+  overflow: visible;
+  will-change: transform;
+  transform-origin: 50% 55%;
+  border-color: var(--tan-20);
+  box-shadow:
+    0 1px 2px rgba(40, 39, 42, 0.04),
+    0 4px 14px rgba(40, 39, 42, 0.07);
+}
+
+/* Tan fill for all deck cards */
+.persona-card.deck-state::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  background: var(--page-bg);
+  z-index: 3;
+  transition:
+    background var(--duration-moderate) var(--ease-out),
+    opacity var(--duration-slow) var(--ease-out) var(--duration-moderate);
+}
+
+/* Fill shimmer overlay — only on the active top card */
+.persona-card.deck-state::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 20%,
+    rgba(248, 163, 111, 0.06) 32%,
+    rgba(189, 86, 236, 0.08) 42%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(84, 136, 248, 0.08) 58%,
+    rgba(248, 163, 111, 0.06) 68%,
+    transparent 80%
+  );
+  background-size: 300% 100%;
+  transition: opacity var(--duration-moderate) var(--ease-out);
+}
+.persona-card.deck-state.shimmer-active::before {
+  opacity: 1;
+  animation: shimmer-fill-sweep 2.1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.persona-card.deck-state .card-content {
+  position: relative;
+  z-index: 5;
+}
+
+/* Dealing animation: cards fly from stack to grid position */
+.persona-card.dealing {
+  transition: transform 0.7s var(--spring-snappy) !important;
+}
+/* Shadow on during dissolve so it doesn’t “pop” darker when .loading-state drops (random card per stagger) */
+.persona-card.dissolving {
+  box-shadow: var(--card-shadow) !important;
+}
+/* Two-phase reveal: (1) inner mask eases to solid white while conic ring stays; (2) .dissolving-fade-out fades both — only then JS removes loading */
+.persona-card.dissolving.loading-state:not(.dissolving-fade-out)::before {
+  animation-play-state: paused !important;
+  opacity: 1;
+}
+.persona-card.dissolving:not(.dissolving-fade-out)::after {
+  animation-play-state: paused !important;
+  background-image: none !important;
+  background-color: var(--surface-white) !important;
+  opacity: 1;
+  transition:
+    background-color var(--duration-moderate) var(--ease-out),
+    background var(--duration-moderate) var(--ease-out);
+}
+/* CTA: dissolve to page tan, not white — matches empty tile on cream page */
+.persona-card.dissolving.cta-card:not(.dissolving-fade-out)::after {
+  background-color: var(--page-bg) !important;
+}
+/* Phase 2: fade conic ring first; inner white only after (if both fade together, semi-transparent white shows rainbow) */
+.persona-card.dissolving.dissolving-fade-out::before {
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-out) 0s;
+}
+/* Keep inner mask color while fading — without this, :not(.dissolving-fade-out) stops applying and
+   .loading-state::after wins again (page-bg tan), so persona cards would white → tan → white */
+.persona-card.dissolving.dissolving-fade-out::after {
+  background-image: none !important;
+  background-color: var(--surface-white) !important;
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-out) var(--duration-slow);
+}
+.persona-card.dissolving.cta-card.dissolving-fade-out::after {
+  background-color: var(--page-bg) !important;
+}
+.persona-card.cta-card {
+  border: 2px dashed var(--border-default);
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+.persona-card.cta-card.deck-state,
+.persona-card.cta-card.loading-state {
+  border-style: solid;
+  border-color: var(--card-border);
+}
+.persona-card.cta-card.deck-state {
+  background: var(--surface-white);
+}
+/* Tan fill + overflow for conic border; matches mask + page so dissolve → transparent doesn’t flash white */
+.persona-card.cta-card.loading-state {
+  background: var(--page-bg);
+  overflow: visible;
+}
+.persona-card.cta-card:not(.deck-state):not(.loading-state):hover {
+  border-color: #c7c1d0;
+  background: var(--gray-subtler);
+}
+.cta-inner {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--duration-moderate) var(--ease-out), transform var(--duration-moderate) var(--spring-snappy);
+}
+.cta-inner.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card content */
+.card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity var(--duration-moderate) var(--ease-out);
+}
+.card-content.visible {
+  opacity: 1;
+}
+
+/* Character reveal animation */
+.char {
+  display: inline;
+  opacity: 0;
+}
+.char.animate {
+  animation: charReveal 0.7s var(--ease-out) forwards;
+}
+@keyframes charReveal {
+  0%   { opacity: 0; color: #F8A36F; }
+  15%  { opacity: 1; color: #F8A36F; }
+  35%  { color: #BD56EC; }
+  55%  { color: #5488F8; }
+  75%  { color: inherit; }
+  100% { opacity: 1; color: inherit; }
+}
+
+/* Staggered entrance for non-text card elements */
+.card-radio {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+.card-content.filled .card-radio {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Tags: --i from markup; --reveal-order from JS shuffle for varied stagger */
+
+.card-footer {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--spring-snappy);
+}
+/* Meta row + tags: fade in early (card-meta-in), not after long title/desc char reveal */
+.card-content.card-meta-in .card-footer {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 50ms;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 28px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.card-title-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--brand-default);
+}
+.card-radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-white);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.selected .card-radio {
+  background: var(--brand-default);
+  border-color: var(--brand-default);
+}
+.card-radio-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: white;
+  opacity: 0;
+  transform: scale(0);
+  transition: all var(--duration-fast) var(--spring-bounce);
+}
+.selected .card-radio-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+.card-description {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+}
+.card-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.card-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 6px;
+  background: var(--gray-subtler);
+  border: 1px solid var(--gray-subtle);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--spring-snappy);
+}
+.card-content.card-meta-in .card-tag {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(120ms + var(--reveal-order, var(--i, 0)) * 44ms);
+}
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.card-prospects {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--brand-default);
+}
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+}
+.card-action-btn:hover { background: rgba(0,0,0,0.04); }
+.card-action-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.card-action-icon:hover { background: rgba(0,0,0,0.04); }
+.card-action-icon svg { width: 20px; height: 20px; color: var(--text-secondary); }
+
+/* CTA Card */
+.cta-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--text-secondary);
+}
+.cta-text {
+  text-align: center;
+  width: 258px;
+  color: var(--text-secondary);
+}
+.cta-title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 28px;
+}
+.cta-desc {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+/* ─── Bottom Bar ─── */
+.bottom-bar {
+  background: var(--surface-white);
+  border-top: 1px solid #ececec;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.bottom-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 24px;
+}
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--brand-default);
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-back:hover { background: var(--brand-subtler); }
+.bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-white);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-secondary:hover { background: var(--gray-subtler); }
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: var(--brand-default);
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-primary:hover { background: var(--purple-65); }
+</style>
+</head>
+<body>
+
+<!-- Side Nav -->
+<nav class="side-nav">
+  <div class="side-nav-header">
+    <div class="side-nav-logo">
+      <svg viewBox="0 0 17 14" fill="none"><path d="M8.5 0L17 14H0L8.5 0Z" fill="#682FC5"/></svg>
+    </div>
+  </div>
+  <div class="side-nav-body">
+    <div class="nav-group">
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3.5L13 7l-3.5 1.5L8 12l-1.5-3.5L3 7l3.5-1.5L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+      <div class="nav-item active"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6-2 6 2v6l-6 4-6-4V4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M2 4l6 4m0 0l6-4m-6 4v6" stroke="currentColor" stroke-width="1.3"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="nav-separator"></div>
+    <div class="nav-group">
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M2 10h12M4 6h8v6H4V6z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 6V4a2 2 0 014 0v2" stroke="currentColor" stroke-width="1.3"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2 6h12" stroke="currentColor" stroke-width="1.3"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M4 2v12M12 6l-4 4-4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="nav-separator"></div>
+    <div class="nav-group">
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M8 2v2m0 8v2M2 8h2m8 0h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 2a6 6 0 010 12M8 2c1.7 0 3 2.7 3 6s-1.3 6-3 6M2 8h12" stroke="currentColor" stroke-width="1.3"/></svg></div>
+    </div>
+    <div class="nav-separator"></div>
+    <div class="nav-group">
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><circle cx="11" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 14c0-2 1.3-3.5 3-3.5s3 1.5 3 3.5m2-3.5c1.7 0 3 1.5 3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+    </div>
+  </div>
+  <div class="side-nav-footer">
+    <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+    <div class="avatar-container"><div class="avatar"></div></div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Top Nav -->
+  <div class="top-nav">
+    <div class="top-nav-bar">
+      <div class="breadcrumb">
+        <span class="breadcrumb-text">Campaigns</span>
+        <span class="breadcrumb-sep"><svg viewBox="0 0 16 16" fill="none" width="16" height="16"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="breadcrumb-current">
+          New campaign
+          <svg viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="badge-type">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2l5 3v6l-5 3-5-3V5l5-3z" stroke="currentColor" stroke-width="1.2"/></svg>
+          Cold outbound
+        </span>
+      </div>
+      <div class="top-nav-tabs">
+        <div class="top-tab active">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 16l1.5-5L14 4l2 2-8.5 7L4 16z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          Build
+        </div>
+        <div class="top-tab">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="4" stroke="currentColor" stroke-width="1.3"/><circle cx="14" cy="7" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M3 18c0-3 2-5 4-5s4 2 4 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Leads
+        </div>
+        <div class="top-tab">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="4" y="4" width="3" height="12" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="7" width="3" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="14" y="10" width="3" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+          Analytics
+        </div>
+      </div>
+      <div class="top-nav-actions">
+        <span class="badge-draft">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><circle cx="5" cy="8" r="1" fill="currentColor"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="11" cy="8" r="1" fill="currentColor"/></svg>
+          Draft
+        </span>
+        <button class="btn-launch-top">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 15L3 17l2-8 8-6-6 8-2 4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          Launch
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Nav -->
+  <div class="secondary-nav">
+    <div class="steps">
+      <div class="step active">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/></svg>
+        Targeting
+      </div>
+      <div class="step-divider"></div>
+      <div class="step">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6-2 6 2v6l-6 4-6-4V4z" stroke="currentColor" stroke-width="1.2"/></svg>
+        Sequence
+      </div>
+      <div class="step-divider"></div>
+      <div class="step">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 5a5 5 0 018 0M5 8a3 3 0 014 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="11" r="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+        Messaging
+      </div>
+      <div class="step-divider"></div>
+      <div class="step">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/><circle cx="11" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/></svg>
+        Senders
+      </div>
+      <div class="step-divider"></div>
+      <div class="step">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M12 8a4 4 0 01-4 4m4-4a4 4 0 00-4-4m4 4h2M8 4V2m-4 6H2m6 4v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Settings
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Zone -->
+  <div class="content-zone" id="contentZone">
+    <div class="proto-controls">
+      <label for="protoModeSelect">Load animation</label>
+      <select id="protoModeSelect" aria-label="Load animation prototype"></select>
+    </div>
+    <div class="content-main">
+      <div class="header-stack">
+        <!-- Loading center text -->
+        <div class="loading-center" id="loadingCenter">
+          <p class="loading-title">Generating suggested audiences</p>
+          <p class="loading-subtitle">Hang tight while we analyze your data</p>
+          <p class="loading-skip" onclick="skipToLoaded()">Skip &amp; search with filters</p>
+        </div>
+
+        <!-- Page header (cross-fades in) -->
+        <div class="page-header" id="pageHeader">
+          <p class="page-title">Ava suggests these personas for you to target</p>
+          <p class="page-subtitle">Based on her analysis, these are the personas she suggests targeting.</p>
+        </div>
+      </div>
+
+      <!-- Card Grid -->
+      <div class="card-grid" id="cardGrid"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="bottom-bar-inner">
+      <button class="btn-back">Back</button>
+      <div class="bottom-right">
+        <button class="btn-secondary">Skip &amp; search with filters</button>
+        <button class="btn-primary">Select</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PERSONAS = [
+  { title: 'Sales leadership decision makers', desc: 'VP Sales and CROs at fast-growing SaaS and tech companies', tags: ['5 titles','5 industries','51\u20135000 employees'], prospects: '~ 17K prospects' },
+  { title: 'Revenue operation leaders', desc: 'RevOps and sales ops professionals optimizing processes and technology', tags: ['5 titles','5 industries','51\u20135000 employees'], prospects: '~ 15K prospects' },
+  { title: 'Growth and marketing executives', desc: 'CMOs and growth leaders driving demand generation and pipeline growth', tags: ['5 titles','5 industries','51\u20135000 employees'], prospects: '~ 4K prospects' },
+  { title: 'Startup founders and executives', desc: 'Founders and C-suite executives at early-stage high-growth companies', tags: ['5 titles','5 industries','51\u20135000 employees'], prospects: '~ 26K prospects' },
+  { title: 'Startup founders and executives', desc: 'Founders and C-suite executives at early-stage high-growth companies', tags: ['5 titles','5 industries','51\u20135000 employees'], prospects: '~ 26K prospects' },
+];
+
+const MODE_OPTIONS = [
+  ['stack-deck', 'Stack deck + cycle'],
+  ['grid-fade-shimmer', 'Grid fade up + border shimmer'],
+  ['progress-bar', 'Progress bar → grid'],
+  ['spotlight-scan', 'Spotlight scan over grid'],
+  ['radial-bloom', 'Radial bloom from center'],
+  ['hero-strip', 'Hero + strip → grid'],
+  ['constellation', 'Profile stream → grid'],
+];
+
+function randBetween(min, max) {
+  return +(min + Math.random() * (max - min)).toFixed(2);
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const grid = document.getElementById('cardGrid');
+const contentZone = document.getElementById('contentZone');
+let cards = [];
+let ctaCard = null;
+let allCards = [];
+let deckOrder = [];
+let hasRevealed = false;
+let skipHandler = null;
+let timerIds = [];
+let selectSwitchTimer = null;
+const SELECT_FILL_MS = 280;
+/** Inner → white, then border fade (--duration-slow) then mask fade (same, delayed) — matches CSS */
+const DISSOLVE_INNER_MS = 360;
+const DISSOLVE_OUT_LEG_MS = 400;
+
+function scheduleDissolveCleanup(card) {
+  setTimeout(() => card.classList.add('dissolving-fade-out'), DISSOLVE_INNER_MS);
+  setTimeout(() => {
+    card.classList.remove('deck-state', 'loading-state', 'dissolving', 'dissolving-fade-out');
+  }, DISSOLVE_INNER_MS + 2 * DISSOLVE_OUT_LEG_MS + 40);
+}
+
+function schedule(fn, ms) {
+  const id = setTimeout(() => {
+    timerIds = timerIds.filter(t => t !== id);
+    fn();
+  }, ms);
+  timerIds.push(id);
+  return id;
+}
+
+/** Loading grid: cards rise into place one after another (DOM order, row-by-row), not one overlapping random burst */
+function staggerCardsIntoPlace(stepMin = 88, stepMax = 148, indices = null) {
+  requestAnimationFrame(() => {
+    let t = 0;
+    const seq = indices != null ? indices : allCards.map((_, i) => i);
+    seq.forEach((idx) => {
+      const card = allCards[idx];
+      if (!card) return;
+      schedule(() => {
+        card.style.transition = '';
+        card.classList.remove('card-enter-pending');
+        card.classList.add('card-enter-active');
+      }, t);
+      t += randBetween(stepMin, stepMax);
+    });
+  });
+}
+
+function clearAllTimers() {
+  timerIds.forEach(clearTimeout);
+  timerIds = [];
+}
+
+let isCycling = false;
+let cycleTimer = null;
+let cycleGen = 0;
+
+function stopCycle() {
+  isCycling = false;
+  cycleGen++;
+  clearTimeout(cycleTimer);
+  allCards.forEach(c => c.classList.remove('shimmer-active'));
+}
+
+function getMode() {
+  return document.getElementById('protoModeSelect').value || 'stack-deck';
+}
+
+function setShimmerVars(card) {
+  card.style.setProperty('--shimmer-speed', randBetween(1.45, 2.9) + 's');
+  card.style.setProperty('--shimmer-delay', -randBetween(0, 3.5) + 's');
+}
+
+function buildCardElements(personaExtra, ctaExtra) {
+  const pe = personaExtra || '';
+  const ce = ctaExtra != null ? ctaExtra : personaExtra;
+  grid.innerHTML = '';
+  cards = [];
+  PERSONAS.forEach((p) => {
+    const card = document.createElement('div');
+    card.className = `persona-card ${pe}`.trim();
+    card.innerHTML = `
+    <div class="card-content">
+      <div>
+        <div class="card-header">
+          <span class="card-title"><svg class="card-title-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 4.2L14 7l-4.2 1.8L8 13l-1.8-4.2L2 7l4.2-1.8L8 1z" fill="currentColor"/></svg><span class="card-title-text">${p.title}</span></span>
+          <div class="card-radio"><div class="card-radio-dot"></div></div>
+        </div>
+        <p class="card-description">${p.desc}</p>
+        <div class="card-tags">${p.tags.map((t, j) => `<span class="card-tag" style="--i:${j}">${t}</span>`).join('')}</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-prospects">${p.prospects}</span>
+        <div class="card-actions">
+          <button class="card-action-btn">Show filters</button>
+          <button class="card-action-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M4 16l1-4L14 4l2 2-9 8-3 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+    card._persona = p;
+    card.addEventListener('click', () => toggleSelect(card));
+    if (pe.includes('loading-state')) setShimmerVars(card);
+    grid.appendChild(card);
+    cards.push(card);
+  });
+  ctaCard = document.createElement('div');
+  ctaCard.className = `persona-card cta-card ${ce}`.trim();
+  ctaCard.innerHTML = `
+  <div class="cta-inner">
+    <svg class="cta-icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <div class="cta-text">
+      <p class="cta-title">Build your own audience</p>
+      <p class="cta-desc">Start from scratch with full control over every filter</p>
+    </div>
+  </div>`;
+  if (ce.includes('loading-state')) setShimmerVars(ctaCard);
+  grid.appendChild(ctaCard);
+  allCards = [...cards, ctaCard];
+}
+
+function toggleSelect(card) {
+  if (card.classList.contains('deck-state') || card.classList.contains('loading-state')) return;
+
+  if (selectSwitchTimer) {
+    clearTimeout(selectSwitchTimer);
+    selectSwitchTimer = null;
+    cards.forEach(c => c.classList.remove('selection-fill-first'));
+  }
+
+  const wasSelected = card.classList.contains('selected');
+  if (wasSelected) {
+    card.classList.remove('selected');
+    return;
+  }
+
+  const prev = cards.find(c => c.classList.contains('selected'));
+  if (prev && prev !== card) {
+    card.classList.add('selection-fill-first');
+    selectSwitchTimer = setTimeout(() => {
+      selectSwitchTimer = null;
+      prev.classList.remove('selected');
+      card.classList.remove('selection-fill-first');
+      card.classList.add('selected');
+    }, SELECT_FILL_MS);
+    return;
+  }
+
+  card.classList.add('selected');
+}
+
+function revealChars(el, text, charDelay, startDelay) {
+  el.textContent = '';
+  const chars = [...text];
+  chars.forEach((ch, i) => {
+    if (ch === ' ') {
+      el.appendChild(document.createTextNode(' '));
+      return;
+    }
+    const span = document.createElement('span');
+    span.className = 'char';
+    span.textContent = ch;
+    el.appendChild(span);
+    setTimeout(() => span.classList.add('animate'), startDelay + i * charDelay);
+  });
+  return startDelay + chars.length * charDelay;
+}
+
+function revealCard(card, i) {
+  if (card === ctaCard) {
+    card.classList.add('dissolving');
+    const inner = card.querySelector('.cta-inner');
+    if (inner) inner.classList.add('visible');
+    scheduleDissolveCleanup(card);
+    return;
+  }
+  const p = card._persona;
+  card.classList.add('dissolving');
+  const content = card.querySelector('.card-content');
+  if (content) content.classList.add('visible');
+  const tagEls = [...content.querySelectorAll('.card-tag')];
+  if (tagEls.length) {
+    const orderRanks = shuffle(tagEls.map((_, k) => k));
+    tagEls.forEach((tag, j) => tag.style.setProperty('--reveal-order', String(orderRanks[j])));
+  }
+  schedule(() => content.classList.add('card-meta-in'), 200);
+  const titleEl = card.querySelector('.card-title-text');
+  const descEl = card.querySelector('.card-description');
+  const titleEnd = revealChars(titleEl, p.title, 20, 100);
+  const descEnd = revealChars(descEl, p.desc, 14, titleEnd + 40);
+  setTimeout(() => content.classList.add('filled'), descEnd + 150);
+  scheduleDissolveCleanup(card);
+}
+
+function showLoadedHeader() {
+  document.getElementById('loadingCenter').classList.add('hidden');
+  schedule(() => document.getElementById('pageHeader').classList.add('visible'), 200);
+  contentZone.classList.add('dealt');
+}
+
+function finalizeStaggerRandom(minGap = 60, maxGap = 180) {
+  const order = shuffle(allCards.map((_, i) => i));
+  let t = 0;
+  order.forEach((idx) => {
+    schedule(() => revealCard(allCards[idx], idx), t);
+    t += randBetween(minGap, maxGap);
+  });
+}
+
+function stackGeom(i, n) {
+  const x = i * 3.2 + Math.sin(i * 0.92) * 2.1;
+  const y = i * 4.2 + Math.cos(i * 0.58) * 1.4;
+  const r = (i % 2 === 0 ? 1 : -1) * (0.4 + i * 0.38) + Math.sin(i * 1.05) * 0.45;
+  return { x, y, r };
+}
+function tf(x, y, r) {
+  return `translate(${x}px, ${y}px) rotate(${r}deg)`;
+}
+function applyStackTransforms(opts) {
+  const duration = opts.duration;
+  const easing = opts.easing;
+  const n = deckOrder.length;
+  deckOrder.forEach((card, i) => {
+    const g = stackGeom(i, n);
+    card._offsetX = g.x;
+    card._offsetY = g.y;
+    card._stackRot = g.r;
+    card.style.zIndex = n - i;
+    card.style.transition = duration ? `transform ${duration} ${easing}` : 'none';
+    card.style.transform = tf(g.x, g.y, g.r);
+  });
+}
+let peelDir = 1;
+
+function cycleDeck() {
+  if (!isCycling) return;
+  const gen = ++cycleGen;
+  const topCard = deckOrder[0];
+  topCard.classList.add('shimmer-active');
+  cycleTimer = setTimeout(() => {
+    if (!isCycling || gen !== cycleGen) return;
+    topCard.classList.remove('shimmer-active');
+    const g0 = stackGeom(0, deckOrder.length);
+    topCard.style.transition = 'transform 0.62s cubic-bezier(0.34, 1.25, 0.5, 1)';
+    topCard.style.transform = tf(g0.x + 118 * peelDir, g0.y - 32, g0.r + 12 * peelDir);
+    cycleTimer = setTimeout(() => {
+      if (!isCycling || gen !== cycleGen) return;
+      deckOrder.push(deckOrder.shift());
+      peelDir *= -1;
+      const n = deckOrder.length;
+      const settleEase = 'cubic-bezier(0.22, 1, 0.36, 1)';
+      deckOrder.forEach((card, i) => {
+        const g = stackGeom(i, n);
+        card._offsetX = g.x;
+        card._offsetY = g.y;
+        card._stackRot = g.r;
+        card.style.zIndex = n - i;
+        card.style.transition = `transform 0.58s ${settleEase}`;
+        card.style.transform = tf(g.x, g.y, g.r);
+      });
+      cycleTimer = setTimeout(() => {
+        if (!isCycling || gen !== cycleGen) return;
+        deckOrder[0].classList.add('shimmer-active');
+        cycleDeck();
+      }, 420);
+    }, 480);
+  }, 820);
+}
+
+function showDeck() {
+  grid.style.opacity = '1';
+  schedule(() => {
+    applyStackTransforms({ duration: '0.85s', easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+    schedule(() => cycleDeck(), 380);
+  }, 120);
+}
+
+function dealStackToGrid() {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  stopCycle();
+  showLoadedHeader();
+  const dealOrder = deckOrder.filter(c => c !== ctaCard);
+  dealOrder.push(ctaCard);
+  dealOrder.forEach(card => grid.appendChild(card));
+  const firstRects = dealOrder.map(c => c.getBoundingClientRect());
+  grid.classList.remove('deck-mode');
+  dealOrder.forEach(card => {
+    card.style.position = '';
+    card.style.zIndex = '';
+  });
+  const lastRects = dealOrder.map(c => c.getBoundingClientRect());
+  dealOrder.forEach((card, i) => {
+    const dx = firstRects[i].left - lastRects[i].left;
+    const dy = firstRects[i].top - lastRects[i].top;
+    const rot = card._stackRot ?? 0;
+    card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+  });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      dealOrder.forEach((card, i) => {
+        schedule(() => {
+          card.classList.add('dealing');
+          card.style.transform = 'translate(0, 0) rotate(0deg)';
+          const onLand = (e) => {
+            if (e.propertyName !== 'transform') return;
+            card.removeEventListener('transitionend', onLand);
+            card.classList.remove('dealing');
+            card.style.transform = '';
+            revealCard(card, i);
+          };
+          card.addEventListener('transitionend', onLand);
+        }, i * 120);
+      });
+    });
+  });
+}
+
+function runStackDeck() {
+  buildCardElements('deck-state', 'deck-state');
+  deckOrder = [...allCards];
+  deckOrder.forEach((card, i) => {
+    card.style.zIndex = deckOrder.length - i;
+    card.style.transition = 'none';
+    card.style.transform = tf(0, 0, (i % 2 ? -0.5 : 0.5) * Math.min(i, 1.2));
+    card._stackRot = (i % 2 ? -0.5 : 0.5) * Math.min(i, 1.2);
+  });
+  grid.classList.add('deck-mode');
+  grid.style.opacity = '0';
+  grid.style.transition = 'opacity var(--duration-deliberate) var(--ease-out)';
+  isCycling = true;
+  peelDir = 1;
+  schedule(() => {
+    showDeck();
+    skipHandler = () => dealStackToGrid();
+    schedule(() => dealStackToGrid(), 2200);
+  }, 80);
+}
+
+function runGridFadeShimmer() {
+  buildCardElements('loading-state', 'loading-state');
+  allCards.forEach(card => {
+    card.classList.add('card-enter-pending');
+    card.style.transition = 'none';
+  });
+  staggerCardsIntoPlace(72, 118);
+  skipHandler = () => finishGridFadeShimmer();
+  schedule(() => finishGridFadeShimmer(), 2300);
+}
+
+function finishGridFadeShimmer() {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  showLoadedHeader();
+  finalizeStaggerRandom(120, 340);
+}
+
+function runProgressBar() {
+  const lc = document.getElementById('loadingCenter');
+  const wrap = document.createElement('div');
+  wrap.className = 'gen-progress-wrap';
+  wrap.id = 'genProgressWrap';
+  wrap.innerHTML = '<div class="gen-progress-bar" id="genProgressBar"></div>';
+  lc.appendChild(wrap);
+  buildCardElements('loading-state', 'loading-state');
+  allCards.forEach(c => {
+    c.style.opacity = '0';
+    c.style.transform = 'translateY(12px)';
+  });
+  schedule(() => {
+    const bar = document.getElementById('genProgressBar');
+    if (bar) bar.classList.add('fill');
+  }, 120);
+  skipHandler = () => finishProgressBar(wrap);
+  schedule(() => finishProgressBar(wrap), 1750);
+}
+
+function finishProgressBar(wrap) {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  if (wrap && wrap.parentNode) wrap.classList.add('hidden');
+  showLoadedHeader();
+  const order = shuffle(allCards.map((_, i) => i));
+  let delay = 0;
+  order.forEach((idx) => {
+    schedule(() => {
+      const c = allCards[idx];
+      c.style.transition = 'opacity 0.5s var(--ease-out), transform 0.55s var(--spring-smooth)';
+      c.style.opacity = '1';
+      c.style.transform = 'translateY(0)';
+    }, delay);
+    delay += randBetween(40, 120);
+  });
+  schedule(() => finalizeStaggerRandom(), delay + 320);
+}
+
+function runSpotlightScan() {
+  document.getElementById('loadingCenter').classList.add('hidden');
+  document.getElementById('pageHeader').classList.add('visible');
+  contentZone.classList.add('dealt');
+
+  buildCardElements('loading-state', 'loading-state');
+  allCards.forEach((c, i) => {
+    c.classList.add('card-spotlight-scan');
+    c.style.setProperty('--scan-delay', `${i * 28}ms`);
+    c.classList.add('card-enter-pending');
+    c.style.transition = 'none';
+  });
+  staggerCardsIntoPlace(68, 112);
+  skipHandler = () => finishSpotlightScan();
+  schedule(() => finishSpotlightScan(), 2300);
+}
+
+function finishSpotlightScan() {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  allCards.forEach(c => {
+    c.classList.remove('card-spotlight-scan');
+    c.style.removeProperty('--scan-delay');
+  });
+  finalizeStaggerRandom();
+}
+
+function runRadialBloom() {
+  buildCardElements('loading-state', 'loading-state');
+  const order = [2, 1, 3, 0, 4, 5];
+  allCards.forEach(c => {
+    c.classList.add('bloom-pending');
+    c.style.transition = 'none';
+  });
+  let nextT = 0;
+  requestAnimationFrame(() => {
+    order.forEach((idx) => {
+      schedule(() => {
+        const c = allCards[idx];
+        c.style.transition = '';
+        c.classList.remove('bloom-pending');
+        c.classList.add('bloom-active');
+      }, nextT);
+      nextT += randBetween(70, 160);
+    });
+  });
+  skipHandler = () => finishRadialBloom();
+  schedule(() => finishRadialBloom(), 2100);
+}
+
+function finishRadialBloom() {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  showLoadedHeader();
+  finalizeStaggerRandom();
+}
+
+function runHeroStrip() {
+  const stage = document.createElement('div');
+  stage.className = 'hero-strip-stage';
+  stage.id = 'heroStripStage';
+  const hero = document.createElement('div');
+  hero.className = 'persona-card loading-state hero-card-proto';
+  setShimmerVars(hero);
+  hero.innerHTML = `<span class="strip-mini-label" style="bottom:14px">${PERSONAS[0].title}</span>`;
+  const row = document.createElement('div');
+  row.className = 'strip-row';
+  for (let i = 1; i <= 4; i++) {
+    const sm = document.createElement('div');
+    sm.className = 'persona-card loading-state strip-mini';
+    setShimmerVars(sm);
+    sm.innerHTML = `<span class="strip-mini-label">${PERSONAS[i].title}</span>`;
+    sm.style.opacity = '0';
+    sm.style.transform = 'translateY(8px)';
+    row.appendChild(sm);
+  }
+  stage.appendChild(hero);
+  stage.appendChild(row);
+  grid.before(stage);
+  requestAnimationFrame(() => {
+    row.querySelectorAll('.strip-mini').forEach((sm, j) => {
+      schedule(() => {
+        sm.style.transition = 'opacity 0.45s var(--ease-out), transform 0.5s var(--spring-smooth)';
+        sm.style.opacity = '1';
+        sm.style.transform = 'translateY(0)';
+      }, j * randBetween(60, 140));
+    });
+  });
+  skipHandler = () => finishHeroStrip(stage);
+  schedule(() => finishHeroStrip(stage), 2000);
+}
+
+function finishHeroStrip(stage) {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  stage.classList.add('fade-out');
+  schedule(() => {
+    stage.remove();
+    buildCardElements('loading-state', 'loading-state');
+    showLoadedHeader();
+    finalizeStaggerRandom();
+  }, 480);
+}
+
+const CHIP_POOL = [
+  ...PERSONAS.map(p => p.title),
+  'Enterprise account executives',
+  'Demand gen managers',
+  'B2B marketing leads',
+  'Series B founders',
+  'Customer success directors',
+  'PLG growth roles',
+  'Healthcare IT buyers',
+  'Finance & ops leads',
+  'SDR / BDR teams',
+  'Product marketing ICs',
+  'Revenue leaders',
+  'Lifecycle marketers',
+];
+
+function initialsFromTitle(text) {
+  const words = text.match(/[A-Za-z][A-Za-z'-]*/g) || [];
+  let s = '';
+  if (words[0]) s += words[0][0];
+  if (words[1]) s += words[1][0];
+  if (s.length < 2 && words[0] && words[0].length >= 2) s = words[0].slice(0, 2);
+  return (s || 'AI').toUpperCase().slice(0, 2);
+}
+
+function finishConstellationEarly(layer, nodes) {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  skipHandler = null;
+  nodes.forEach(n => { if (n.parentNode) n.remove(); });
+  if (layer.parentNode) layer.remove();
+  showLoadedHeader();
+  allCards.forEach(c => {
+    c.style.opacity = '1';
+    c.style.pointerEvents = '';
+    c.classList.remove('card-enter-pending');
+    c.classList.add('card-enter-active');
+  });
+  finalizeStaggerRandom();
+}
+
+function exitConstellationStream(layer, nodes) {
+  if (hasRevealed) return;
+  hasRevealed = true;
+  skipHandler = null;
+  showLoadedHeader();
+  nodes.forEach((node) => {
+    if (!node.parentNode) return;
+    schedule(() => {
+      if (!node.parentNode) return;
+      node.classList.remove('swaying');
+      node.classList.add('exiting');
+      const dir = node._exitDir;
+      const dist = randBetween(210, 360);
+      requestAnimationFrame(() => {
+        if (!node.parentNode) return;
+        node.style.opacity = '0';
+        node.style.transform = `translateX(${dir * dist}px) scale(0.9)`;
+      });
+    }, randBetween(0, 190));
+  });
+  schedule(() => {
+    nodes.forEach(n => { if (n.parentNode) n.remove(); });
+    if (layer.parentNode) layer.remove();
+    allCards.forEach(card => {
+      card.classList.add('card-enter-pending');
+      card.style.transition = 'none';
+    });
+    staggerCardsIntoPlace(85, 145);
+    schedule(() => finalizeStaggerRandom(), 1200);
+  }, 600);
+}
+
+function runConstellation() {
+  buildCardElements('loading-state', 'loading-state');
+  allCards.forEach(c => {
+    c.style.opacity = '0';
+    c.style.pointerEvents = 'none';
+  });
+
+  const layer = document.createElement('div');
+  layer.className = 'constellation-layer';
+  layer.id = 'constellationLayer';
+  const count = Math.floor(randBetween(13, 17));
+  const pool = shuffle(CHIP_POOL.slice());
+  const nodes = [];
+  for (let i = 0; i < count; i++) {
+    const label = pool[i % pool.length];
+    const node = document.createElement('div');
+    node.className = 'const-node';
+    node.innerHTML = `<span class="const-avatar">${initialsFromTitle(label)}</span><span class="const-chip-text">${label}</span>`;
+    const row = Math.floor(i / 7);
+    const col = i % 7;
+    const left = 1.5 + col * 13.5 + randBetween(-2, 2);
+    const top = 6 + row * 46 + randBetween(-6, 6);
+    node.style.left = Math.min(84, Math.max(1, left)) + '%';
+    node.style.top = Math.min(72, Math.max(4, top)) + '%';
+    node._exitDir = i % 2 === 0 ? -1 : 1;
+    layer.appendChild(node);
+    nodes.push(node);
+  }
+  grid.before(layer);
+
+  requestAnimationFrame(() => {
+    nodes.forEach((node) => {
+      schedule(() => node.classList.add('pop-in'), randBetween(0, 360));
+    });
+  });
+
+  const swayStart = 360 + 360;
+  schedule(() => {
+    nodes.forEach((node) => {
+      const sway = (Math.random() < 0.5 ? -1 : 1) * randBetween(12, 24);
+      node.style.setProperty('--sway-x', sway + 'px');
+      node.style.setProperty('--sway-dur', randBetween(1.6, 2.4) + 's');
+      node.classList.add('swaying');
+    });
+  }, swayStart);
+
+  skipHandler = () => finishConstellationEarly(layer, nodes);
+  schedule(() => exitConstellationStream(layer, nodes), swayStart + 1750);
+}
+
+function resetScene() {
+  clearAllTimers();
+  if (selectSwitchTimer) {
+    clearTimeout(selectSwitchTimer);
+    selectSwitchTimer = null;
+  }
+  stopCycle();
+  hasRevealed = false;
+  skipHandler = null;
+  document.getElementById('loadingCenter').classList.remove('hidden');
+  document.getElementById('pageHeader').classList.remove('visible');
+  contentZone.classList.remove('dealt');
+  const gp = document.getElementById('genProgressWrap');
+  if (gp) gp.remove();
+  const hs = document.getElementById('heroStripStage');
+  if (hs) hs.remove();
+  const cl = document.getElementById('constellationLayer');
+  if (cl) cl.remove();
+  grid.className = 'card-grid';
+  grid.removeAttribute('style');
+  grid.innerHTML = '';
+}
+
+function startMode() {
+  const mode = getMode();
+  localStorage.setItem('personaProtoLoadMode', mode);
+  resetScene();
+  hasRevealed = false;
+  const runners = {
+    'stack-deck': runStackDeck,
+    'grid-fade-shimmer': runGridFadeShimmer,
+    'progress-bar': runProgressBar,
+    'spotlight-scan': runSpotlightScan,
+    'radial-bloom': runRadialBloom,
+    'hero-strip': runHeroStrip,
+    'constellation': runConstellation,
+  };
+  (runners[mode] || runStackDeck)();
+}
+
+function skipToLoaded() {
+  if (skipHandler) skipHandler();
+}
+
+function initProtoSelect() {
+  const sel = document.getElementById('protoModeSelect');
+  MODE_OPTIONS.forEach(([val, label]) => {
+    const o = document.createElement('option');
+    o.value = val;
+    o.textContent = label;
+    sel.appendChild(o);
+  });
+  const saved = localStorage.getItem('personaProtoLoadMode');
+  if (saved && MODE_OPTIONS.some(([v]) => v === saved)) sel.value = saved;
+  sel.addEventListener('change', () => {
+    contentZone.classList.add('proto-purple-bg');
+    startMode();
+  });
+}
+
+window.addEventListener('load', () => {
+  initProtoSelect();
+  startMode();
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaigns 3.0 Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple-10: #F3EFFB;
+  --purple-15: #E9E1F8;
+  --purple-20: #DFD2F4;
+  --purple-30: #CAB5ED;
+  --purple-40: #B598E6;
+  --purple-50: #A17BDF;
+  --purple-60: #682FC5;
+  --purple-65: #5E2BB2;
+  --purple-70: #53269E;
+  --purple-80: #3F1D77;
+  --tan-10: #FAF8F5;
+  --tan-15: #F1EEE9;
+  --tan-20: #E8E3DC;
+  --tan-25: #DED8D1;
+  --tan-30: #D3CCC5;
+  --tan-40: #C0B4A7;
+  --tan-50: #A89D90;
+  --tan-60: #8E847A;
+  --tan-65: #7F776E;
+  --tan-70: #6A6358;
+  --tan-80: #524E48;
+  --tan-90: #373431;
+  --tan-100: #201F1D;
+  --green-10: #F3FCF5;
+  --green-50: #5EC575;
+  --green-60: #43AD5B;
+  --red-60: #D94638;
+  --red-10: #FDF3F2;
+  --orange-50: #E88456;
+  --orange-60: #E16931;
+  --orange-10: #FEF5F1;
+  --blue-60: #5488F8;
+  --blue-10: #EEF3FE;
+  --yellow-50: #F5B52E;
+  --duration-instant: 0ms;
+  --duration-micro: 150ms;
+  --duration-fast: 200ms;
+  --duration-moderate: 300ms;
+  --duration-slow: 400ms;
+  --duration-deliberate: 500ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--tan-10);
+  color: var(--tan-100);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Layout ─────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── Top Nav ────────────────────────────────────── */
+.top-nav {
+  height: 56px;
+  background: white;
+  border-bottom: 1px solid var(--tan-20);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.top-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--purple-60);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-logo svg { width: 16px; height: 16px; color: white; }
+
+.campaign-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tan-100);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.campaign-title .sep { color: var(--tan-30); font-weight: 400; }
+
+.campaign-title .label {
+  color: var(--tan-70);
+  font-weight: 500;
+}
+
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-draft {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--tan-15);
+  color: var(--tan-65);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-draft::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--tan-50);
+}
+
+.btn-publish {
+  padding: 7px 18px;
+  background: var(--purple-60);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.btn-publish:hover { background: var(--purple-65); }
+.btn-publish svg { width: 14px; height: 14px; }
+
+/* ── Main Split ─────────────────────────────────── */
+.main-split {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Chat Panel ─────────────────────────────────── */
+.chat-panel {
+  width: 420px;
+  border-right: 1px solid var(--tan-20);
+  background: white;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.chat-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--tan-20);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ava-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-50), var(--purple-60));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ava-avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-50), var(--purple-60));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.chat-header-info h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tan-100);
+}
+
+.chat-header-info p {
+  font-size: 12px;
+  color: var(--tan-60);
+  margin-top: 1px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--tan-30); border-radius: 4px; }
+
+.msg {
+  display: flex;
+  gap: 10px;
+  max-width: 100%;
+  animation: msgIn var(--duration-moderate) var(--spring-smooth);
+}
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-ava .msg-content {
+  background: var(--tan-10);
+  border: 1px solid var(--tan-20);
+  border-radius: 4px 16px 16px 16px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--tan-90);
+  flex: 1;
+}
+
+.msg-user {
+  flex-direction: row-reverse;
+}
+
+.msg-user .msg-content {
+  background: var(--purple-60);
+  color: white;
+  border-radius: 16px 4px 16px 16px;
+  padding: 10px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--tan-30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tan-70);
+}
+
+.msg-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.msg-action-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--duration-micro) var(--ease-out);
+  border: 1px solid var(--purple-20);
+  background: white;
+  color: var(--purple-60);
+}
+
+.msg-action-btn:hover {
+  background: var(--purple-10);
+  border-color: var(--purple-40);
+}
+
+.msg-action-btn.primary {
+  background: var(--purple-60);
+  color: white;
+  border-color: var(--purple-60);
+}
+
+.msg-action-btn.primary:hover {
+  background: var(--purple-65);
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.typing-dots {
+  background: var(--tan-10);
+  border: 1px solid var(--tan-20);
+  border-radius: 4px 16px 16px 16px;
+  padding: 14px 20px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tan-40);
+  animation: dotBounce 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.chat-input-area {
+  padding: 16px 20px;
+  border-top: 1px solid var(--tan-20);
+  background: white;
+}
+
+.chat-input-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  background: var(--tan-10);
+  border: 1px solid var(--tan-20);
+  border-radius: 14px;
+  padding: 6px 6px 6px 16px;
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.chat-input-wrap:focus-within {
+  border-color: var(--purple-40);
+}
+
+.chat-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--tan-100);
+  resize: none;
+  outline: none;
+  min-height: 20px;
+  max-height: 100px;
+  line-height: 1.5;
+  padding: 6px 0;
+}
+
+.chat-input::placeholder { color: var(--tan-50); }
+
+.chat-send-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: none;
+  background: var(--purple-60);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.chat-send-btn:hover { background: var(--purple-65); }
+.chat-send-btn:disabled { background: var(--tan-30); cursor: default; }
+.chat-send-btn svg { width: 16px; height: 16px; }
+
+/* ── Content Area ───────────────────────────────── */
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--tan-10);
+}
+
+/* ── Step Progress Bar ──────────────────────────── */
+.stepper {
+  padding: 16px 32px;
+  background: white;
+  border-bottom: 1px solid var(--tan-20);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 10px;
+  transition: all var(--duration-micro) var(--ease-out);
+  user-select: none;
+}
+
+.step:hover { background: var(--tan-10); }
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease-out);
+  border: 2px solid var(--tan-30);
+  color: var(--tan-60);
+  background: white;
+}
+
+.step.active .step-number {
+  background: var(--purple-60);
+  border-color: var(--purple-60);
+  color: white;
+}
+
+.step.completed .step-number {
+  background: var(--green-60);
+  border-color: var(--green-60);
+  color: white;
+}
+
+.step-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tan-60);
+  transition: color var(--duration-micro) var(--ease-out);
+  white-space: nowrap;
+}
+
+.step.active .step-label { color: var(--tan-100); font-weight: 600; }
+.step.completed .step-label { color: var(--tan-80); }
+
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--tan-20);
+  min-width: 24px;
+  margin: 0 4px;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.step-connector.done { background: var(--green-60); }
+
+/* ── Section Container ──────────────────────────── */
+.section-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+}
+
+.section-container::-webkit-scrollbar { width: 6px; }
+.section-container::-webkit-scrollbar-track { background: transparent; }
+.section-container::-webkit-scrollbar-thumb { background: var(--tan-30); border-radius: 6px; }
+
+.section {
+  display: none;
+  animation: sectionIn var(--duration-moderate) var(--spring-smooth);
+}
+
+.section.active { display: block; }
+
+@keyframes sectionIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tan-100);
+  margin-bottom: 4px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: var(--tan-60);
+  margin-bottom: 28px;
+}
+
+/* ── Targeting Section ──────────────────────────── */
+.audience-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.audience-card {
+  background: white;
+  border: 2px solid var(--tan-20);
+  border-radius: 14px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  position: relative;
+}
+
+.audience-card:hover {
+  border-color: var(--purple-30);
+  box-shadow: 0 2px 12px rgba(104, 47, 197, 0.08);
+}
+
+.audience-card.selected {
+  border-color: var(--purple-60);
+  background: var(--purple-10);
+}
+
+.audience-card-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--purple-60);
+  color: white;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.audience-card.selected .audience-card-check { display: flex; }
+
+.audience-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  font-size: 20px;
+}
+
+.audience-card-icon.purple { background: var(--purple-10); }
+.audience-card-icon.blue { background: var(--blue-10); }
+.audience-card-icon.orange { background: var(--orange-10); }
+
+.audience-card h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tan-100);
+  margin-bottom: 4px;
+}
+
+.audience-card p {
+  font-size: 12px;
+  color: var(--tan-60);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.audience-card .lead-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--purple-60);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.audience-card .lead-count svg { width: 14px; height: 14px; }
+
+.filters-section {
+  background: white;
+  border: 1px solid var(--tan-20);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.filters-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tan-80);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-add-filter {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-60);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.btn-add-filter:hover { background: var(--purple-10); }
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--tan-15);
+}
+
+.filter-row:last-child { border-bottom: none; }
+
+.filter-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tan-70);
+  min-width: 110px;
+}
+
+.filter-values {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-tag {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--tan-15);
+  color: var(--tan-80);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-tag .remove {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  color: var(--tan-50);
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+.filter-tag .remove:hover { color: var(--red-60); }
+
+.reach-bar {
+  background: linear-gradient(135deg, var(--purple-10), var(--blue-10));
+  border: 1px solid var(--purple-20);
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reach-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reach-bar-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reach-bar-icon svg { width: 18px; height: 18px; color: var(--purple-60); }
+
+.reach-bar-text {
+  font-size: 14px;
+  color: var(--tan-80);
+}
+
+.reach-bar-text strong {
+  font-weight: 700;
+  color: var(--purple-60);
+  font-size: 18px;
+}
+
+.btn-continue {
+  padding: 10px 24px;
+  background: var(--purple-60);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.btn-continue:hover { background: var(--purple-65); }
+.btn-continue svg { width: 14px; height: 14px; }
+
+/* ── Sequence Section ───────────────────────────── */
+.sequence-builder {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.seq-node {
+  background: white;
+  border: 1px solid var(--tan-20);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  transition: all var(--duration-fast) var(--ease-out);
+  animation: nodeIn var(--duration-moderate) var(--spring-smooth);
+}
+
+@keyframes nodeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.seq-node:hover {
+  border-color: var(--purple-30);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.seq-node-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.seq-node-icon.email { background: var(--blue-10); }
+.seq-node-icon.linkedin { background: #EDF4FF; }
+.seq-node-icon.phone { background: var(--green-10); }
+
+.seq-node-info { flex: 1; }
+
+.seq-node-info h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tan-100);
+  margin-bottom: 2px;
+}
+
+.seq-node-info p {
+  font-size: 12px;
+  color: var(--tan-60);
+}
+
+.seq-node-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--duration-micro) var(--ease-out);
+}
+
+.seq-node:hover .seq-node-actions { opacity: 1; }
+
+.seq-node-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--tan-20);
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tan-60);
+  transition: all var(--duration-micro) var(--ease-out);
+}
+
+.seq-node-btn:hover { background: var(--tan-10); color: var(--tan-80); }
+.seq-node-btn.danger:hover { background: var(--red-10); color: var(--red-60); border-color: var(--red-60); }
+.seq-node-btn svg { width: 14px; height: 14px; }
+
+.seq-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  position: relative;
+}
+
+.seq-connector-line {
+  width: 2px;
+  height: 20px;
+  background: var(--tan-25);
+}
+
+.seq-connector-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--tan-50);
+  background: var(--tan-10);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--tan-20);
+  white-space: nowrap;
+}
+
+.btn-add-step {
+  width: 100%;
+  padding: 14px;
+  border: 2px dashed var(--tan-25);
+  border-radius: 14px;
+  background: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tan-60);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--duration-micro) var(--ease-out);
+  margin-top: 4px;
+}
+
+.btn-add-step:hover {
+  border-color: var(--purple-40);
+  color: var(--purple-60);
+  background: var(--purple-10);
+}
+
+.btn-add-step svg { width: 16px; height: 16px; }
+
+.add-step-menu {
+  display: none;
+  background: white;
+  border: 1px solid var(--tan-20);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  padding: 6px;
+  margin-top: 8px;
+  animation: menuIn var(--duration-fast) var(--spring-smooth);
+}
+
+.add-step-menu.open { display: block; }
+
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.add-step-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--duration-micro) var(--ease-out);
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--tan-100);
+  font-weight: 500;
+}
+
+.add-step-option:hover { background: var(--tan-10); }
+
+.add-step-option .opt-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+/* ── Messaging Section ──────────────────────────── */
+.message-card {
+  background: white;
+  border: 1px solid var(--tan-20);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.message-card:hover { border-color: var(--tan-30); }
+
+.message-card-header {
+  padding: 14px 20px;
+  background: var(--tan-10);
+  border-bottom: 1px solid var(--tan-20);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.message-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.message-card-header-left .step-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.message-card-header-left h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tan-100);
+}
+
+.message-card-header-left span {
+  font-size: 12px;
+  color: var(--tan-50);
+  margin-left: 4px;
+  font-weight: 400;
+}
+
+.message-subject {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--tan-15);
+}
+
+.message-subject label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--tan-50);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.message-subject input {
+  width: 100%;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--tan-100);
+  font-weight: 500;
+  outline: none;
+  background: transparent;
+  padding: 4px 0;
+}
+
+.message-body {
+  padding: 16px 20px;
+  min-height: 120px;
+}
+
+.message-body textarea {
+  width: 100%;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--tan-90);
+  line-height: 1.7;
+  outline: none;
+  resize: none;
+  background: transparent;
+  min-height: 100px;
+}
+
+.message-card-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--tan-15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-regen {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--purple-20);
+  background: white;
+  color: var(--purple-60);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-micro) var(--ease-out);
+}
+
+.btn-regen:hover { background: var(--purple-10); border-color: var(--purple-40); }
+.btn-regen svg { width: 14px; height: 14px; }
+
+.personalization-badge {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--green-60);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.personalization-badge svg { width: 14px; height: 14px; }
+
+.variable-token {
+  background: var(--purple-10);
+  color: var(--purple-60);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ── Summary Section ────────────────────────────── */
+.summary-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.summary-card {
+  background: white;
+  border: 1px solid var(--tan-20);
+  border-radius: 14px;
+  padding: 24px;
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.summary-card:hover { border-color: var(--tan-30); }
+
+.summary-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.summary-card-header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tan-100);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary-card-header h4 .card-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.btn-edit-section {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-60);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.btn-edit-section:hover { background: var(--purple-10); }
+
+.summary-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--tan-70);
+}
+
+.summary-stat strong {
+  color: var(--tan-100);
+  font-weight: 600;
+}
+
+.summary-stat svg { width: 16px; height: 16px; color: var(--tan-50); }
+
+.settings-section {
+  background: white;
+  border: 1px solid var(--tan-20);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.settings-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tan-80);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--tan-15);
+}
+
+.setting-row:last-child { border-bottom: none; }
+
+.setting-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tan-80);
+}
+
+.setting-label span {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--tan-50);
+  margin-top: 2px;
+}
+
+.setting-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--tan-100);
+}
+
+.setting-value select,
+.setting-value input[type="text"],
+.setting-value input[type="number"] {
+  padding: 6px 10px;
+  border: 1px solid var(--tan-20);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--tan-100);
+  background: white;
+  outline: none;
+  transition: border-color var(--duration-micro) var(--ease-out);
+}
+
+.setting-value select:focus,
+.setting-value input:focus {
+  border-color: var(--purple-40);
+}
+
+.toggle {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--tan-25);
+  cursor: pointer;
+  position: relative;
+  transition: background var(--duration-fast) var(--ease-out);
+  border: none;
+}
+
+.toggle.on { background: var(--purple-60); }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--duration-fast) var(--spring-snappy);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.toggle.on::after { transform: translateX(18px); }
+
+.launch-bar {
+  padding: 20px;
+  background: white;
+  border-top: 1px solid var(--tan-20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn-launch {
+  padding: 12px 40px;
+  background: var(--purple-60);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--duration-fast) var(--ease-out);
+  box-shadow: 0 2px 12px rgba(104, 47, 197, 0.3);
+}
+
+.btn-launch:hover {
+  background: var(--purple-65);
+  box-shadow: 0 4px 20px rgba(104, 47, 197, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-launch svg { width: 18px; height: 18px; }
+
+/* ── Utility ────────────────────────────────────── */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Top Nav -->
+  <nav class="top-nav">
+    <div class="top-nav-left">
+      <div class="nav-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="campaign-title">
+        <span class="label">Campaigns</span>
+        <span class="sep">/</span>
+        <span>Untitled Campaign</span>
+      </div>
+    </div>
+    <div class="top-nav-right">
+      <div class="badge-draft">Draft</div>
+      <button class="btn-publish" onclick="handlePublish()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        Publish
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Split -->
+  <div class="main-split">
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="ava-avatar">A</div>
+        <div class="chat-header-info">
+          <h3>Ava</h3>
+          <p>Campaign Assistant</p>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <!-- messages injected by JS -->
+      </div>
+      <div class="chat-input-area">
+        <div class="chat-input-wrap">
+          <textarea class="chat-input" id="chatInput" placeholder="Message Ava..." rows="1" onkeydown="handleChatKeydown(event)"></textarea>
+          <button class="chat-send-btn" id="chatSendBtn" onclick="sendUserMessage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Step Progress Bar -->
+      <div class="stepper" id="stepper">
+        <div class="step active" data-step="0" onclick="goToStep(0)">
+          <div class="step-number">1</div>
+          <div class="step-label">Targeting</div>
+        </div>
+        <div class="step-connector" data-conn="0"></div>
+        <div class="step" data-step="1" onclick="goToStep(1)">
+          <div class="step-number">2</div>
+          <div class="step-label">Sequence</div>
+        </div>
+        <div class="step-connector" data-conn="1"></div>
+        <div class="step" data-step="2" onclick="goToStep(2)">
+          <div class="step-number">3</div>
+          <div class="step-label">Messaging</div>
+        </div>
+        <div class="step-connector" data-conn="2"></div>
+        <div class="step" data-step="3" onclick="goToStep(3)">
+          <div class="step-number">4</div>
+          <div class="step-label">Summary</div>
+        </div>
+      </div>
+
+      <!-- Sections -->
+      <div class="section-container" id="sectionContainer">
+
+        <!-- ═══ TARGETING ═══ -->
+        <div class="section active" id="section-targeting">
+          <h2 class="section-title">Who are you targeting?</h2>
+          <p class="section-subtitle">Select a starting audience or describe who you want to reach in chat.</p>
+
+          <div class="audience-cards">
+            <div class="audience-card" data-audience="saas-vp" onclick="selectAudience(this)">
+              <div class="audience-card-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="audience-card-icon purple">🏢</div>
+              <h4>VP+ at SaaS Companies</h4>
+              <p>Decision-makers at mid-market SaaS companies (500–5,000 employees)</p>
+              <div class="lead-count">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                ~12,400 leads
+              </div>
+            </div>
+            <div class="audience-card" data-audience="mktg-ecom" onclick="selectAudience(this)">
+              <div class="audience-card-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="audience-card-icon blue">📧</div>
+              <h4>Marketing Leaders at E-commerce</h4>
+              <p>Head of Marketing, CMO, and Growth leads at e-commerce brands</p>
+              <div class="lead-count">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                ~8,200 leads
+              </div>
+            </div>
+            <div class="audience-card" data-audience="custom" onclick="selectAudience(this)">
+              <div class="audience-card-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="audience-card-icon orange">🎯</div>
+              <h4>Custom Audience</h4>
+              <p>Describe your ideal customer profile and Ava will build the targeting for you</p>
+              <div class="lead-count" style="color: var(--tan-50);">
+                Describe in chat →
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-section" id="filtersSection">
+            <div class="filters-title">
+              <span>Active Filters</span>
+              <button class="btn-add-filter">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add filter
+              </button>
+            </div>
+            <div id="filterRows">
+              <div class="filter-row">
+                <div class="filter-label">Title</div>
+                <div class="filter-values">
+                  <span class="filter-tag">VP <span class="remove">&times;</span></span>
+                  <span class="filter-tag">Director <span class="remove">&times;</span></span>
+                  <span class="filter-tag">C-level <span class="remove">&times;</span></span>
+                </div>
+              </div>
+              <div class="filter-row">
+                <div class="filter-label">Industry</div>
+                <div class="filter-values">
+                  <span class="filter-tag">SaaS <span class="remove">&times;</span></span>
+                  <span class="filter-tag">Technology <span class="remove">&times;</span></span>
+                </div>
+              </div>
+              <div class="filter-row">
+                <div class="filter-label">Company Size</div>
+                <div class="filter-values">
+                  <span class="filter-tag">500 – 5,000 <span class="remove">&times;</span></span>
+                </div>
+              </div>
+              <div class="filter-row">
+                <div class="filter-label">Location</div>
+                <div class="filter-values">
+                  <span class="filter-tag">United States <span class="remove">&times;</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reach-bar">
+            <div class="reach-bar-left">
+              <div class="reach-bar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="reach-bar-text">
+                Estimated reach: <strong id="reachCount">12,400</strong> leads
+              </div>
+            </div>
+            <button class="btn-continue" onclick="advanceStep()">
+              Continue
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ SEQUENCE ═══ -->
+        <div class="section" id="section-sequence">
+          <h2 class="section-title">Sequence Builder</h2>
+          <p class="section-subtitle">Define the outreach cadence Ava will follow for each lead.</p>
+
+          <div class="sequence-builder" id="sequenceBuilder">
+            <!-- nodes injected by JS -->
+          </div>
+        </div>
+
+        <!-- ═══ MESSAGING ═══ -->
+        <div class="section" id="section-messaging">
+          <h2 class="section-title">Messaging</h2>
+          <p class="section-subtitle">Review and edit what Ava will send at each step of the sequence.</p>
+          <div id="messagingCards">
+            <!-- cards injected by JS -->
+          </div>
+        </div>
+
+        <!-- ═══ SUMMARY ═══ -->
+        <div class="section" id="section-summary">
+          <h2 class="section-title">Campaign Summary</h2>
+          <p class="section-subtitle">Review everything before you publish.</p>
+
+          <div class="summary-cards">
+            <div class="summary-card">
+              <div class="summary-card-header">
+                <h4><span class="card-icon" style="background:var(--purple-10);">🎯</span> Targeting</h4>
+                <button class="btn-edit-section" onclick="goToStep(0)">Edit</button>
+              </div>
+              <div class="summary-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <strong id="summaryLeads">12,400</strong>&nbsp;leads</div>
+              <div class="summary-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> VP+ at SaaS Companies</div>
+              <div class="summary-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> United States</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-card-header">
+                <h4><span class="card-icon" style="background:var(--blue-10);">📋</span> Sequence</h4>
+                <button class="btn-edit-section" onclick="goToStep(1)">Edit</button>
+              </div>
+              <div class="summary-stat" id="summarySteps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> <strong>3</strong>&nbsp;steps over 9 days</div>
+              <div class="summary-stat" id="summaryChannels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> 2 emails, 1 LinkedIn</div>
+              <div class="summary-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Wait times: 3d, 5d</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-card-header">
+                <h4><span class="card-icon" style="background:var(--green-10);">✉️</span> Messaging</h4>
+                <button class="btn-edit-section" onclick="goToStep(2)">Edit</button>
+              </div>
+              <div class="summary-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Personalized templates</div>
+              <div class="summary-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> High personalization</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-card-header">
+                <h4><span class="card-icon" style="background:var(--orange-10);">📊</span> Projected Results</h4>
+              </div>
+              <div class="summary-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> <strong>~620</strong>&nbsp;estimated replies</div>
+              <div class="summary-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <strong>~155</strong>&nbsp;meetings booked</div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">Advanced Settings</div>
+            <div class="setting-row">
+              <div class="setting-label">
+                Send Window
+                <span>When Ava can send messages</span>
+              </div>
+              <div class="setting-value">
+                <input type="text" value="9:00 AM" style="width:80px; text-align:center;">
+                <span style="color:var(--tan-50);">–</span>
+                <input type="text" value="5:00 PM" style="width:80px; text-align:center;">
+                <select><option>EST</option><option>PST</option><option>CST</option><option>UTC</option></select>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">
+                Daily Send Limit
+                <span>Max emails per day</span>
+              </div>
+              <div class="setting-value">
+                <input type="number" value="200" style="width:80px; text-align:center;">
+                <span style="color:var(--tan-50); font-size:12px;">emails/day</span>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Skip Weekends</div>
+              <div class="setting-value"><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">
+                Stop on Reply
+                <span>Pause sequence when lead replies</span>
+              </div>
+              <div class="setting-value"><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Sender Account</div>
+              <div class="setting-value"><select><option>ava@yourcompany.com</option><option>sales@yourcompany.com</option></select></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Track Opens</div>
+              <div class="setting-value"><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Track Link Clicks</div>
+              <div class="setting-value"><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:center; padding: 8px 0 24px;">
+            <button class="btn-launch" onclick="handlePublish()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              Launch Campaign
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════ */
+const STEPS = ['targeting', 'sequence', 'messaging', 'summary'];
+const STEP_LABELS = ['Targeting', 'Sequence', 'Messaging', 'Summary'];
+
+let currentStep = 0;
+let completedSteps = new Set();
+let selectedAudience = null;
+
+const sequenceSteps = [
+  { type: 'email', label: 'Email', day: 1, desc: 'Initial outreach', icon: '📧' },
+  { type: 'email', label: 'Email', day: 4, desc: 'Follow-up if no reply', icon: '📧' },
+  { type: 'linkedin', label: 'LinkedIn', day: 9, desc: 'Connection request', icon: '💼' },
+];
+
+const waitDays = [3, 5];
+
+const messages = [
+  {
+    type: 'email',
+    step: 1,
+    day: 1,
+    subject: '{{first_name}}, quick question about {{company}}\'s outbound',
+    body: `Hi {{first_name}},\n\nI noticed {{company}} is scaling its outbound team. We help companies like yours automate BDR outreach while keeping it genuinely personal.\n\nOur AI agent Ava handles prospecting, personalized emails, and follow-ups — so your reps can focus on closing.\n\nWould you be open to a quick chat this week?\n\nBest,\nAva`,
+  },
+  {
+    type: 'email',
+    step: 2,
+    day: 4,
+    subject: 'Re: quick question about {{company}}\'s outbound',
+    body: `Hey {{first_name}},\n\nJust bumping this up — I know things get buried.\n\nWe recently helped a similar company cut their outbound costs by 40% while doubling reply rates. Happy to share how.\n\nWorth a 15-min call?\n\nBest,\nAva`,
+  },
+  {
+    type: 'linkedin',
+    step: 3,
+    day: 9,
+    subject: '',
+    body: `Hi {{first_name}} — I came across {{company}} and was impressed by what you're building. I work with sales teams to automate outbound with AI. Would love to connect and share some ideas.\n\nCheers,\nAva`,
+  },
+];
+
+/* ═══════════════════════════════════════════════════
+   STEP NAVIGATION
+   ═══════════════════════════════════════════════════ */
+function goToStep(idx) {
+  if (idx < 0 || idx >= STEPS.length) return;
+
+  for (let i = 0; i < idx; i++) completedSteps.add(i);
+  currentStep = idx;
+  renderStepper();
+  renderSection();
+
+  if (idx === 1) renderSequence();
+  if (idx === 2) renderMessaging();
+}
+
+function advanceStep() {
+  completedSteps.add(currentStep);
+  goToStep(currentStep + 1);
+  sendAvaStepMessage(currentStep);
+}
+
+function renderStepper() {
+  const steps = document.querySelectorAll('.step');
+  const conns = document.querySelectorAll('.step-connector');
+
+  steps.forEach((el, i) => {
+    el.classList.remove('active', 'completed');
+    const numEl = el.querySelector('.step-number');
+
+    if (i === currentStep) {
+      el.classList.add('active');
+      numEl.innerHTML = i + 1;
+    } else if (completedSteps.has(i)) {
+      el.classList.add('completed');
+      numEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else {
+      numEl.innerHTML = i + 1;
+    }
+  });
+
+  conns.forEach((el, i) => {
+    el.classList.toggle('done', completedSteps.has(i));
+  });
+}
+
+function renderSection() {
+  document.querySelectorAll('.section').forEach((el, i) => {
+    el.classList.remove('active');
+  });
+  const target = document.getElementById('section-' + STEPS[currentStep]);
+  if (target) {
+    target.classList.add('active');
+    target.style.animation = 'none';
+    target.offsetHeight;
+    target.style.animation = '';
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   TARGETING
+   ═══════════════════════════════════════════════════ */
+function selectAudience(card) {
+  document.querySelectorAll('.audience-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedAudience = card.dataset.audience;
+
+  const counts = { 'saas-vp': '12,400', 'mktg-ecom': '8,200', 'custom': '—' };
+  document.getElementById('reachCount').textContent = counts[selectedAudience] || '12,400';
+
+  if (selectedAudience === 'saas-vp') {
+    updateFilters([
+      { label: 'Title', tags: ['VP', 'Director', 'C-level'] },
+      { label: 'Industry', tags: ['SaaS', 'Technology'] },
+      { label: 'Company Size', tags: ['500 – 5,000'] },
+      { label: 'Location', tags: ['United States'] },
+    ]);
+  } else if (selectedAudience === 'mktg-ecom') {
+    updateFilters([
+      { label: 'Title', tags: ['Head of Marketing', 'CMO', 'Growth Lead'] },
+      { label: 'Industry', tags: ['E-commerce', 'Retail'] },
+      { label: 'Company Size', tags: ['50 – 2,000'] },
+      { label: 'Location', tags: ['United States', 'UK'] },
+    ]);
+  } else {
+    updateFilters([]);
+  }
+}
+
+function updateFilters(filters) {
+  const container = document.getElementById('filterRows');
+  if (!filters.length) {
+    container.innerHTML = '<div style="padding:12px 0;color:var(--tan-50);font-size:13px;">Describe your audience in chat and Ava will set up filters for you.</div>';
+    return;
+  }
+  container.innerHTML = filters.map(f =>
+    `<div class="filter-row">
+      <div class="filter-label">${f.label}</div>
+      <div class="filter-values">${f.tags.map(t => `<span class="filter-tag">${t} <span class="remove">&times;</span></span>`).join('')}</div>
+    </div>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   SEQUENCE
+   ═══════════════════════════════════════════════════ */
+function renderSequence() {
+  const builder = document.getElementById('sequenceBuilder');
+  let html = '';
+
+  sequenceSteps.forEach((step, i) => {
+    const bgMap = { email: 'var(--blue-10)', linkedin: '#EDF4FF', phone: 'var(--green-10)' };
+    html += `<div class="seq-node" data-idx="${i}">
+      <div class="seq-node-icon" style="background:${bgMap[step.type] || 'var(--blue-10)'};">${step.icon}</div>
+      <div class="seq-node-info">
+        <h4>${step.label} <span style="color:var(--tan-50);font-weight:400;font-size:12px;">· Day ${step.day}</span></h4>
+        <p>${step.desc}</p>
+      </div>
+      <div class="seq-node-actions">
+        <button class="seq-node-btn danger" onclick="removeSeqStep(${i})" title="Remove step">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>`;
+
+    if (i < sequenceSteps.length - 1) {
+      html += `<div class="seq-connector">
+        <div class="seq-connector-line"></div>
+        <div class="seq-connector-label">Wait ${waitDays[i] || 3} days</div>
+        <div class="seq-connector-line"></div>
+      </div>`;
+    }
+  });
+
+  html += `<div class="seq-connector">
+    <div class="seq-connector-line"></div>
+  </div>`;
+
+  html += `<button class="btn-add-step" onclick="toggleAddMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Step
+  </button>`;
+
+  html += `<div class="add-step-menu" id="addStepMenu">
+    <button class="add-step-option" onclick="addSeqStep('email')">
+      <span class="opt-icon" style="background:var(--blue-10);">📧</span> Email
+    </button>
+    <button class="add-step-option" onclick="addSeqStep('linkedin')">
+      <span class="opt-icon" style="background:#EDF4FF;">💼</span> LinkedIn Message
+    </button>
+    <button class="add-step-option" onclick="addSeqStep('phone')">
+      <span class="opt-icon" style="background:var(--green-10);">📞</span> Phone Call
+    </button>
+  </div>`;
+
+  html += `<div style="display:flex; justify-content:flex-end; margin-top:24px;">
+    <button class="btn-continue" onclick="advanceStep()">
+      Continue to Messaging
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+  </div>`;
+
+  builder.innerHTML = html;
+}
+
+function toggleAddMenu() {
+  document.getElementById('addStepMenu').classList.toggle('open');
+}
+
+function addSeqStep(type) {
+  const icons = { email: '📧', linkedin: '💼', phone: '📞' };
+  const labels = { email: 'Email', linkedin: 'LinkedIn', phone: 'Phone Call' };
+  const descs = { email: 'Follow-up email', linkedin: 'LinkedIn message', phone: 'Phone call' };
+  const lastDay = sequenceSteps.length ? sequenceSteps[sequenceSteps.length - 1].day : 0;
+  const newDay = lastDay + 3;
+
+  sequenceSteps.push({ type, label: labels[type], day: newDay, desc: descs[type], icon: icons[type] });
+  if (sequenceSteps.length > 1) waitDays.push(3);
+
+  messages.push({
+    type,
+    step: sequenceSteps.length,
+    day: newDay,
+    subject: type === 'email' ? 'Following up — {{first_name}}' : '',
+    body: type === 'email'
+      ? `Hi {{first_name}},\n\nJust wanted to follow up on my previous message. Would love to connect and discuss how we can help {{company}}.\n\nBest,\nAva`
+      : type === 'linkedin'
+      ? `Hi {{first_name}}, I'd love to connect and chat about what we're building at Artisan. Think it could be a great fit for {{company}}.`
+      : `Call script: Introduce Ava, reference previous emails, ask about current outbound process at {{company}}.`,
+  });
+
+  renderSequence();
+  document.getElementById('addStepMenu').classList.remove('open');
+}
+
+function removeSeqStep(idx) {
+  if (sequenceSteps.length <= 1) return;
+  sequenceSteps.splice(idx, 1);
+  messages.splice(idx, 1);
+  if (idx < waitDays.length) waitDays.splice(idx, 1);
+  else if (waitDays.length > 0) waitDays.pop();
+
+  let day = 1;
+  sequenceSteps.forEach((s, i) => {
+    s.day = day;
+    s.step = i + 1;
+    if (i < waitDays.length) day += waitDays[i];
+  });
+
+  renderSequence();
+}
+
+/* ═══════════════════════════════════════════════════
+   MESSAGING
+   ═══════════════════════════════════════════════════ */
+function renderMessaging() {
+  const container = document.getElementById('messagingCards');
+  const iconMap = { email: '📧', linkedin: '💼', phone: '📞' };
+  const bgMap = { email: 'var(--blue-10)', linkedin: '#EDF4FF', phone: 'var(--green-10)' };
+
+  container.innerHTML = messages.map((m, i) => {
+    const seqStep = sequenceSteps[i];
+    const typeLabel = seqStep ? seqStep.label : 'Step';
+    const dayLabel = seqStep ? seqStep.day : m.day;
+
+    const subjectRow = m.type === 'email' ? `
+      <div class="message-subject">
+        <label>Subject</label>
+        <input type="text" value="${escapeHtml(m.subject)}" onchange="messages[${i}].subject=this.value">
+      </div>` : '';
+
+    return `<div class="message-card">
+      <div class="message-card-header">
+        <div class="message-card-header-left">
+          <span class="step-icon" style="background:${bgMap[m.type]};">${iconMap[m.type] || '📧'}</span>
+          <h4>Step ${i + 1}: ${typeLabel} <span>· Day ${dayLabel}</span></h4>
+        </div>
+      </div>
+      ${subjectRow}
+      <div class="message-body">
+        <textarea onchange="messages[${i}].body=this.value" rows="${m.body.split('\n').length + 1}">${escapeHtml(m.body)}</textarea>
+      </div>
+      <div class="message-card-footer">
+        <button class="btn-regen" onclick="regenerateMessage(${i})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Regenerate with Ava
+        </button>
+        <span class="personalization-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          High personalization
+        </span>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML += `<div style="display:flex; justify-content:flex-end; margin-top:24px;">
+    <button class="btn-continue" onclick="advanceStep()">
+      Continue to Summary
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+  </div>`;
+}
+
+function regenerateMessage(idx) {
+  const btn = document.querySelectorAll('.btn-regen')[idx];
+  if (btn) {
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Generating...';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Regenerate with Ava';
+      addAvaMessage("I've refreshed the copy for Step " + (idx + 1) + ". Take a look and let me know if you'd like any adjustments!");
+    }, 1500);
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* ═══════════════════════════════════════════════════
+   CHAT
+   ═══════════════════════════════════════════════════ */
+const chatContainer = document.getElementById('chatMessages');
+
+function addAvaMessage(text, actions) {
+  removeTyping();
+  const msg = document.createElement('div');
+  msg.className = 'msg msg-ava';
+  let actionsHtml = '';
+  if (actions && actions.length) {
+    actionsHtml = '<div class="msg-actions">' +
+      actions.map(a => `<button class="msg-action-btn ${a.primary ? 'primary' : ''}" onclick="${a.onclick}">${a.label}</button>`).join('') +
+      '</div>';
+  }
+  msg.innerHTML = `<div class="ava-avatar-sm">A</div><div class="msg-content">${text}${actionsHtml}</div>`;
+  chatContainer.appendChild(msg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function addUserMessage(text) {
+  const msg = document.createElement('div');
+  msg.className = 'msg msg-user';
+  msg.innerHTML = `<div class="user-avatar">Y</div><div class="msg-content">${escapeHtml(text)}</div>`;
+  chatContainer.appendChild(msg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function showTyping() {
+  if (document.getElementById('typingIndicator')) return;
+  const el = document.createElement('div');
+  el.className = 'typing-indicator';
+  el.id = 'typingIndicator';
+  el.innerHTML = `<div class="ava-avatar-sm">A</div><div class="typing-dots"><span></span><span></span><span></span></div>`;
+  chatContainer.appendChild(el);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function avaTypeThen(text, actions, delay) {
+  showTyping();
+  setTimeout(() => addAvaMessage(text, actions), delay || 1200);
+}
+
+function sendUserMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  addUserMessage(text);
+  handleUserInput(text);
+}
+
+function handleChatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendUserMessage();
+  }
+  setTimeout(() => {
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
+  }, 0);
+}
+
+function handleUserInput(text) {
+  const lower = text.toLowerCase();
+
+  if (currentStep === 0) {
+    if (lower.includes('saas') || lower.includes('vp') || lower.includes('director')) {
+      const card = document.querySelector('[data-audience="saas-vp"]');
+      if (card) selectAudience(card);
+      avaTypeThen("Great choice! I've selected the <strong>VP+ at SaaS Companies</strong> audience — about 12,400 leads. The filters are set up on the right. Feel free to adjust, or we can move on to building your sequence.", [
+        { label: 'Continue to Sequence', primary: true, onclick: 'advanceStep()' },
+      ]);
+    } else if (lower.includes('ecom') || lower.includes('market')) {
+      const card = document.querySelector('[data-audience="mktg-ecom"]');
+      if (card) selectAudience(card);
+      avaTypeThen("I've set up the <strong>Marketing Leaders at E-commerce</strong> audience — roughly 8,200 leads. Filters are ready on the right. Want to continue to the sequence?", [
+        { label: 'Continue to Sequence', primary: true, onclick: 'advanceStep()' },
+      ]);
+    } else {
+      avaTypeThen("I can work with that! Let me set up a custom audience based on your description. You can also pick one of the preset cards on the right, or we can refine further. Ready to move on?", [
+        { label: 'Continue to Sequence', primary: true, onclick: 'advanceStep()' },
+      ]);
+    }
+  } else if (currentStep === 1) {
+    if (lower.includes('add') && lower.includes('linkedin')) {
+      addSeqStep('linkedin');
+      avaTypeThen("Done! I've added a LinkedIn message to the end of your sequence. The updated flow is on the right.");
+    } else if (lower.includes('add') && lower.includes('email')) {
+      addSeqStep('email');
+      avaTypeThen("Added another email step to your sequence. You can see it on the right.");
+    } else if (lower.includes('add') && lower.includes('phone')) {
+      addSeqStep('phone');
+      avaTypeThen("I've added a phone call step. Your sequence is updated on the right.");
+    } else {
+      avaTypeThen("Got it! I've updated the sequence. You can add or remove steps using the builder on the right, or tell me what to change. Ready for messaging?", [
+        { label: 'Continue to Messaging', primary: true, onclick: 'advanceStep()' },
+      ]);
+    }
+  } else if (currentStep === 2) {
+    avaTypeThen("I'll refine the messaging based on your input. The updated templates are on the right — you can also edit them directly. Let me know when you're ready to review everything!", [
+      { label: 'Continue to Summary', primary: true, onclick: 'advanceStep()' },
+    ]);
+  } else if (currentStep === 3) {
+    avaTypeThen("Everything looks good! Review the summary and advanced settings on the right. When you're ready, hit <strong>Launch Campaign</strong> to go live.");
+  }
+}
+
+function sendAvaStepMessage(stepIdx) {
+  const stepMessages = {
+    1: "Now let's build your outreach sequence. I've set up a recommended 3-step cadence: two emails and a LinkedIn message. You can add, remove, or reorder steps on the right.",
+    2: "I've drafted personalized messages for each step in your sequence. The templates use merge variables like <strong>{{first_name}}</strong> and <strong>{{company}}</strong> for personalization. Edit them directly or ask me to regenerate.",
+    3: "Here's your campaign summary! Review everything — targeting, sequence, and messaging. You can also fine-tune the advanced settings below. Hit <strong>Launch Campaign</strong> when you're ready!",
+  };
+
+  if (stepMessages[stepIdx]) {
+    avaTypeThen(stepMessages[stepIdx]);
+  }
+}
+
+function handlePublish() {
+  addAvaMessage("🎉 <strong>Campaign launched!</strong> I'll start reaching out to your leads according to the sequence. You can monitor progress from the Campaigns dashboard. Good luck!");
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════ */
+(function init() {
+  renderStepper();
+
+  setTimeout(() => {
+    addAvaMessage("Hi there! 👋 I'm <strong>Ava</strong>, your campaign assistant. Let's set up a new outbound campaign together.");
+  }, 300);
+
+  setTimeout(() => {
+    addAvaMessage("First up — <strong>who do you want to reach?</strong> You can pick one of the audience presets on the right, or describe your ideal customer and I'll build the targeting for you.", [
+      { label: 'VP+ at SaaS', onclick: "selectAudience(document.querySelector('[data-audience=\"saas-vp\"]'));avaTypeThen('Great! I\\'ve selected VP+ at SaaS Companies — about 12,400 leads. Ready to continue?',[{label:'Continue to Sequence',primary:true,onclick:'advanceStep()'}])" },
+      { label: 'Marketing at E-commerce', onclick: "selectAudience(document.querySelector('[data-audience=\"mktg-ecom\"]'));avaTypeThen('I\\'ve selected Marketing Leaders at E-commerce — roughly 8,200 leads. Shall we move on?',[{label:'Continue to Sequence',primary:true,onclick:'advanceStep()'}])" },
+      { label: 'Custom audience', onclick: "selectAudience(document.querySelector('[data-audience=\"custom\"]'));avaTypeThen('Tell me about your ideal customer — industry, role, company size, and any other details. I\\'ll set up the filters for you.')" },
+    ]);
+  }, 1400);
+
+  // select first card by default
+  setTimeout(() => {
+    selectAudience(document.querySelector('[data-audience="saas-vp"]'));
+  }, 100);
+})();
+</script>
+</body>
+</html>
