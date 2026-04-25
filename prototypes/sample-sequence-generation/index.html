@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample Sequence Generation Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple-10: #f3effb;
+  --purple-20: #dfd2f4;
+  --purple-30: #cab5ed;
+  --purple-50: #a17bdf;
+  --purple-60: #682fc5;
+  --purple-70: #53269e;
+  --tan-10: #faf8f5;
+  --tan-15: #f1eee9;
+  --tan-20: #e8e3dc;
+  --tan-30: #d3ccc5;
+  --tan-40: #c0b4a7;
+  --tan-50: #a89d90;
+  --tan-60: #8e847a;
+  --tan-65: #7f776e;
+  --tan-70: #6a6358;
+  --tan-80: #524e48;
+  --tan-100: #201f1d;
+  --ink: #28272a;
+  --ink-secondary: #646069;
+  --line: #dbdadd;
+  --surface-page: #faf9f5;
+  --blue-10: #eef3fe;
+  --blue-50: #6d9af9;
+  --blue-60: #5488f8;
+  --orange: #f8a36f;
+  --pink: #e4889a;
+  --duration-micro: 150ms;
+  --duration-fast: 220ms;
+  --duration-medium: 320ms;
+  --duration-slow: 480ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--surface-page);
+  color: var(--tan-100);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+}
+
+button, input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+  min-width: 1024px;
+  background: var(--surface-page);
+}
+
+.side-nav {
+  width: 56px;
+  height: 100vh;
+  background: white;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 4;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  color: var(--purple-60);
+  margin-bottom: 4px;
+}
+
+.nav-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+  border-top: 1px solid rgba(219, 218, 221, 0.5);
+}
+
+.nav-group:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.nav-item {
+  width: 40px;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tan-60);
+  display: grid;
+  place-items: center;
+  transition:
+    background var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out),
+    transform var(--duration-micro) var(--ease-out);
+}
+
+.nav-item:hover {
+  background: var(--tan-10);
+  color: var(--tan-90);
+}
+
+.nav-item.active {
+  background: var(--purple-10);
+  color: var(--purple-60);
+}
+
+.nav-item:active {
+  transform: scale(0.96);
+}
+
+.nav-item svg,
+.tiny-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.account-stack {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.mini-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2f1d77, #a17bdf);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 56px;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+  z-index: 3;
+}
+
+.breadcrumbs,
+.topbar-actions,
+.pill-tabs,
+.subnav {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumbs {
+  gap: 10px;
+  color: var(--tan-65);
+  font-size: 14px;
+}
+
+.crumb-current {
+  color: var(--tan-100);
+  font-weight: 600;
+}
+
+.chevron {
+  color: var(--tan-50);
+  font-size: 16px;
+  transform: translateY(-1px);
+}
+
+.campaign-badge {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--purple-60);
+  background: var(--purple-10);
+  border: 1px solid var(--purple-20);
+  border-radius: 4px;
+  padding: 2px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topbar-actions {
+  gap: 12px;
+}
+
+.pill-tabs {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+  box-shadow: 0 4px 12px rgba(117, 113, 122, 0.08);
+}
+
+.pill-tab {
+  border: 0;
+  background: transparent;
+  color: var(--ink-secondary);
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    background var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out),
+    box-shadow var(--duration-micro) var(--ease-out);
+}
+
+.pill-tab.active {
+  color: var(--ink);
+  background: white;
+  box-shadow: 0 2px 8px rgba(117, 113, 122, 0.16);
+}
+
+.status-draft {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink-secondary);
+  font-size: 14px;
+  background: white;
+}
+
+.status-draft::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tan-40);
+}
+
+.launch-btn {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #a77ee9, var(--purple-60));
+  color: white;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    transform var(--duration-fast) var(--spring-snappy),
+    box-shadow var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out);
+}
+
+.launch-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(104, 47, 197, 0.24);
+  filter: saturate(1.06);
+}
+
+.launch-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.subnav {
+  height: 36px;
+  border-bottom: 1px solid var(--line);
+  background: white;
+  justify-content: center;
+  gap: 34px;
+  flex-shrink: 0;
+}
+
+.subnav-item {
+  height: 36px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+.subnav-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--purple-60);
+  border-radius: 999px 999px 0 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--duration-fast) var(--spring-snappy);
+}
+
+.subnav-item.active {
+  color: var(--purple-60);
+}
+
+.subnav-item.active::after {
+  transform: scaleX(1);
+}
+
+.workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
+
+.blank-canvas {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface-page);
+  position: relative;
+  overflow: hidden;
+}
+
+.canvas-hint {
+  position: absolute;
+  left: 32px;
+  top: 28px;
+  color: rgba(100, 96, 105, 0.28);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.sample-panel {
+  width: 520px;
+  height: 100%;
+  background: white;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: -8px 0 24px rgba(40, 39, 42, 0.03);
+  animation: panelIn var(--duration-slow) var(--spring-snappy) both;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.panel-head {
+  padding: 24px 24px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.panel-title {
+  font-family: Intrinseca, Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+  letter-spacing: -0.48px;
+  color: var(--ink);
+}
+
+.panel-close {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: white;
+  color: var(--tan-60);
+  transition:
+    background var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out),
+    transform var(--duration-fast) var(--spring-snappy);
+}
+
+.panel-close:hover {
+  background: var(--tan-10);
+  color: var(--tan-100);
+  transform: rotate(4deg);
+}
+
+.lead-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 60px;
+  padding: 0 24px 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--tan-20);
+  position: relative;
+  overflow: visible;
+}
+
+.sample-panel.picking .lead-tabs {
+  background: white;
+}
+
+.lead-tab,
+.add-lead-btn,
+.picker-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: var(--tan-70);
+  display: grid;
+  place-items: center;
+  position: relative;
+  flex-shrink: 0;
+  transition:
+    border-color var(--duration-micro) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--spring-snappy),
+    background var(--duration-micro) var(--ease-out);
+}
+
+.lead-control-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: white;
+  display: grid;
+  place-items: center;
+  transition:
+    border-color var(--duration-micro) var(--ease-out),
+    background var(--duration-micro) var(--ease-out),
+    scale var(--duration-fast) var(--spring-snappy);
+}
+
+.lead-divider {
+  width: 1px;
+  height: 20px;
+  border-radius: 8px;
+  background: var(--tan-20);
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.lead-tab {
+  border-color: white;
+}
+
+.lead-underline {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 40px;
+  height: 2px;
+  background: var(--purple-60);
+  border-radius: 2px;
+  opacity: 0;
+  translate: 0 0;
+  transform-origin: center;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    translate 420ms var(--spring-snappy),
+    scale var(--duration-fast) var(--spring-snappy);
+}
+
+.lead-tab.active {
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.lead-tab.entering,
+.sample-panel.picking .lead-tab.entering,
+.sample-panel.picking .lead-tab.entering:nth-of-type(2n),
+.sample-panel.picking .lead-tab.entering:nth-of-type(3n) {
+  animation: avatarScaleIn 420ms var(--spring-snappy) both;
+  animation-delay: 0s;
+}
+
+.lead-tab.exiting,
+.sample-panel.picking .lead-tab.exiting,
+.sample-panel.picking .lead-tab.exiting:nth-of-type(2n),
+.sample-panel.picking .lead-tab.exiting:nth-of-type(3n) {
+  animation: avatarScaleOut 320ms var(--ease-out) both;
+  animation-delay: 0s;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.add-lead-btn:hover .lead-control-circle,
+.picker-close:hover .lead-control-circle {
+  border-color: var(--tan-40);
+  background: var(--tan-10);
+}
+
+.add-lead-btn:active,
+.picker-close:active,
+.lead-tab:active .lead-avatar {
+  scale: 0.94;
+}
+
+.add-lead-btn:active .lead-control-circle,
+.picker-close:active .lead-control-circle {
+  scale: 0.94;
+}
+
+.lead-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--tan-20);
+  position: relative;
+  flex-shrink: 0;
+  scale: 1;
+  transition:
+    scale 320ms var(--spring-snappy),
+    opacity 260ms var(--ease-out);
+}
+
+.lead-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+  opacity: 1;
+  transition: opacity 260ms var(--ease-out);
+}
+
+.lead-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #8d533b, #1d6c63);
+  opacity: 1;
+  transition: opacity 260ms var(--ease-out);
+}
+
+.remove-dot {
+  position: absolute;
+  right: -4px;
+  top: -3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 0;
+  color: var(--tan-70);
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity var(--duration-micro) var(--ease-out),
+    transform var(--duration-fast) var(--spring-snappy);
+}
+
+.remove-dot svg {
+  width: 18px;
+  height: 18px;
+}
+
+.lead-tab:hover .remove-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.sample-panel.picking .lead-tab .remove-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.sample-panel.picking .lead-tab {
+  animation: avatarWiggle 560ms ease-in-out infinite;
+}
+
+.sample-panel.picking .lead-tab:nth-of-type(2n) {
+  animation-delay: -160ms;
+}
+
+.sample-panel.picking .lead-tab:nth-of-type(3n) {
+  animation-delay: -280ms;
+}
+
+@keyframes avatarWiggle {
+  0%, 100% { rotate: -1.4deg; }
+  50% { rotate: 1.4deg; }
+}
+
+@keyframes avatarScaleIn {
+  0% { opacity: 0; scale: 0.58; }
+  70% { opacity: 1; scale: 1.08; }
+  100% { opacity: 1; scale: 1; }
+}
+
+@keyframes avatarScaleOut {
+  0% { opacity: 1; scale: 1; }
+  100% { opacity: 0; scale: 0.64; }
+}
+
+.tooltip {
+  position: absolute;
+  left: 50%;
+  top: -46px;
+  transform: translate(-50%, 5px);
+  background: var(--ink);
+  color: white;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-micro) var(--ease-out),
+    transform var(--duration-fast) var(--spring-snappy);
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: var(--ink);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.add-lead-btn:hover .tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.sample-panel.picking .add-lead-btn .tooltip {
+  display: none;
+}
+
+.add-lead-btn .icon-x {
+  display: none;
+}
+
+.add-lead-btn .icon-plus,
+.add-lead-btn .icon-x {
+  width: 20px;
+  height: 20px;
+  place-items: center;
+}
+
+.add-lead-btn .icon-plus {
+  display: grid;
+}
+
+.sample-panel.picking .add-lead-btn .icon-plus {
+  display: none;
+}
+
+.sample-panel.picking .add-lead-btn .icon-x {
+  display: grid;
+}
+
+.lead-tab.loading-profile {
+  z-index: 1;
+}
+
+.lead-tab.loading-profile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from -90deg,
+    rgba(117, 73, 255, 0) 0deg,
+    rgba(117, 73, 255, 0) 120deg,
+    rgba(117, 73, 255, 0.18) 168deg,
+    rgba(117, 73, 255, 0.82) 226deg,
+    rgba(129, 101, 255, 0.95) 282deg,
+    rgba(255, 164, 111, 0.72) 326deg,
+    rgba(255, 164, 111, 0) 360deg
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation: profileSpin 900ms linear infinite;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1;
+  transition: opacity 260ms var(--ease-out);
+}
+
+.lead-tab.loading-profile::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: white;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 260ms var(--ease-out);
+}
+
+.lead-tab.loading-profile .lead-avatar {
+  position: relative;
+  z-index: 2;
+  scale: 0.86;
+}
+
+.lead-tab.loading-profile .lead-avatar img,
+.lead-tab.loading-profile .lead-avatar-fallback {
+  opacity: 0.5;
+  position: relative;
+  z-index: 2;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.lead-tab.loading-profile.loading-complete::before,
+.lead-tab.loading-profile.loading-complete::after {
+  opacity: 0;
+}
+
+.lead-tab.loading-profile.loading-complete .lead-avatar img,
+.lead-tab.loading-profile.loading-complete .lead-avatar-fallback {
+  opacity: 1;
+}
+
+.lead-tab.loading-profile.loading-complete .lead-avatar {
+  scale: 1;
+}
+
+@keyframes profileSpin {
+  to { transform: rotate(360deg); }
+}
+
+.lead-summary {
+  height: 64px;
+  background: var(--tan-10);
+  border-bottom: 1px solid var(--tan-20);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  flex-shrink: 0;
+}
+
+.sample-panel.picking .lead-summary {
+  display: none;
+}
+
+.lead-summary.copy-out {
+  opacity: 1;
+  transform: none;
+}
+
+.lead-summary.copy-out .lead-copy,
+.lead-summary.copy-out .lead-arrow {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.lead-summary.copy-in .lead-copy,
+.lead-summary.copy-in .lead-arrow {
+  animation: copyIn var(--duration-medium) var(--spring-snappy);
+}
+
+@keyframes copyIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lead-copy {
+  min-width: 0;
+  flex: 1;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.lead-name {
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline dotted rgba(100, 96, 105, 0.4);
+  text-underline-offset: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lead-role {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lead-arrow {
+  color: var(--tan-50);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--spring-snappy);
+}
+
+.lead-summary:hover .lead-arrow {
+  transform: translateX(3px);
+}
+
+.panel-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.sequence-view,
+.picker-view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-medium) var(--spring-snappy);
+}
+
+.picker-view {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(28px);
+}
+
+.sample-panel.picking .sequence-view {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-18px);
+}
+
+.sample-panel.picking .picker-view {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.sequence-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.sequence-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sequence-scroll::-webkit-scrollbar-thumb {
+  background: var(--tan-30);
+  border-radius: 6px;
+}
+
+.sequence-toolbar {
+  padding: 24px 24px 16px;
+}
+
+.sequence-select {
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  color: var(--ink);
+  font-weight: 600;
+  transition:
+    border-color var(--duration-micro) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.sequence-select:hover {
+  border-color: var(--tan-40);
+  box-shadow: 0 4px 12px rgba(117, 113, 122, 0.08);
+}
+
+.sequence-select span:nth-child(2) {
+  flex: 1;
+}
+
+.sequence-select .accepted {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+}
+
+.cards-scroll {
+  padding: 0 24px 108px;
+}
+
+.lead-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lead-results::-webkit-scrollbar-thumb {
+  background: var(--tan-30);
+  border-radius: 6px;
+}
+
+.message-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  margin-bottom: 16px;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: cardIn var(--duration-medium) var(--spring-snappy) forwards;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.message-card:hover {
+  border-color: var(--tan-40);
+  box-shadow: 0 6px 18px rgba(117, 113, 122, 0.1);
+  transform: translateY(-1px);
+}
+
+@keyframes cardIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message-head {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: white;
+}
+
+.channel-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--blue-10);
+  color: var(--blue-60);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.message-title {
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--ink);
+  flex: 1;
+}
+
+.day {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink-secondary);
+}
+
+.message-copy {
+  border-top: 1px solid var(--tan-20);
+  padding: 12px;
+  color: var(--tan-100);
+  font-size: 14px;
+  line-height: 24px;
+  white-space: pre-line;
+}
+
+.show-contents {
+  border-top: 1px solid var(--tan-20);
+  min-height: 48px;
+}
+
+.contents-trigger {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  background: white;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.contents-trigger:hover {
+  background: var(--tan-10);
+}
+
+.contents-trigger span:nth-child(2) {
+  flex: 1;
+  text-align: left;
+}
+
+.contents-trigger .chev {
+  transition: transform var(--duration-fast) var(--spring-snappy);
+}
+
+.message-card.expanded .contents-trigger .chev {
+  transform: rotate(180deg);
+}
+
+.contents-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--duration-medium) var(--spring-snappy);
+}
+
+.message-card.expanded .contents-panel {
+  grid-template-rows: 1fr;
+}
+
+.contents-inner {
+  overflow: hidden;
+}
+
+.contents-list {
+  padding: 0 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.content-pill {
+  border: 1px solid var(--tan-20);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--tan-10);
+  color: var(--ink-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.regenerate-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) translateY(14px) scale(0.94);
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  transition:
+    opacity 220ms var(--ease-out),
+    transform 420ms var(--spring-snappy);
+}
+
+.regenerate-wrap.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.regenerate-wrap.dismissing {
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px) scale(0.96);
+  pointer-events: none;
+}
+
+.regen-btn,
+.generate-btn {
+  min-width: 184px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--orange);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.86)) padding-box,
+    linear-gradient(90deg, var(--orange), #b74ef9 55%, var(--blue-60)) border-box;
+  color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: auto;
+  box-shadow: 0 8px 24px rgba(183, 78, 249, 0.14);
+  transition:
+    transform var(--duration-fast) var(--spring-snappy),
+    box-shadow var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out);
+}
+
+.regen-btn:hover,
+.generate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(183, 78, 249, 0.22);
+  filter: saturate(1.08);
+}
+
+.regen-btn:active,
+.generate-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--orange), #b74ef9 55%, var(--blue-60));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.change-badge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  color: white;
+  background: linear-gradient(90deg, var(--orange), var(--pink));
+  font-size: 12px;
+  line-height: 16px;
+  padding: 0 6px;
+}
+
+.bottom-bar {
+  height: 64px;
+  background: white;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.back-link {
+  border: 0;
+  background: none;
+  color: var(--purple-60);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.search-row {
+  height: 48px;
+  border-bottom: 1px solid var(--tan-20);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  color: var(--tan-65);
+  flex-shrink: 0;
+}
+
+.search-row input {
+  border: 0;
+  outline: 0;
+  flex: 1;
+  min-width: 0;
+  color: var(--ink);
+  background: transparent;
+}
+
+.search-row input::placeholder {
+  color: var(--tan-50);
+}
+
+.selected-count {
+  font-size: 14px;
+  color: var(--tan-70);
+}
+
+.lead-results {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.lead-row {
+  width: 100%;
+  border: 0;
+  background: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: inherit;
+  transition:
+    background var(--duration-micro) var(--ease-out),
+    transform var(--duration-fast) var(--spring-snappy);
+}
+
+.lead-row:hover {
+  background: var(--tan-10);
+}
+
+.lead-row:active {
+  transform: scale(0.99);
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: white;
+  display: grid;
+  place-items: center;
+  color: white;
+  flex-shrink: 0;
+  transition:
+    background var(--duration-fast) var(--spring-snappy),
+    border-color var(--duration-fast) var(--spring-snappy),
+    transform var(--duration-fast) var(--spring-snappy);
+}
+
+.lead-row.selected .checkbox {
+  background: var(--purple-60);
+  border-color: var(--purple-60);
+  transform: scale(1.03);
+}
+
+.checkbox .check-icon {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+.lead-row .lead-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.lead-row-text {
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.picker-footer {
+  min-height: 76px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to top, white 70%, rgba(255,255,255,0));
+  flex-shrink: 0;
+}
+
+.generate-btn {
+  min-width: 194px;
+}
+
+.generate-btn.loading {
+  pointer-events: none;
+}
+
+.generate-btn.loading .tiny-icon {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.toast {
+  position: absolute;
+  right: 24px;
+  bottom: 82px;
+  background: var(--ink);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.toast.show {
+  animation: toastIn 1800ms var(--spring-snappy);
+}
+
+@keyframes toastIn {
+  0% { opacity: 0; transform: translateY(8px); }
+  12%, 80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(8px); }
+}
+
+.regen-flash .message-card {
+  animation: cardPulse 520ms var(--spring-snappy);
+}
+
+@keyframes cardPulse {
+  0% { transform: translateY(0); }
+  45% { transform: translateY(-3px); border-color: var(--purple-30); }
+  100% { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side-nav" aria-label="Primary navigation">
+    <div class="logo" aria-label="Artisan">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 4 20h5.2l1.1-2.7h6.2l1.1 2.7H23L15 3h-3Zm0.9 6.2 2.2 5.4h-4.4l2.2-5.4Z"/></svg>
+    </div>
+    <div class="nav-group">
+      <button class="nav-item" aria-label="AI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg></button>
+      <button class="nav-item active" aria-label="Campaigns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg></button>
+      <button class="nav-item" aria-label="Inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v12H4z"/><path d="m4 16 4-5h8l4 5"/><path d="M9 20h6"/></svg></button>
+      <button class="nav-item" aria-label="People"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.8"/><path d="M16 3.2a4 4 0 0 1 0 7.6"/></svg></button>
+    </div>
+    <div class="nav-group">
+      <button class="nav-item" aria-label="Tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11h10"/><path d="M9 17h10"/><path d="m4 11 1.5 1.5L8 9"/><path d="m4 17 1.5 1.5L8 15"/></svg></button>
+      <button class="nav-item" aria-label="Messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"/></svg></button>
+      <button class="nav-item" aria-label="Calls"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19 19 0 0 1-8.3-3 18.7 18.7 0 0 1-5.8-5.8 19 19 0 0 1-3-8.4A2 2 0 0 1 4.7 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.7 9.6a15 15 0 0 0 5.7 5.7l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/></svg></button>
+    </div>
+    <div class="nav-group">
+      <button class="nav-item" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
+      <button class="nav-item" aria-label="Integrations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8v8"/><path d="M18 8v8"/><path d="M8 12h8"/><path d="M4 8h4"/><path d="M16 8h4"/><path d="M4 16h4"/><path d="M16 16h4"/></svg></button>
+      <button class="nav-item" aria-label="Web"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.4 2.6 3.6 5.6 3.6 9S14.4 18.4 12 21c-2.4-2.6-3.6-5.6-3.6-9S9.6 5.6 12 3Z"/></svg></button>
+    </div>
+    <div class="account-stack">
+      <div class="mini-avatar">MB</div>
+      <button class="nav-item" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.6v.2a2 2 0 1 1-4 0V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H2.8a2 2 0 1 1 0-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2a2 2 0 1 1 4 0V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1A1.7 1.7 0 0 0 19.4 9c.2.6.8 1 1.6 1h.2a2 2 0 1 1 0 4H21c-.8 0-1.4.4-1.6 1Z"/></svg></button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="breadcrumbs">
+        <span>Campaigns</span>
+        <span class="chevron">&rsaquo;</span>
+        <span class="crumb-current">New campaign</span>
+        <svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m5 8 5 5 5-5"/></svg>
+        <span class="campaign-badge">
+          <svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h12v10H4z"/><path d="M4 8h12"/></svg>
+          Cold outbound
+        </span>
+      </div>
+      <div class="topbar-actions">
+        <div class="pill-tabs" aria-label="Campaign sections">
+          <button class="pill-tab active"><svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16 16 4"/><path d="m11 4 5 5"/><path d="M4 11l5 5"/></svg>Build</button>
+          <button class="pill-tab"><svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 16v-1.5a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3V16"/><circle cx="8.5" cy="6" r="3"/><path d="M17 16v-1.5a3 3 0 0 0-2-2.8"/></svg>Leads</button>
+          <button class="pill-tab"><svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 16V9"/><path d="M10 16V4"/><path d="M15 16v-5"/></svg>Analytics</button>
+        </div>
+        <div class="status-draft">Draft</div>
+        <button class="launch-btn">
+          <svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m11 2-7 9h6l-1 7 7-9h-6l1-7Z"/></svg>
+          Launch
+        </button>
+      </div>
+    </header>
+
+    <nav class="subnav" aria-label="Build steps">
+      <button class="subnav-item"><svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>Targeting</button>
+      <button class="subnav-item active"><svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 10h-4l-2 7L8 3 6 10H2"/></svg>Sequence</button>
+      <button class="subnav-item"><svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 12a3 3 0 0 1-3 3H7l-4 3V6a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6Z"/></svg>Messaging</button>
+      <button class="subnav-item"><svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="3"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3M3.6 3.6l2.1 2.1M14.3 14.3l2.1 2.1M16.4 3.6l-2.1 2.1M5.7 14.3l-2.1 2.1"/></svg>Settings</button>
+    </nav>
+
+    <section class="workspace">
+      <div class="blank-canvas">
+        <div class="canvas-hint">Sequence builder canvas</div>
+      </div>
+
+      <aside class="sample-panel" id="samplePanel" aria-label="Generate sample sequence panel">
+        <div class="panel-head">
+          <h1 class="panel-title">Generate sample sequence</h1>
+          <button class="panel-close" aria-label="Close panel">
+            <svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5 5 15M5 5l10 10"/></svg>
+          </button>
+        </div>
+
+        <div class="lead-tabs" id="leadTabs"></div>
+
+        <div class="lead-summary" id="leadSummary">
+          <div class="lead-copy">
+            <div class="lead-name" id="summaryName">Avery Knox</div>
+            <div class="lead-role" id="summaryRole">VP, People Operations at Northbeam Dynamics</div>
+          </div>
+          <svg class="lead-arrow tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </div>
+
+        <div class="panel-body">
+          <div class="sequence-view">
+            <div class="sequence-scroll" id="sequenceScroll">
+              <div class="sequence-toolbar">
+                <div class="sequence-select" role="button" tabindex="0">
+                  <svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6h8M6 14h8M6 6c0 4 8 4 8 8M14 6c0 4-8 4-8 8"/></svg>
+                  <span>Sequence 1</span>
+                  <span class="accepted">Accepted request</span>
+                  <svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m5 8 5 5 5-5"/></svg>
+                </div>
+              </div>
+
+              <div class="cards-scroll" id="cardsScroll"></div>
+            </div>
+
+            <div class="regenerate-wrap">
+              <button class="regen-btn" id="regenBtn">
+                <span class="gradient-text">Regenerate with changes</span>
+                <span class="change-badge">3</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="picker-view">
+            <label class="search-row">
+              <svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="6"/><path d="m14 14 3 3"/></svg>
+              <input id="leadSearch" type="text" placeholder="Search leads..." autocomplete="off">
+              <span class="selected-count" id="selectedCount">1/5</span>
+            </label>
+            <div class="lead-results" id="leadResults"></div>
+            <div class="picker-footer">
+              <button class="generate-btn" id="generateSamples">
+                <span class="gradient-text">Generate sample sequences</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="toast" id="toast">Samples refreshed</div>
+      </aside>
+    </section>
+
+    <footer class="bottom-bar">
+      <button class="back-link">Back</button>
+      <button class="launch-btn">Launch</button>
+    </footer>
+  </main>
+</div>
+
+<script>
+const leadData = [
+  {
+    id: "avery",
+    initials: "AK",
+    avatar: "",
+    avatarUrl: "https://randomuser.me/api/portraits/women/44.jpg",
+    tone: "",
+    name: "Avery Knox",
+    role: "VP, People Operations",
+    company: "Northbeam Dynamics",
+    selected: true,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Jeff,\n\nArtisan builds an AI sales agent that replaces the SDR function end-to-end: sources, researches, writes, books meetings.\n\nTwo fits with AWS worth a look: Marketplace + Bedrock partnership, and AWS Startups running Ava for their own outbound.\n\nInterested to know more?",
+        contents: ["AWS Marketplace and Bedrock partnership", "AI sales agent replacing outbound SDR workflows", "Northbeam's global hiring and operations context"]
+      },
+      {
+        day: "Day 2",
+        body: "Following up with a more specific angle for Northbeam.\n\nAva can identify account-level hiring triggers, write a message around that signal, and route interested prospects straight to the right calendar.\n\nWorth exploring if you are scaling outbound without adding more SDR headcount?",
+        contents: ["Hiring signals from CRM and public sources", "Calendar routing and booked meetings", "Headcount-efficient outbound motion"]
+      },
+      {
+        day: "Day 5",
+        body: "Last note from me.\n\nIf Northbeam is testing AI workflows, this is a practical one: give Ava a segment, let it source leads, write the sequence, and show the exact messages before launch.\n\nShould I send over a sample campaign?",
+        contents: ["Sample campaign preview", "Lead-level message review", "Human approval before launch"]
+      }
+    ]
+  },
+  {
+    id: "marcus",
+    initials: "MW",
+    avatar: "alt",
+    avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+    name: "Marcus Webb",
+    role: "CTO",
+    company: "Prism Analytics",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Marcus,\n\nArtisan gives revenue teams an AI teammate that can source, research, and write outbound while keeping every sample message reviewable before launch.\n\nFor Prism, the interesting angle is technical buyers: Ava can adapt by account signal without forcing reps to build every variant manually.\n\nOpen to a quick look?",
+        contents: ["Technical buyer angle", "Account research inputs", "Manual variant reduction"]
+      },
+      {
+        day: "Day 3",
+        body: "One detail I thought you might care about: teams can inspect the contents Ava used to write each message.\n\nThat means your sales team gets automation, while leadership keeps visibility into source material, claims, and personalization.",
+        contents: ["Visible source contents", "Claim review", "Personalization audit trail"]
+      }
+    ]
+  },
+  {
+    id: "lena",
+    initials: "LC",
+    avatar: "third",
+    avatarUrl: "https://randomuser.me/api/portraits/women/68.jpg",
+    name: "Lena Cho",
+    role: "VP, Revenue Operations",
+    company: "OrbitWorks",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Lena,\n\nAva helps RevOps teams launch outbound without stitching together enrichment, sequencing, and copy workflows.\n\nThe sample sequence view is useful because you can test a few representative leads before pushing a full campaign live.\n\nWould it be useful to compare this against your current launch process?",
+        contents: ["RevOps launch workflow", "Representative lead samples", "Pre-launch quality check"]
+      },
+      {
+        day: "Day 4",
+        body: "Following up with a practical use case.\n\nPick five leads, generate their sample sequences, then tap between each lead to see how Ava changes the message based on role, company, and source context.",
+        contents: ["Five-lead sample workflow", "Role and company adaptation", "Tap between generated sequences"]
+      }
+    ]
+  },
+  {
+    id: "david",
+    initials: "DK",
+    avatar: "",
+    avatarUrl: "https://randomuser.me/api/portraits/men/85.jpg",
+    name: "David Kim",
+    role: "Head of Growth",
+    company: "Vantage Health",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "David,\n\nArtisan is helping growth teams turn audience ideas into launched outbound campaigns faster.\n\nAva can build a sequence, generate lead-specific samples, and expose the contents behind each message before anything sends.\n\nInterested in seeing a sample for Vantage?",
+        contents: ["Audience to campaign workflow", "Lead-specific samples", "Pre-send controls"]
+      }
+    ]
+  },
+  {
+    id: "rachel",
+    initials: "RT",
+    avatar: "alt",
+    avatarUrl: "https://randomuser.me/api/portraits/women/12.jpg",
+    name: "Rachel Torres",
+    role: "SVP, Global Expansion",
+    company: "NovaCrest",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Rachel,\n\nFor expansion teams, timing and context matter. Ava can find relevant accounts, generate the right sequence, and let you compare sample messages across multiple leads.\n\nThat makes it easier to catch generic copy before launch.\n\nWorth a look?",
+        contents: ["Expansion account timing", "Multiple lead comparison", "Generic copy detection"]
+      }
+    ]
+  },
+  {
+    id: "sarah",
+    initials: "SC",
+    avatar: "third",
+    avatarUrl: "https://randomuser.me/api/portraits/women/33.jpg",
+    name: "Sarah Chen",
+    role: "Director of Operations",
+    company: "Atlas Commerce",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Sarah,\n\nAva turns campaign setup into a previewable workflow: define the sequence, choose sample leads, and review exactly what each person would receive.\n\nIt is built to make launch decisions feel less like a black box.",
+        contents: ["Previewable setup workflow", "Sample lead review", "Launch confidence"]
+      }
+    ]
+  },
+  {
+    id: "jordan",
+    initials: "JM",
+    avatar: "",
+    avatarUrl: "https://randomuser.me/api/portraits/men/76.jpg",
+    name: "Jordan Morales",
+    role: "VP, Sales",
+    company: "Luminary AI",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Jordan,\n\nArtisan helps sales teams scale outbound while still reviewing the message quality that buyers actually see.\n\nThe sample sequence flow lets managers generate examples for a handful of leads and tune the campaign before launch.",
+        contents: ["Sales manager review", "Message quality checks", "Campaign tuning before launch"]
+      }
+    ]
+  },
+  {
+    id: "priya",
+    initials: "PS",
+    avatarUrl: "https://randomuser.me/api/portraits/women/55.jpg",
+    name: "Priya Shah",
+    role: "Director of Demand Generation",
+    company: "Helix Robotics",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Priya,\n\nFor demand gen teams, Ava can launch outbound experiments without pulling reps off pipeline work.\n\nGenerate sample sequences across a handful of personas, review the messages, and only push live what holds up.",
+        contents: ["Persona-level samples", "Pipeline-friendly outbound", "Pre-launch review"]
+      }
+    ]
+  },
+  {
+    id: "ethan",
+    initials: "EO",
+    avatarUrl: "https://randomuser.me/api/portraits/men/15.jpg",
+    name: "Ethan Okafor",
+    role: "Head of Partnerships",
+    company: "Beacon Logistics",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Ethan,\n\nFor partnership outreach, the message has to land with context. Ava can pull account signals and produce a sequence that reads like it came from a partner manager, not a bot.",
+        contents: ["Partnership context signals", "Tone-matched sequencing", "Account-aware messaging"]
+      }
+    ]
+  },
+  {
+    id: "maya",
+    initials: "MR",
+    avatarUrl: "https://randomuser.me/api/portraits/women/79.jpg",
+    name: "Maya Reyes",
+    role: "Chief Marketing Officer",
+    company: "Cinder & Co.",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Maya,\n\nMarketing teams using Artisan can preview every outbound touch before it ships. The sample sequence view shows each lead, each message, and the source content Ava used to write it.",
+        contents: ["Outbound preview by lead", "Source content visibility", "Brand-safe messaging"]
+      }
+    ]
+  },
+  {
+    id: "tomas",
+    initials: "TL",
+    avatarUrl: "https://randomuser.me/api/portraits/men/41.jpg",
+    name: "Tomas Lindqvist",
+    role: "Founder & CEO",
+    company: "Rivermark Studio",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Tomas,\n\nFor founder-led outbound, Ava handles the volume work so you can stay in the high-leverage conversations.\n\nGenerate sample sequences for the top accounts, review them in your voice, and let Ava run the rest.",
+        contents: ["Founder-led outbound", "Voice and tone matching", "High-leverage conversations"]
+      }
+    ]
+  },
+  {
+    id: "ines",
+    initials: "IM",
+    avatarUrl: "https://randomuser.me/api/portraits/women/22.jpg",
+    name: "Ines Moreau",
+    role: "VP, Customer Success",
+    company: "Northwind Labs",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Ines,\n\nCS-led expansion outbound is where Ava really earns its spot. Generate per-account sample sequences, see how the messaging adapts by health score and product usage, and review before launch.",
+        contents: ["Account health context", "Product usage signals", "Expansion sequencing"]
+      }
+    ]
+  },
+  {
+    id: "andre",
+    initials: "AB",
+    avatarUrl: "https://randomuser.me/api/portraits/men/64.jpg",
+    name: "Andre Bautista",
+    role: "Head of Sales Enablement",
+    company: "Pivotline",
+    selected: false,
+    messages: [
+      {
+        day: "Day 1",
+        body: "Andre,\n\nFor enablement, the value is consistency. Ava generates sample sequences that match the playbook so reps can review the format, not rebuild it.",
+        contents: ["Playbook-aligned sequences", "Rep review workflow", "Consistent outbound format"]
+      }
+    ]
+  }
+];
+
+const icons = {
+  plus: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 4v12M4 10h12"/></svg>',
+  x: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5 5 15M5 5l10 10"/></svg>',
+  minusCircle: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.25"/><path d="M7 10h6"/></svg>',
+  sliders: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h12M4 14h12"/><circle cx="8" cy="6" r="2"/><circle cx="13" cy="14" r="2"/></svg>',
+  check: '<svg class="tiny-icon check-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5.5 10.5 3 3 6-6.5"/></svg>',
+  linkedin: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 7a4 4 0 0 1 4 4v5h-3v-5a1 1 0 0 0-2 0v5H9V7h3v1a3.2 3.2 0 0 1 1-.9Z"/><path d="M3 7h3v9H3z"/><circle cx="4.5" cy="4" r="1.5"/></svg>',
+  chevron: '<svg class="tiny-icon chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m5 8 5 5 5-5"/></svg>',
+  spinner: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 10a7 7 0 1 1-4.8-6.6"/></svg>'
+};
+
+const panel = document.getElementById("samplePanel");
+const leadTabs = document.getElementById("leadTabs");
+const leadSummary = document.getElementById("leadSummary");
+const summaryName = document.getElementById("summaryName");
+const summaryRole = document.getElementById("summaryRole");
+const sequenceScroll = document.getElementById("sequenceScroll");
+const cardsScroll = document.getElementById("cardsScroll");
+const leadResults = document.getElementById("leadResults");
+const selectedCount = document.getElementById("selectedCount");
+const leadSearch = document.getElementById("leadSearch");
+const generateSamples = document.getElementById("generateSamples");
+const regenerateWrap = document.querySelector(".regenerate-wrap");
+const regenBtn = document.getElementById("regenBtn");
+const toast = document.getElementById("toast");
+
+let activeLeadId = "avery";
+let loadingLeadIds = new Set();
+let completingLeadIds = new Set();
+let enteringLeadIds = new Set();
+let pendingRegenerationChanges = 0;
+let nextSelectionOrder = 1;
+leadData.forEach(lead => {
+  if (lead.selected) lead.selectedOrder = nextSelectionOrder++;
+});
+
+function selectedLeads() {
+  return leadData
+    .filter(lead => lead.selected)
+    .sort((a, b) => (b.selectedOrder || 0) - (a.selectedOrder || 0));
+}
+
+function avatarMarkup(lead) {
+  const fallback = `<span class="lead-avatar-fallback">${lead.initials}</span>`;
+  const image = lead.avatarUrl ? `<img src="${lead.avatarUrl}" alt="" onerror="this.replaceWith(this.nextElementSibling)">${fallback}` : fallback;
+  return `<div class="lead-avatar" aria-hidden="true">${image}</div>`;
+}
+
+let tabsInitialized = false;
+
+function ensureTabsScaffold() {
+  if (tabsInitialized) return;
+  leadTabs.innerHTML = `
+    <button class="add-lead-btn" id="addLeadBtn" aria-label="Select more leads">
+      <span class="lead-control-circle">
+        <span class="icon-plus">${icons.plus}</span>
+        <span class="icon-x">${icons.x}</span>
+      </span>
+      <span class="tooltip">Select more leads</span>
+    </button>
+    <div class="lead-divider" aria-hidden="true"></div>
+    <span class="lead-underline" id="leadUnderline" aria-hidden="true"></span>
+  `;
+  document.getElementById("addLeadBtn").addEventListener("click", () => {
+    if (panel.classList.contains("picking")) closePicker();
+    else openPicker();
+  });
+  tabsInitialized = true;
+}
+
+function buildLeadTabElement(lead) {
+  const tab = document.createElement("button");
+  tab.className = "lead-tab";
+  tab.dataset.leadTab = lead.id;
+  tab.setAttribute("aria-label", lead.name);
+  tab.innerHTML = `${avatarMarkup(lead)}<span class="remove-dot" data-remove-lead="${lead.id}" aria-label="Remove ${lead.name}">${icons.minusCircle}</span>`;
+  tab.addEventListener("click", event => {
+    if (event.target.closest("[data-remove-lead]")) return;
+    setActiveLead(lead.id);
+  });
+  tab.querySelector("[data-remove-lead]").addEventListener("click", event => {
+    event.stopPropagation();
+    removeLead(lead.id);
+  });
+  return tab;
+}
+
+function updateLeadUnderline() {
+  const underline = document.getElementById("leadUnderline");
+  if (!underline) return;
+
+  const target = panel.classList.contains("picking")
+    ? document.getElementById("addLeadBtn")
+    : leadTabs.querySelector(`[data-lead-tab="${activeLeadId}"]`);
+
+  if (!target) {
+    underline.style.opacity = "0";
+    underline.style.scale = "0 1";
+    return;
+  }
+
+  const tabsRect = leadTabs.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const x = targetRect.left - tabsRect.left + (targetRect.width - 40) / 2;
+  underline.style.opacity = "1";
+  underline.style.scale = "1 1";
+  underline.style.translate = `${x}px 0`;
+}
+
+function renderTabs(presetOldPositions) {
+  ensureTabsScaffold();
+  const selected = selectedLeads();
+  const selectedIds = new Set(selected.map(lead => lead.id));
+
+  const oldPositions = presetOldPositions || new Map();
+  leadTabs.querySelectorAll("[data-lead-tab]").forEach(el => {
+    if (selectedIds.has(el.dataset.leadTab)) {
+      if (!presetOldPositions) {
+        oldPositions.set(el.dataset.leadTab, el.getBoundingClientRect().left);
+      }
+    } else if (el.classList.contains("exiting")) {
+      return;
+    } else {
+      el.remove();
+    }
+  });
+
+  const divider = leadTabs.querySelector(".lead-divider");
+  let anchor = divider;
+  selected.forEach(lead => {
+    let tab = leadTabs.querySelector(`[data-lead-tab="${lead.id}"]`);
+    if (!tab) {
+      tab = buildLeadTabElement(lead);
+    }
+    if (anchor.nextSibling !== tab) {
+      leadTabs.insertBefore(tab, anchor.nextSibling);
+    }
+    anchor = tab;
+
+    const isLoading = loadingLeadIds.has(lead.id);
+    tab.classList.toggle("active", lead.id === activeLeadId);
+    tab.classList.toggle("loading-profile", isLoading);
+    tab.classList.toggle("loading-complete", completingLeadIds.has(lead.id));
+    tab.setAttribute("aria-label", `${lead.name}${isLoading ? " loading" : ""}`);
+
+    if (enteringLeadIds.has(lead.id) && !tab.classList.contains("entering")) {
+      tab.classList.add("entering");
+      tab.addEventListener("animationend", () => {
+        enteringLeadIds.delete(lead.id);
+        tab.classList.remove("entering");
+      }, { once: true });
+    }
+  });
+
+  selected.forEach(lead => {
+    const oldLeft = oldPositions.get(lead.id);
+    if (oldLeft === undefined) return;
+    const tab = leadTabs.querySelector(`[data-lead-tab="${lead.id}"]`);
+    if (!tab) return;
+    const newLeft = tab.getBoundingClientRect().left;
+    const dx = oldLeft - newLeft;
+    if (Math.abs(dx) < 0.5) return;
+    tab.style.transition = "none";
+    tab.style.translate = `${dx}px 0`;
+    requestAnimationFrame(() => {
+      tab.style.transition = "translate 520ms cubic-bezier(0.16, 1, 0.3, 1)";
+      tab.style.translate = "0 0";
+      tab.addEventListener("transitionend", function cleanup(event) {
+        if (event.propertyName !== "translate") return;
+        tab.style.transition = "";
+        tab.style.translate = "";
+        tab.removeEventListener("transitionend", cleanup);
+      });
+    });
+  });
+
+  requestAnimationFrame(updateLeadUnderline);
+}
+
+function setActiveLead(id) {
+  if (activeLeadId === id) return;
+  activeLeadId = id;
+  leadSummary.classList.add("copy-out");
+  setTimeout(() => {
+    updateSummary();
+    renderTabs();
+    renderMessages();
+    leadSummary.classList.remove("copy-out");
+    leadSummary.classList.add("copy-in");
+    setTimeout(() => leadSummary.classList.remove("copy-in"), 360);
+  }, 140);
+}
+
+function updateSummary() {
+  const lead = leadData.find(item => item.id === activeLeadId) || selectedLeads()[0];
+  if (!lead) return;
+  summaryName.textContent = lead.name;
+  summaryRole.textContent = `${lead.role} at ${lead.company}`;
+}
+
+function removeLead(id) {
+  const lead = leadData.find(item => item.id === id);
+  if (!lead || selectedLeads().length <= 1) return;
+  const tab = leadTabs.querySelector(`[data-lead-tab="${id}"]`);
+  if (!tab || tab.classList.contains("exiting")) return;
+
+  const oldPositions = new Map();
+  leadTabs.querySelectorAll("[data-lead-tab]").forEach(el => {
+    if (el.dataset.leadTab !== id) {
+      oldPositions.set(el.dataset.leadTab, el.getBoundingClientRect().left);
+    }
+  });
+
+  const tabRect = tab.getBoundingClientRect();
+  const tabsRect = leadTabs.getBoundingClientRect();
+  tab.style.position = "absolute";
+  tab.style.left = `${tabRect.left - tabsRect.left}px`;
+  tab.style.top = `${tabRect.top - tabsRect.top}px`;
+  tab.style.width = `${tabRect.width}px`;
+  tab.style.height = `${tabRect.height}px`;
+  tab.style.margin = "0";
+  tab.style.translate = "0 0";
+  tab.addEventListener("animationend", () => {
+    tab.remove();
+  }, { once: true });
+  tab.classList.add("exiting");
+
+  lead.selected = false;
+  if (activeLeadId === id) {
+    activeLeadId = selectedLeads()[0].id;
+  }
+  renderTabs(oldPositions);
+  updateSummary();
+  renderMessages();
+  renderPicker();
+  markSequenceNeedsRegeneration();
+  showToast("Lead removed");
+}
+
+function renderMessages() {
+  const lead = leadData.find(item => item.id === activeLeadId) || selectedLeads()[0];
+  cardsScroll.innerHTML = lead.messages.map((message, index) => `
+    <article class="message-card" style="animation-delay:${index * 70}ms">
+      <div class="message-head">
+        <span class="channel-icon">${icons.linkedin}</span>
+        <h2 class="message-title">Send LinkedIn message</h2>
+        <span class="day">${message.day}</span>
+      </div>
+      <div class="message-copy">${escapeHtml(message.body)}</div>
+      <div class="show-contents">
+        <button class="contents-trigger" aria-expanded="false">
+          ${icons.sliders}
+          <span>Show contents</span>
+          ${icons.chevron}
+        </button>
+        <div class="contents-panel">
+          <div class="contents-inner">
+            <div class="contents-list">
+              ${message.contents.map(item => `<div class="content-pill">${escapeHtml(item)}</div>`).join("")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  `).join("");
+
+  cardsScroll.querySelectorAll(".contents-trigger").forEach(trigger => {
+    trigger.addEventListener("click", () => {
+      const card = trigger.closest(".message-card");
+      const expanded = card.classList.toggle("expanded");
+      trigger.setAttribute("aria-expanded", expanded ? "true" : "false");
+      trigger.querySelector("span").textContent = expanded ? "Hide contents" : "Show contents";
+    });
+  });
+}
+
+let pickerInitialized = false;
+
+function ensurePickerScaffold() {
+  if (pickerInitialized) return;
+  leadResults.innerHTML = leadData.map(lead => `
+    <button class="lead-row" data-picker-lead="${lead.id}">
+      <span class="checkbox"></span>
+      ${avatarMarkup(lead)}
+      <span class="lead-row-text">
+        <span class="lead-name">${lead.name}</span>
+        <span class="lead-role">${lead.role} at ${lead.company}</span>
+      </span>
+    </button>
+  `).join("");
+  leadResults.querySelectorAll("[data-picker-lead]").forEach(row => {
+    row.addEventListener("click", () => toggleLead(row.dataset.pickerLead));
+  });
+  pickerInitialized = true;
+}
+
+function renderPicker() {
+  ensurePickerScaffold();
+  const query = leadSearch.value.trim().toLowerCase();
+  selectedCount.textContent = `${selectedLeads().length}/5`;
+
+  let visibleCount = 0;
+  leadData.forEach(lead => {
+    const row = leadResults.querySelector(`[data-picker-lead="${lead.id}"]`);
+    if (!row) return;
+    const haystack = `${lead.name} ${lead.role} ${lead.company}`.toLowerCase();
+    const matches = haystack.includes(query);
+    row.style.display = matches ? "" : "none";
+    if (matches) visibleCount++;
+    row.classList.toggle("selected", lead.selected);
+    const checkbox = row.querySelector(".checkbox");
+    if (checkbox) checkbox.innerHTML = lead.selected ? icons.check : "";
+  });
+
+  let empty = leadResults.querySelector(".picker-empty");
+  if (visibleCount === 0) {
+    if (!empty) {
+      empty = document.createElement("div");
+      empty.className = "content-pill picker-empty";
+      empty.style.margin = "12px";
+      empty.textContent = "No matching leads";
+      leadResults.appendChild(empty);
+    }
+  } else if (empty) {
+    empty.remove();
+  }
+}
+
+function toggleLead(id) {
+  const lead = leadData.find(item => item.id === id);
+  if (!lead) return;
+  if (lead.selected) {
+    if (selectedLeads().length <= 1) {
+      showToast("Keep at least one lead selected");
+      return;
+    }
+    removeLead(id);
+    return;
+  }
+
+  if (selectedLeads().length >= 5) {
+    showToast("You can select up to 5 leads");
+    return;
+  }
+  lead.selected = true;
+  lead.selectedOrder = nextSelectionOrder++;
+  activeLeadId = lead.id;
+  enteringLeadIds.add(lead.id);
+  updatePickerSelectionState(id);
+  renderTabs();
+  updateSummary();
+  markSequenceNeedsRegeneration();
+}
+
+function updatePickerSelectionState(changedId) {
+  selectedCount.textContent = `${selectedLeads().length}/5`;
+  const row = leadResults.querySelector(`[data-picker-lead="${changedId}"]`);
+  const lead = leadData.find(item => item.id === changedId);
+  if (!row || !lead) return;
+  row.classList.toggle("selected", lead.selected);
+  const checkbox = row.querySelector(".checkbox");
+  if (checkbox) checkbox.innerHTML = lead.selected ? icons.check : "";
+}
+
+function openPicker() {
+  panel.classList.add("picking");
+  const addLeadBtn = document.getElementById("addLeadBtn");
+  if (addLeadBtn) addLeadBtn.setAttribute("aria-label", "Close lead picker");
+  updateLeadUnderline();
+  renderPicker();
+  setTimeout(() => leadSearch.focus(), 220);
+}
+
+function closePicker() {
+  panel.classList.remove("picking");
+  const addLeadBtn = document.getElementById("addLeadBtn");
+  if (addLeadBtn) addLeadBtn.setAttribute("aria-label", "Select more leads");
+  leadSearch.value = "";
+  updateLeadUnderline();
+  renderPicker();
+}
+
+function generateSamplesFlow() {
+  const generatingIds = selectedLeads().map(lead => lead.id);
+  generateSamples.classList.add("loading");
+  generateSamples.innerHTML = `${icons.spinner}<span class="gradient-text">Generating samples</span>`;
+  setTimeout(() => {
+    closePicker();
+    hideRegeneratePrompt();
+    loadingLeadIds = new Set(generatingIds);
+    renderTabs();
+    generateSamples.classList.remove("loading");
+    generateSamples.innerHTML = '<span class="gradient-text">Generate sample sequences</span>';
+    sequenceScroll.scrollTop = 0;
+    showToast("Sample sequences generated");
+    generatingIds.forEach((id, index) => {
+      setTimeout(() => {
+        completingLeadIds.add(id);
+        renderTabs();
+        setTimeout(() => {
+          loadingLeadIds.delete(id);
+          completingLeadIds.delete(id);
+          renderTabs();
+        }, 300);
+      }, 1400 + index * 260);
+    });
+  }, 1050);
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.remove("show");
+  void toast.offsetWidth;
+  toast.classList.add("show");
+}
+
+function markSequenceNeedsRegeneration() {
+  pendingRegenerationChanges += 1;
+  const badge = regenBtn.querySelector(".change-badge");
+  if (badge) badge.textContent = pendingRegenerationChanges;
+  regenerateWrap.classList.remove("dismissing");
+  regenerateWrap.classList.add("show");
+}
+
+function hideRegeneratePrompt() {
+  pendingRegenerationChanges = 0;
+  regenerateWrap.classList.add("dismissing");
+  regenerateWrap.classList.remove("show");
+  setTimeout(() => regenerateWrap.classList.remove("dismissing"), 240);
+}
+
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderAll() {
+  renderTabs();
+  updateSummary();
+  renderMessages();
+  renderPicker();
+}
+
+leadSearch.addEventListener("input", renderPicker);
+generateSamples.addEventListener("click", generateSamplesFlow);
+
+regenBtn.addEventListener("click", () => {
+  hideRegeneratePrompt();
+  cardsScroll.classList.add("regen-flash");
+  showToast("Regenerated with 3 changes");
+  setTimeout(() => cardsScroll.classList.remove("regen-flash"), 620);
+});
+
+leadSummary.addEventListener("click", () => {
+  const selected = selectedLeads();
+  const currentIndex = selected.findIndex(lead => lead.id === activeLeadId);
+  const next = selected[(currentIndex + 1) % selected.length];
+  if (next) setActiveLead(next.id);
+});
+
+leadData.forEach(lead => {
+  if (!lead.avatarUrl) return;
+  const image = new Image();
+  image.src = lead.avatarUrl;
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && panel.classList.contains("picking")) closePicker();
+});
+
+renderAll();
+</script>
+<script type="module" src="../../agentation.js"></script>
+</body>
+</html>
