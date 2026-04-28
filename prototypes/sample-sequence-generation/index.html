@@ -34,6 +34,8 @@
   --blue-60: #5488f8;
   --orange: #f8a36f;
   --pink: #e4889a;
+  --red-10: #fdf3f2;
+  --red-60: #d94638;
   --duration-micro: 150ms;
   --duration-fast: 220ms;
   --duration-medium: 320ms;
@@ -687,15 +689,78 @@ button {
   transform: translate(-50%, 0);
 }
 
+.lead-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  z-index: 8;
+  min-width: 216px;
+  max-width: 260px;
+  transform: translate(-50%, 4px) scale(0.98);
+  transform-origin: bottom center;
+  background: var(--ink);
+  color: white;
+  border-radius: 8px;
+  padding: 9px 10px;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 10px 28px rgba(29, 28, 32, 0.18);
+  transition:
+    opacity var(--duration-micro) var(--ease-out),
+    transform var(--duration-fast) var(--spring-snappy);
+}
+
+.lead-tooltip::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: var(--ink);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.lead-tooltip-name {
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.lead-tooltip-role {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: normal;
+}
+
+.lead-tab:hover .lead-tooltip,
+.lead-tab:focus-visible .lead-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+.sample-panel.picking .lead-tooltip {
+  display: none;
+}
+
 .sample-panel.picking .add-lead-btn .tooltip {
   display: none;
 }
 
+.add-lead-btn .icon-edit,
 .add-lead-btn .icon-x {
   display: none;
 }
 
 .add-lead-btn .icon-plus,
+.add-lead-btn .icon-edit,
 .add-lead-btn .icon-x {
   width: 20px;
   height: 20px;
@@ -706,6 +771,15 @@ button {
   display: grid;
 }
 
+.add-lead-btn.has-multiple .icon-plus {
+  display: none;
+}
+
+.add-lead-btn.has-multiple .icon-edit {
+  display: grid;
+}
+
+.sample-panel.picking .add-lead-btn .icon-edit,
 .sample-panel.picking .add-lead-btn .icon-plus {
   display: none;
 }
@@ -1124,40 +1198,38 @@ button {
   pointer-events: none;
 }
 
-.regen-btn,
-.generate-btn {
-  min-width: 184px;
+.regen-btn {
+  min-width: 223px;
   height: 40px;
+  border: 1px solid transparent;
   border-radius: 12px;
-  border: 1px solid var(--orange);
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.86)) padding-box,
-    linear-gradient(90deg, var(--orange), #b74ef9 55%, var(--blue-60)) border-box;
-  color: transparent;
+    linear-gradient(white, white) padding-box,
+    linear-gradient(90deg, var(--blue-60), #b74ef9 58%, var(--orange)) border-box;
+  color: var(--ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   padding: 0 12px;
   font-size: 14px;
-  font-weight: 600;
+  line-height: 24px;
+  font-weight: 500;
   pointer-events: auto;
-  box-shadow: 0 8px 24px rgba(183, 78, 249, 0.14);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
   transition:
     transform var(--duration-fast) var(--spring-snappy),
     box-shadow var(--duration-fast) var(--ease-out),
     filter var(--duration-fast) var(--ease-out);
 }
 
-.regen-btn:hover,
-.generate-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(183, 78, 249, 0.22);
-  filter: saturate(1.08);
+.regen-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  filter: saturate(1.04);
 }
 
-.regen-btn:active,
-.generate-btn:active {
+.regen-btn:active {
   transform: translateY(0) scale(0.98);
 }
 
@@ -1168,14 +1240,22 @@ button {
   color: transparent;
 }
 
+.regen-btn .gradient-text {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: var(--ink);
+}
+
 .change-badge {
   min-width: 18px;
   height: 18px;
-  border-radius: 4px;
+  border-radius: 6px;
   display: grid;
   place-items: center;
-  color: white;
-  background: linear-gradient(90deg, var(--orange), var(--pink));
+  color: var(--ink-secondary);
+  background: var(--tan-10);
+  border: 1px solid var(--tan-20);
   font-size: 12px;
   line-height: 16px;
   padding: 0 6px;
@@ -1238,10 +1318,12 @@ button {
 
 .lead-row {
   width: 100%;
+  height: 56px;
   border: 0;
   background: white;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 12px;
   border-radius: 8px;
@@ -1295,7 +1377,74 @@ button {
 .lead-row-text {
   min-width: 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.lead-row .lead-name {
+  display: block;
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lead-row .lead-role {
+  display: block;
+  max-width: 100%;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lead-row .lead-company {
+  text-decoration: underline dotted rgba(100, 96, 105, 0.4);
+  text-underline-offset: 2px;
+}
+
+.lead-row-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--tan-60);
+  background: white;
+  border: 1px solid var(--tan-20);
+  opacity: 0;
+  transform: translateX(-4px) scale(0.96);
+  pointer-events: none;
+  transition:
+    opacity var(--duration-micro) var(--ease-out),
+    transform var(--duration-fast) var(--spring-snappy),
+    border-color var(--duration-micro) var(--ease-out),
+    color var(--duration-micro) var(--ease-out);
+}
+
+.lead-row:hover .lead-row-action,
+.lead-row:focus-visible .lead-row-action {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  border-color: var(--tan-30);
+  color: var(--ink-secondary);
+}
+
+.lead-row-action .tiny-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .picker-footer {
@@ -1309,6 +1458,43 @@ button {
 
 .generate-btn {
   min-width: 194px;
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(90deg, var(--blue-60), #b74ef9 58%, var(--orange)) border-box;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 12px;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 500;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+  transition:
+    transform var(--duration-fast) var(--spring-snappy),
+    box-shadow var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out);
+}
+
+.generate-btn .gradient-text {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: var(--ink);
+}
+
+.generate-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  filter: saturate(1.04);
+}
+
+.generate-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .generate-btn.loading {
@@ -1321,6 +1507,36 @@ button {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.picker-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 86px;
+  z-index: 5;
+  max-width: calc(100% - 48px);
+  border: 1px solid rgba(217, 70, 56, 0.28);
+  border-radius: 8px;
+  background: var(--red-10);
+  color: var(--red-60);
+  box-shadow: 0 10px 26px rgba(217, 70, 56, 0.14);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  padding: 7px 10px;
+  opacity: 0;
+  transform: translate(-50%, 10px) scale(0.98);
+  pointer-events: none;
+}
+
+.picker-toast.show {
+  animation: pickerToastIn 1900ms var(--spring-snappy);
+}
+
+@keyframes pickerToastIn {
+  0% { opacity: 0; transform: translate(-50%, 12px) scale(0.98); }
+  12%, 82% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, 8px) scale(0.98); }
 }
 
 .toast {
@@ -1481,6 +1697,7 @@ button {
               <span class="selected-count" id="selectedCount">1/5</span>
             </label>
             <div class="lead-results" id="leadResults"></div>
+            <div class="picker-toast" id="pickerToast">You can select up to 5 leads</div>
             <div class="picker-footer">
               <button class="generate-btn" id="generateSamples">
                 <span class="gradient-text">Generate sample sequences</span>
@@ -1742,11 +1959,13 @@ const leadData = [
 
 const icons = {
   plus: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 4v12M4 10h12"/></svg>',
+  edit: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 5.5 14.5 8.5"/><path d="M4.5 15.5h3l8-8a2.1 2.1 0 0 0-3-3l-8 8v3Z"/></svg>',
   x: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5 5 15M5 5l10 10"/></svg>',
   minusCircle: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.25"/><path d="M7 10h6"/></svg>',
   sliders: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h12M4 14h12"/><circle cx="8" cy="6" r="2"/><circle cx="13" cy="14" r="2"/></svg>',
   check: '<svg class="tiny-icon check-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5.5 10.5 3 3 6-6.5"/></svg>',
   linkedin: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 7a4 4 0 0 1 4 4v5h-3v-5a1 1 0 0 0-2 0v5H9V7h3v1a3.2 3.2 0 0 1 1-.9Z"/><path d="M3 7h3v9H3z"/><circle cx="4.5" cy="4" r="1.5"/></svg>',
+  arrowRight: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>',
   chevron: '<svg class="tiny-icon chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m5 8 5 5 5-5"/></svg>',
   spinner: '<svg class="tiny-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 10a7 7 0 1 1-4.8-6.6"/></svg>'
 };
@@ -1762,6 +1981,7 @@ const leadResults = document.getElementById("leadResults");
 const selectedCount = document.getElementById("selectedCount");
 const leadSearch = document.getElementById("leadSearch");
 const generateSamples = document.getElementById("generateSamples");
+const pickerToast = document.getElementById("pickerToast");
 const regenerateWrap = document.querySelector(".regenerate-wrap");
 const regenBtn = document.getElementById("regenBtn");
 const toast = document.getElementById("toast");
@@ -1796,6 +2016,7 @@ function ensureTabsScaffold() {
     <button class="add-lead-btn" id="addLeadBtn" aria-label="Select more leads">
       <span class="lead-control-circle">
         <span class="icon-plus">${icons.plus}</span>
+        <span class="icon-edit">${icons.edit}</span>
         <span class="icon-x">${icons.x}</span>
       </span>
       <span class="tooltip">Select more leads</span>
@@ -1815,7 +2036,14 @@ function buildLeadTabElement(lead) {
   tab.className = "lead-tab";
   tab.dataset.leadTab = lead.id;
   tab.setAttribute("aria-label", lead.name);
-  tab.innerHTML = `${avatarMarkup(lead)}<span class="remove-dot" data-remove-lead="${lead.id}" aria-label="Remove ${lead.name}">${icons.minusCircle}</span>`;
+  tab.innerHTML = `
+    ${avatarMarkup(lead)}
+    <span class="lead-tooltip" role="tooltip">
+      <span class="lead-tooltip-name">${escapeHtml(lead.name)}</span>
+      <span class="lead-tooltip-role">${escapeHtml(lead.role)} at ${escapeHtml(lead.company)}</span>
+    </span>
+    <span class="remove-dot" data-remove-lead="${lead.id}" aria-label="Remove ${lead.name}">${icons.minusCircle}</span>
+  `;
   tab.addEventListener("click", event => {
     if (event.target.closest("[data-remove-lead]")) return;
     setActiveLead(lead.id);
@@ -1853,6 +2081,18 @@ function renderTabs(presetOldPositions) {
   ensureTabsScaffold();
   const selected = selectedLeads();
   const selectedIds = new Set(selected.map(lead => lead.id));
+  const addLeadBtn = document.getElementById("addLeadBtn");
+  if (addLeadBtn) {
+    const hasMultiple = selected.length > 1;
+    const tooltip = addLeadBtn.querySelector(".tooltip");
+    const label = hasMultiple ? "Edit selected leads" : "Select more leads";
+    addLeadBtn.classList.toggle("has-multiple", hasMultiple);
+    addLeadBtn.setAttribute(
+      "aria-label",
+      panel.classList.contains("picking") ? "Close lead picker" : label
+    );
+    if (tooltip) tooltip.textContent = label;
+  }
 
   const oldPositions = presetOldPositions || new Map();
   leadTabs.querySelectorAll("[data-lead-tab]").forEach(el => {
@@ -2026,8 +2266,9 @@ function ensurePickerScaffold() {
       ${avatarMarkup(lead)}
       <span class="lead-row-text">
         <span class="lead-name">${lead.name}</span>
-        <span class="lead-role">${lead.role} at ${lead.company}</span>
+        <span class="lead-role">${lead.role} at <span class="lead-company">${lead.company}</span></span>
       </span>
+      <span class="lead-row-action" aria-hidden="true">${icons.arrowRight}</span>
     </button>
   `).join("");
   leadResults.querySelectorAll("[data-picker-lead]").forEach(row => {
@@ -2081,7 +2322,7 @@ function toggleLead(id) {
   }
 
   if (selectedLeads().length >= 5) {
-    showToast("You can select up to 5 leads");
+    showPickerToast("You can select up to 5 leads");
     return;
   }
   lead.selected = true;
@@ -2116,7 +2357,9 @@ function openPicker() {
 function closePicker() {
   panel.classList.remove("picking");
   const addLeadBtn = document.getElementById("addLeadBtn");
-  if (addLeadBtn) addLeadBtn.setAttribute("aria-label", "Select more leads");
+  if (addLeadBtn) {
+    addLeadBtn.setAttribute("aria-label", selectedLeads().length > 1 ? "Edit selected leads" : "Select more leads");
+  }
   leadSearch.value = "";
   updateLeadUnderline();
   renderPicker();
@@ -2154,6 +2397,13 @@ function showToast(message) {
   toast.classList.remove("show");
   void toast.offsetWidth;
   toast.classList.add("show");
+}
+
+function showPickerToast(message) {
+  pickerToast.textContent = message;
+  pickerToast.classList.remove("show");
+  void pickerToast.offsetWidth;
+  pickerToast.classList.add("show");
 }
 
 function markSequenceNeedsRegeneration() {
@@ -2194,13 +2444,6 @@ regenBtn.addEventListener("click", () => {
   cardsScroll.classList.add("regen-flash");
   showToast("Regenerated with 3 changes");
   setTimeout(() => cardsScroll.classList.remove("regen-flash"), 620);
-});
-
-leadSummary.addEventListener("click", () => {
-  const selected = selectedLeads();
-  const currentIndex = selected.findIndex(lead => lead.id === activeLeadId);
-  const next = selected[(currentIndex + 1) % selected.length];
-  if (next) setActiveLead(next.id);
 });
 
 leadData.forEach(lead => {
