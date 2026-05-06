@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencil Line Animation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple-10: #f3effb;
+  --purple-20: #dfd2f4;
+  --purple-60: #682fc5;
+  --purple-70: #53269e;
+  --pink-50: #e66be7;
+  --peach-50: #f4b08a;
+  --tan-10: #faf8f5;
+  --tan-15: #f1eee9;
+  --tan-20: #e8e3dc;
+  --tan-30: #d3ccc5;
+  --tan-40: #c0b4a7;
+  --tan-50: #a89d90;
+  --tan-60: #8e847a;
+  --tan-65: #7f776e;
+  --tan-70: #6a6358;
+  --tan-90: #373431;
+  --tan-100: #201f1d;
+  --layer-01: #ffffff;
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--tan-10);
+  color: var(--tan-100);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-shell {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: var(--tan-10);
+}
+
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  width: 56px;
+  height: 100%;
+  flex: 0 0 56px;
+  background: var(--layer-01);
+  border-right: 1px solid var(--tan-20);
+}
+
+.nav-logo,
+.nav-item,
+.nav-avatar {
+  display: grid;
+  place-items: center;
+}
+
+.nav-logo {
+  height: 56px;
+}
+
+.logo-mark {
+  width: 18px;
+  height: 16px;
+  color: var(--purple-60);
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 8px 12px;
+  border-bottom: 1px solid rgba(219, 218, 221, 0.5);
+}
+
+.nav-group + .nav-group {
+  padding-top: 12px;
+}
+
+.nav-fill {
+  flex: 1;
+}
+
+.nav-item {
+  width: 40px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--tan-60);
+}
+
+.nav-item.is-active {
+  background: var(--purple-10);
+  color: var(--purple-60);
+}
+
+.nav-item svg {
+  width: 16px;
+  height: 16px;
+}
+
+.nav-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid #ebebed;
+}
+
+.nav-avatar {
+  width: 40px;
+  height: 48px;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--tan-20);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 60% 30%, #ffd6b8 0 18%, transparent 19%),
+    radial-gradient(circle at 50% 42%, #3b2a22 0 24%, transparent 25%),
+    linear-gradient(135deg, #f2c6a4, #886a53 46%, #ece4d8 47%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  height: 100%;
+}
+
+.page-header {
+  padding-top: 24px;
+  border-bottom: 1px solid var(--tan-20);
+}
+
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px 12px;
+}
+
+h1 {
+  font-family: "Intrinseca", "Intrinseca Regular", Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  letter-spacing: -0.48px;
+}
+
+.tabs-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 10px;
+}
+
+.tabs,
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 8px;
+  color: var(--tan-70);
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.tab.is-active {
+  border-bottom: 1px solid var(--tan-20);
+}
+
+.badge {
+  display: inline-flex;
+  min-width: 18px;
+  justify-content: center;
+  border-radius: 4px;
+  background: var(--tan-20);
+  color: var(--tan-70);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  padding: 1px 6px;
+}
+
+.filter-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--purple-60);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  padding: 0 6px;
+}
+
+.filter-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+}
+
+.panel {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--tan-20);
+  border-radius: 16px;
+  background: var(--layer-01);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.search-wrap {
+  padding: 16px;
+}
+
+.search {
+  display: flex;
+  height: 40px;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--tan-30);
+  border-radius: 8px;
+  color: var(--tan-50);
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.search svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+.empty-area {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--tan-20);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 43%, rgba(250, 248, 245, 0) 0 210px, rgba(250, 248, 245, 0.7) 640px),
+    linear-gradient(var(--layer-01), var(--layer-01));
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transform: translateY(-2px);
+}
+
+.animation-stage {
+  position: relative;
+  width: 190px;
+  height: 70px;
+  overflow: visible;
+}
+
+.wave-svg {
+  position: absolute;
+  inset: 0;
+  width: 190px;
+  height: 70px;
+  overflow: visible;
+}
+
+#wave-path {
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+}
+
+#wave-glow {
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+
+.figma-pencil {
+  position: absolute;
+  left: 24px;
+  top: 8px;
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 5px 10px rgba(104, 47, 197, 0.12));
+  will-change: transform;
+}
+
+.figma-pencil img,
+.pencil-occluder {
+  position: absolute;
+  inset: 9.38%;
+  width: 81.25%;
+  height: 81.25%;
+  display: block;
+}
+
+.pencil-occluder {
+  inset: 7.8%;
+  width: 84.4%;
+  height: 84.4%;
+  overflow: visible;
+  filter:
+    drop-shadow(0 0 1px #fff)
+    drop-shadow(0 0 1px #fff);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.copy h2 {
+  color: var(--tan-100);
+  font-family: "Intrinseca", "Intrinseca Regular", Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  letter-spacing: -0.48px;
+}
+
+.copy p {
+  color: var(--tan-70);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+@media (max-width: 760px) {
+  .side-nav,
+  .actions {
+    display: none;
+  }
+
+  .tabs-row {
+    overflow-x: auto;
+  }
+
+  .content {
+    padding: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .figma-pencil {
+    transform: translate(0, 0);
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="side-nav" aria-label="Primary navigation">
+    <div class="nav-logo">
+      <svg class="logo-mark" viewBox="0 0 18 16" fill="none" aria-hidden="true">
+        <path d="M14.7 14.4 9.4 1.3 2.2 9.1l5.8-.4-1.9 5.7h8.6Z" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="nav-group">
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="m18.5 15 .8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 12 16-8-6 16-3-7-7-1Z"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 17h16"/><path d="m5 14 4-4 4 3 6-7"/></svg></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16v10H4z"/><path d="m4 8 8 6 8-6"/></svg></div>
+      <div class="nav-item is-active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M5 11H4a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1v-1"/><path d="M12 10h3M10 13h5"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 5a11 11 0 0 0 11 11v3a2 2 0 0 1-2 2A14 14 0 0 1 3 7a2 2 0 0 1 2-2h3Z"/></svg></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="6"/><path d="m16 16 5 5"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 16a7 7 0 0 1 14 0"/><path d="M9 16a3 3 0 0 1 6 0"/><path d="M12 16v4"/></svg></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg></div>
+    </div>
+    <div class="nav-fill"></div>
+    <div class="nav-footer">
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.8 2.8 0 0 1 5 1.7c0 2-2.5 2-2.5 4"/><path d="M12 18h.01"/></svg></div>
+      <div class="nav-avatar"><div class="avatar" aria-hidden="true"></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <div class="title-row">
+        <h1>Tasks</h1>
+      </div>
+      <div class="tabs-row">
+        <nav class="tabs" aria-label="Task tabs">
+          <div class="tab">Outbound to approve <span class="badge">40</span></div>
+          <div class="tab is-active">Manual tasks <span class="badge">34</span></div>
+          <div class="tab is-active">Platform tasks <span class="badge">19</span></div>
+        </nav>
+        <div class="actions">
+          <button class="filter-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+            All tasks
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m7 10 5 5 5-5"/></svg>
+          </button>
+          <button class="filter-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16v10H4z"/><path d="m4 8 8 6 8-6"/></svg>
+            Pending
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m7 10 5 5 5-5"/></svg>
+          </button>
+          <button class="filter-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>
+            Filters
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="panel">
+        <div class="search-wrap">
+          <div class="search" role="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+            <span>Search lead, company, or subject...</span>
+          </div>
+        </div>
+
+        <div class="empty-area">
+          <div class="empty-state" aria-live="polite">
+            <div class="animation-stage" aria-hidden="true">
+              <svg class="wave-svg" viewBox="0 0 190 70">
+                <defs>
+                  <linearGradient id="wave-gradient" x1="52" y1="36" x2="180" y2="36" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#5488F8" stop-opacity="0.95"/>
+                    <stop offset="0.408654" stop-color="#B74EF9" stop-opacity="0.9"/>
+                    <stop offset="0.86" stop-color="#F8A36F" stop-opacity="0.42"/>
+                    <stop offset="1" stop-color="#F8A36F" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+
+                <path id="wave-path" d="" fill="none" stroke="url(#wave-gradient)" stroke-width="3"/>
+              </svg>
+              <div id="figma-pencil" class="figma-pencil">
+                <svg class="pencil-occluder" viewBox="0 0 39 39" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M27.4462 1.98232C30.0893 -0.660775 34.3746 -0.660771 37.0177 1.98232C39.6608 4.62542 39.6608 8.91072 37.0177 11.5538L31.4345 17.137L31.4301 17.1414L31.4257 17.1458L12.4204 36.151C12.3922 36.1793 12.3642 36.2073 12.3366 36.2349C11.8706 36.7015 11.4938 37.0787 11.0478 37.3728C10.6548 37.632 10.2285 37.8368 9.78065 37.9818C9.2724 38.1464 8.74243 38.2049 8.08693 38.2774C8.04813 38.2817 8.00888 38.286 7.96918 38.2904L1.66566 38.9908C1.21277 39.0411 0.761561 38.8829 0.43935 38.5607C0.117138 38.2384 -0.0411365 37.7872 0.00918434 37.3344L0.709575 31.0308C0.71399 30.9911 0.718332 30.9518 0.722624 30.913C0.795081 30.2575 0.853664 29.7276 1.01819 29.2194C1.16319 28.7714 1.36806 28.3452 1.62723 27.9522C1.92131 27.5062 2.29854 27.1294 2.7651 26.6634C2.79274 26.6357 2.8207 26.6078 2.84897 26.5796L27.4462 1.98232Z" fill="#fff"/>
+                </svg>
+                <img src="./assets/figma-edit-fill.svg" alt="">
+                <img src="./assets/figma-edit-stroke.svg" alt="">
+              </div>
+            </div>
+            <div class="copy">
+              <h2>Generating messages</h2>
+              <p>Hang tight, we're writing messages for you</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const pencil = document.getElementById("figma-pencil");
+const wave = document.getElementById("wave-path");
+
+const tip = { x: 29.1, y: 45.6 };
+const cycle = 2300;
+const waveLength = 154;
+const sampleCount = 40;
+
+function easeInOutSine(t) {
+  return -(Math.cos(Math.PI * t) - 1) / 2;
+}
+
+function easedBounceAt(progress) {
+  const normalized = ((progress % 1) + 1) % 1;
+  return normalized < 0.5
+    ? easeInOutSine(normalized * 2)
+    : easeInOutSine((1 - normalized) * 2);
+}
+
+function getPencilMotion(now) {
+  const progress = (now % cycle) / cycle;
+  const eased = easedBounceAt(progress);
+
+  return {
+    y: -24 * eased,
+    x: 0,
+    eased,
+    progress,
+  };
+}
+
+function buildWavePath(now, motion) {
+  const origin = {
+    x: tip.x + motion.x + 2,
+    y: tip.y + motion.y + 3,
+  };
+  const phase = motion.progress * Math.PI * 2;
+  const points = [];
+
+  for (let i = 0; i <= sampleCount; i += 1) {
+    const progress = i / sampleCount;
+    const x = origin.x + progress * waveLength;
+    const delayedPencilY = -24 * easedBounceAt(motion.progress - progress * 0.28);
+    const followY = progress === 0 ? motion.y : delayedPencilY;
+    const rippleEnvelope = Math.sin(progress * Math.PI);
+    const ripple = Math.sin(progress * Math.PI * 2.2 - phase) * 3.2 * rippleEnvelope;
+    const drift = progress * 2.6;
+    const y = tip.y + 3 + followY + ripple + drift;
+    points.push(`${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`);
+  }
+
+  return points.join(" ");
+}
+
+function drawFrame(now) {
+  const motion = getPencilMotion(now);
+  const path = buildWavePath(now, motion);
+
+  pencil.style.transform = `translate3d(${motion.x.toFixed(2)}px, ${motion.y.toFixed(2)}px, 0)`;
+  wave.setAttribute("d", path);
+
+  requestAnimationFrame(drawFrame);
+}
+
+if (prefersReducedMotion) {
+  const path = buildWavePath(0, getPencilMotion(0));
+  wave.setAttribute("d", path);
+} else {
+  requestAnimationFrame(drawFrame);
+}
+</script>
+<script type="module" src="../../agentation.js"></script>
+</body>
+</html>
