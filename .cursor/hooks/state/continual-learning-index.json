@@ -1,0 +1,92 @@
+{
+  "transcript_root": "/Users/mitchellbernstein/.cursor/projects/Users-mitchellbernstein-Documents-Github-mitch-prototypes/agent-transcripts",
+  "entries": {
+    "0911d513-c7f9-45ef-b999-036ca86888ff/0911d513-c7f9-45ef-b999-036ca86888ff.jsonl": {
+      "mtime": 1777584068.4889934
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/1c7321d7-fc40-4d5a-8d89-cd6979e109af.jsonl": {
+      "mtime": 1777568158.9016533
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/27c654bf-751d-4366-848a-8ec824866905.jsonl": {
+      "mtime": 1777569057.2680054
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/30ea8ca2-c007-44a6-b484-946657e9da36.jsonl": {
+      "mtime": 1777569134.8636992
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/4bae757b-5aef-4210-ace3-bce99f12c9c6.jsonl": {
+      "mtime": 1777569172.1792371
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/5f21fa68-0e3f-4434-8c2b-301697bc9e8e.jsonl": {
+      "mtime": 1777573395.4130957
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/609c0ac9-dc5c-4ae0-9663-25b6b5e8c6af.jsonl": {
+      "mtime": 1777584063.8451302
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/7f9d1b01-9f0c-425a-b2d2-c26c3df81861.jsonl": {
+      "mtime": 1777568445.436521
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/a242ac40-b67c-4991-8b84-8703a426f015.jsonl": {
+      "mtime": 1777568301.3039737
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/a838fca5-d267-4a45-99eb-5fb61e8980d3.jsonl": {
+      "mtime": 1777568759.5250363
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/b03b5846-135d-4447-b0b1-76a1930a59db.jsonl": {
+      "mtime": 1777568625.573065
+    },
+    "0911d513-c7f9-45ef-b999-036ca86888ff/subagents/f4de4be7-b9ae-4658-819e-c27c3f646861.jsonl": {
+      "mtime": 1777568976.6510172
+    },
+    "35e624ff-0415-4bfe-9e32-f43b82e58bda/35e624ff-0415-4bfe-9e32-f43b82e58bda.jsonl": {
+      "mtime": 1777062015.5782897
+    },
+    "3de2c436-53ed-48e5-b669-c7678e37bcaf/3de2c436-53ed-48e5-b669-c7678e37bcaf.jsonl": {
+      "mtime": 1776273313.0195713
+    },
+    "3de2c436-53ed-48e5-b669-c7678e37bcaf/subagents/6bb033f4-2922-4242-82d1-71855ef252ce.jsonl": {
+      "mtime": 1776107931.3881798
+    },
+    "40a08ebc-de48-4877-baff-91604e4b40f8/40a08ebc-de48-4877-baff-91604e4b40f8.jsonl": {
+      "mtime": 1777493794.555355
+    },
+    "40ff90f7-302d-4fd7-835b-648f8f14bd05/40ff90f7-302d-4fd7-835b-648f8f14bd05.jsonl": {
+      "mtime": 1775950375.3665574
+    },
+    "46b9828c-8c85-49a0-b025-dab6cc62001d/46b9828c-8c85-49a0-b025-dab6cc62001d.jsonl": {
+      "mtime": 1776442551.768881
+    },
+    "46b9828c-8c85-49a0-b025-dab6cc62001d/subagents/d4b04f31-d422-499c-a9fd-05a5e9305f8e.jsonl": {
+      "mtime": 1776040490.0759785
+    },
+    "73092cb2-4eed-4932-8edf-12c45d4cada4/73092cb2-4eed-4932-8edf-12c45d4cada4.jsonl": {
+      "mtime": 1775625668.8531082
+    },
+    "819032b2-3536-4d06-913d-3167264439a0/819032b2-3536-4d06-913d-3167264439a0.jsonl": {
+      "mtime": 1776290262.0722876
+    },
+    "819032b2-3536-4d06-913d-3167264439a0/subagents/29deb034-2732-4ed0-bacb-b03bac868cf7.jsonl": {
+      "mtime": 1776273463.4066117
+    },
+    "b0df1f53-686e-4d15-b42e-93c1e6173e59/b0df1f53-686e-4d15-b42e-93c1e6173e59.jsonl": {
+      "mtime": 1778103926.4735525
+    },
+    "b0df1f53-686e-4d15-b42e-93c1e6173e59/subagents/b702195a-b630-47cd-8b97-a9f12c0fe625.jsonl": {
+      "mtime": 1778103044.7318187
+    },
+    "b27fbdd8-d8dc-4315-82a1-b7a1ab90085d/b27fbdd8-d8dc-4315-82a1-b7a1ab90085d.jsonl": {
+      "mtime": 1778706898.9882364
+    },
+    "b27fbdd8-d8dc-4315-82a1-b7a1ab90085d/subagents/394cdaf3-ed81-4f90-89aa-93c1daf7dfc9.jsonl": {
+      "mtime": 1778706922.0120435
+    },
+    "b29528e6-b57d-4f20-b102-7050c92edffe/b29528e6-b57d-4f20-b102-7050c92edffe.jsonl": {
+      "mtime": 1777038570.838739
+    },
+    "b3698d2d-72c2-4762-877e-1388b382ac6f/b3698d2d-72c2-4762-877e-1388b382ac6f.jsonl": {
+      "mtime": 1776650384.1770923
+    },
+    "b91c5f97-c29b-4b63-b16c-e84b8d89f3fd/b91c5f97-c29b-4b63-b16c-e84b8d89f3fd.jsonl": {
+      "mtime": 1775625611.4355452
+    }
+  }
+}

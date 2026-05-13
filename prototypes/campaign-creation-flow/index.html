@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Creation Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand: #682fc5;
+  --brand-hover: #5e2bb2;
+  --brand-subtle: #dfd2f4;
+  --brand-soft: #f3effb;
+  --card-hover-glow: rgba(104, 47, 197, 0.34);
+  --category-text: #6a6358;
+  --category-icon: #96949c;
+  --category-icon-active: #682fc5;
+  --page: #faf9f5;
+  --surface: #ffffff;
+  --surface-muted: #f7f7f8;
+  --template-list-bg: #faf8f5;
+  --nav-active: #ecebed;
+  --border: #dbdadd;
+  --border-subtle: #e8e3dc;
+  --text: #201f1d;
+  --text-muted: #75717a;
+  --text-soft: #96949c;
+  --success: #43ad5b;
+  --success-soft: #f3fcf5;
+  --warning: #e16931;
+  --warning-soft: #fef5f1;
+  --blue: #5488f8;
+  --purple: #5c45f5;
+  --shadow-sm: 0 4px 12px rgba(117, 113, 122, 0.08);
+  --shadow-lg: 0 8px 36px rgba(117, 113, 122, 0.16);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-emphatic: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--page);
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+.app {
+  display: flex;
+  min-width: 1160px;
+  height: 100vh;
+}
+
+.side-nav {
+  display: flex;
+  flex: 0 0 200px;
+  flex-direction: column;
+  height: 100vh;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.logo {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: var(--purple);
+}
+
+.logo-mark {
+  width: 0;
+  height: 0;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid var(--purple);
+  border-left: 8px solid transparent;
+  transform: skewX(-18deg);
+}
+
+.collapse-btn {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.nav-scroll {
+  flex: 1;
+  padding: 4px 8px;
+}
+
+.nav-section {
+  margin-bottom: 8px;
+}
+
+.nav-label {
+  height: 36px;
+  padding: 10px 12px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: #4c4b4e;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  background: var(--nav-active);
+  color: #28272a;
+}
+
+.nav-icon {
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  color: var(--text-muted);
+}
+
+.nav-badge {
+  min-width: 24px;
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--purple);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  text-align: center;
+}
+
+.nav-footer {
+  border-top: 1px solid var(--border);
+  padding: 12px;
+}
+
+.support-row,
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  color: #4c4b4e;
+  font-weight: 500;
+}
+
+.avatar {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f2c56b, #7d4ed8);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 16px;
+}
+
+.user-meta span:last-child {
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 88px;
+  padding: 0 56px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 150ms var(--ease), border-color 150ms var(--ease), transform 150ms var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn[hidden] {
+  display: none;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+  transform: none;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--brand-hover);
+}
+
+.btn-primary:disabled,
+.btn-primary:disabled:hover {
+  background: var(--brand-subtle);
+  color: #6f5a93;
+}
+
+.btn-secondary {
+  border: 1px solid var(--border);
+  background: white;
+  color: #28272a;
+}
+
+.btn-secondary:hover {
+  background: var(--surface-muted);
+}
+
+.btn-secondary:disabled,
+.btn-secondary:disabled:hover {
+  background: var(--surface-muted);
+  color: var(--text-soft);
+}
+
+.btn-link {
+  min-height: 24px;
+  background: transparent;
+  color: var(--brand);
+}
+
+.content-pad {
+  height: calc(100vh - 88px);
+  padding: 0 56px 32px;
+}
+
+.campaign-table-card {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 72px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.select-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: white;
+  white-space: nowrap;
+}
+
+.search-shell {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 180px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--text-muted);
+}
+
+.search-shell input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #28272a;
+}
+
+.search-shell input::placeholder {
+  color: var(--text-muted);
+}
+
+.filter-spacer {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+
+.campaign-table {
+  display: grid;
+  grid-template-columns: 280px 1fr 1fr 1fr 1fr 1fr 1fr 68px;
+}
+
+.table-head,
+.table-cell {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.table-head {
+  min-height: 48px;
+  background: #faf9f5;
+  color: #5f5c63;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.table-row {
+  display: contents;
+}
+
+.table-row:last-child .table-cell {
+  border-bottom: 0;
+}
+
+.campaign-name {
+  gap: 12px;
+  font-weight: 500;
+}
+
+.metric {
+  justify-content: flex-end;
+  color: #28272a;
+}
+
+.muted {
+  color: var(--text-soft);
+}
+
+.mini-icon {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 7px;
+  color: var(--blue);
+}
+
+.mini-icon.globe {
+  color: var(--purple);
+}
+
+.mini-icon.fire {
+  color: #ff6b35;
+}
+
+.mini-icon.up {
+  color: var(--success);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge.active {
+  background: var(--success-soft);
+  color: #24783b;
+}
+
+.badge.warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.badge.draft,
+.badge.stopped {
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text-muted);
+}
+
+.spark {
+  margin-left: auto;
+  color: #a17bdf;
+}
+
+.bar {
+  display: flex;
+  align-items: flex-end;
+  width: 48px;
+  height: 4px;
+  margin-top: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.bar span:nth-child(1) { height: 4px; background: #39a84b; }
+.bar span:nth-child(2) { height: 4px; background: #f5b52e; }
+.bar span:nth-child(3) { height: 4px; background: #d94638; }
+
+.coin {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  margin-left: 4px;
+  place-items: center;
+  border: 1.5px solid #ff8a2a;
+  border-radius: 50%;
+  color: #ff8a2a;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.modal-layer {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(150, 148, 156, 0);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms var(--ease), background 180ms var(--ease);
+  visibility: hidden;
+  z-index: 40;
+}
+
+.modal-layer.open {
+  background: rgba(150, 148, 156, 0.50);
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.template-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(1180px, calc(100vw - 64px));
+  height: min(720px, calc(100vh - 64px));
+  overflow: hidden;
+  border-radius: 16px;
+  background: white;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(18px) scale(0.985);
+  transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+}
+
+.modal-layer.open .template-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.modal-layer.is-selecting .template-dialog {
+  opacity: 0;
+  transform: scale(0.94) translateY(10px);
+  transition: opacity 240ms var(--ease), transform 420ms var(--ease-emphatic);
+}
+
+.modal-layer.handoff-active {
+  background: rgba(150, 148, 156, 0.50);
+  opacity: 1;
+  pointer-events: none;
+  visibility: visible;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 60px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.modal-search > span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  flex: 0 0 20px;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 20px;
+}
+
+.modal-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.modal-search input::placeholder {
+  color: var(--text);
+}
+
+.icon-button {
+  display: grid;
+  width: 32px;
+  height: 28px;
+  place-items: center;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.icon-button:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.template-body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+}
+
+.category-rail {
+  flex: 0 0 200px;
+  padding-top: 4px;
+  border-right: 1px solid var(--border-subtle);
+  background: white;
+}
+
+.category-label {
+  height: 36px;
+  padding: 10px 20px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.category-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 16px);
+  height: 36px;
+  margin: 0 8px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--category-text);
+  cursor: pointer;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: left;
+}
+
+.category-icon {
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  flex: 0 0 16px;
+  color: var(--category-icon);
+}
+
+.category-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.category-button:hover {
+  background: var(--surface-muted);
+}
+
+.category-button.active {
+  background: var(--brand-soft);
+  color: #53269e;
+}
+
+.category-button.active .category-icon {
+  color: var(--category-icon-active);
+}
+
+.templates-scroll {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 24px 24px 48px;
+  background: var(--template-list-bg);
+  isolation: isolate;
+}
+
+.templates-scroll.search-mode {
+  padding-right: 24px;
+}
+
+.template-section {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 24px;
+}
+
+.template-section.hidden {
+  display: none;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.section-link {
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--brand);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.section-header > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-header > div .section-link {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  place-items: center;
+  padding: 0;
+  color: var(--brand);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.section-link:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.template-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.recommended-carousel {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.template-grid.recommended-track {
+  display: flex;
+  grid-template-columns: none;
+  transition: transform 260ms var(--ease-emphatic);
+  will-change: transform;
+}
+
+.recommended-track .template-card {
+  flex: 0 0 calc((100% - 24px) / 3);
+}
+
+.template-card {
+  position: relative;
+  min-height: 134px;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease), transform 150ms var(--ease), background 150ms var(--ease);
+}
+
+.template-hover-glow {
+  position: absolute;
+  z-index: 0;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      var(--card-hover-glow),
+      rgba(104, 47, 197, 0.14) 24%,
+      rgba(104, 47, 197, 0) 62%
+    );
+  filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 160ms var(--ease);
+  will-change: left, top, opacity;
+}
+
+.recommended-row .template-card {
+  min-height: 180px;
+  border-color: transparent;
+  background: var(--brand);
+  color: white;
+}
+
+.recommended-row .template-card:hover {
+  border-color: transparent;
+  background: var(--brand-hover);
+}
+
+.recommended-row .tile-icon {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: white;
+}
+
+.recommended-row .template-title,
+.recommended-row .template-description {
+  color: white;
+}
+
+.template-card:hover {
+  border-color: var(--brand-subtle);
+  box-shadow: 0 8px 22px rgba(117, 113, 122, 0.12);
+  transform: translateY(-1px);
+}
+
+.template-card:focus-visible,
+.btn:focus-visible,
+.category-button:focus-visible,
+.icon-button:focus-visible,
+.section-link:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.tile-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--purple);
+}
+
+.template-copy {
+  margin-top: 8px;
+}
+
+.recommended-row .template-copy {
+  margin-top: 46px;
+}
+
+.template-title {
+  display: block;
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.template-description {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.empty-state {
+  display: none;
+  min-height: 300px;
+  place-items: center;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.empty-state.visible {
+  display: grid;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  padding: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.footer-actions {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.footer-ctas {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.name-dialog-shell {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(150, 148, 156, 0.50);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms var(--ease);
+  visibility: hidden;
+  z-index: 50;
+}
+
+.name-dialog-shell.open {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.name-dialog-shell.handoff {
+  background: rgba(150, 148, 156, 0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.name-dialog-shell.handoff,
+.name-dialog-shell.handoff .name-dialog,
+.name-dialog-shell.handoff.open .name-dialog {
+  transition: none;
+}
+
+.name-dialog {
+  width: 520px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: white;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: scale(0.985);
+  transition: opacity 160ms var(--ease), transform 260ms var(--ease);
+}
+
+.name-dialog-shell.open .name-dialog {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.name-dialog-shell.handoff.open .name-dialog {
+  opacity: 0;
+  transform: scale(1);
+}
+
+.name-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 8px;
+}
+
+.name-title {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.name-content {
+  padding: 16px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.name-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #b598e6;
+  border-radius: 8px;
+  box-shadow: 0 0 0 4px var(--brand-subtle);
+  color: #28272a;
+  outline: 0;
+  font-weight: 500;
+}
+
+.name-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+.name-footer .btn-link {
+  padding-left: 12px;
+}
+
+.name-footer .spacer {
+  flex: 1;
+}
+
+.morph-card {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 8px 22px rgba(117, 113, 122, 0.12);
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.morph-card .template-card {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.morph-card.to-modal {
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  transition: transform 560ms var(--ease-emphatic), width 560ms var(--ease-emphatic), height 560ms var(--ease-emphatic), border-radius 420ms var(--ease);
+}
+
+.morph-card.to-modal .template-card {
+  background: white;
+}
+
+.morph-card.to-modal .template-card::after {
+  position: absolute;
+  inset: 0;
+  background: white;
+  content: "";
+  opacity: 0;
+  animation: washIn 560ms var(--ease-emphatic) forwards;
+}
+
+.morph-card.is-resolving {
+  opacity: 0;
+  transition: opacity 140ms var(--ease);
+}
+
+@keyframes washIn {
+  45% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (max-width: 1180px) {
+  .campaign-table {
+    grid-template-columns: 280px 110px 110px 110px 110px 110px 110px 68px;
+  }
+
+  .campaign-table-card {
+    overflow-x: auto;
+  }
+
+  .table-head,
+  .table-cell {
+    min-width: 0;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side-nav" aria-label="Main navigation">
+    <div class="nav-header">
+      <div class="logo" aria-label="Artisan"><span class="logo-mark"></span></div>
+      <button class="collapse-btn" aria-label="Collapse navigation">⇤</button>
+    </div>
+    <div class="nav-scroll">
+      <div class="nav-section">
+        <div class="nav-label">Manage</div>
+        <div class="nav-item"><span class="nav-icon">✧</span>Manage Ava</div>
+        <div class="nav-item active"><span class="nav-icon">✈</span>Campaigns</div>
+        <div class="nav-item"><span class="nav-icon">▧</span>Analytics</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Engage</div>
+        <div class="nav-item"><span class="nav-icon">☏</span>Inbox <span class="nav-badge">1</span></div>
+        <div class="nav-item"><span class="nav-icon">☑</span>Tasks <span class="nav-badge">3</span></div>
+        <div class="nav-item"><span class="nav-icon">☎</span>Dialer <span class="nav-badge">2</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Lead discovery</div>
+        <div class="nav-item"><span class="nav-icon">⌕</span>Find leads</div>
+        <div class="nav-item"><span class="nav-icon">⌁</span>Signals</div>
+        <div class="nav-item"><span class="nav-icon">◎</span>Website visitors</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Lead management</div>
+        <div class="nav-item"><span class="nav-icon">▤</span>Lists</div>
+        <div class="nav-item"><span class="nav-icon">♙</span>Leads</div>
+      </div>
+    </div>
+    <div class="nav-footer">
+      <div class="support-row"><span class="nav-icon">?</span>Support <span style="margin-left:auto">↗</span></div>
+      <div class="user-row">
+        <div class="avatar">M</div>
+        <div class="user-meta"><span>Maya</span><span>ACME Tech.</span></div>
+        <span style="margin-left:auto;color:var(--text-soft)">⌄</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <h1 class="page-title">Campaigns</h1>
+      <button class="btn btn-primary" id="newCampaignButton" data-test="new-campaign">+ New campaign</button>
+    </header>
+    <div class="content-pad">
+      <section class="campaign-table-card" aria-label="Campaign list">
+        <div class="table-toolbar">
+          <button class="select-pill">My campaigns <span>⌄</span></button>
+          <label class="search-shell" aria-label="Search campaigns">
+            <span>⌕</span>
+            <input type="search" placeholder="Search...">
+          </label>
+          <button class="select-pill">Past 30 days <span>⌄</span></button>
+          <button class="filter-spacer" aria-label="Filters">≡</button>
+        </div>
+        <div class="campaign-table">
+          <div class="table-head">Campaign name</div>
+          <div class="table-head">Status</div>
+          <div class="table-head">Audience ⓘ</div>
+          <div class="table-head">In sequence ⓘ</div>
+          <div class="table-head">Responses</div>
+          <div class="table-head">Positive</div>
+          <div class="table-head">CPL ⓘ ↕</div>
+          <div class="table-head">Meetings</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal-layer" id="templateLayer" aria-hidden="true">
+  <section class="template-dialog" role="dialog" aria-modal="true" aria-labelledby="templateDialogTitle">
+    <header class="modal-header">
+      <label class="modal-search">
+        <span aria-hidden="true">⌕</span>
+        <input id="templateSearch" type="search" placeholder="New campaign" aria-label="Search campaign templates" data-test="template-search">
+      </label>
+      <button class="icon-button" id="closeTemplateModal" aria-label="Close modal" data-test="close-template-modal">×</button>
+    </header>
+    <div class="template-body" id="templateBody">
+      <nav class="category-rail" aria-label="Campaign template categories">
+        <div class="category-label">Categories</div>
+        <button class="category-button active" data-category="all"><span class="category-icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M6.25 4h6.25M6.25 8h6.25M6.25 12h6.25M3.5 4h.01M3.5 8h.01M3.5 12h.01" stroke-linecap="round" stroke-linejoin="round"/></svg></span>All</button>
+        <button class="category-button" data-category="cold"><span class="category-icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.75 13 4.5v5.75L8 13.25l-5-3V4.5L8 1.75Z" stroke-linejoin="round"/><path d="M3.25 4.75 8 7.5l4.75-2.75M8 7.5v5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Cold prospects</button>
+        <button class="category-button" data-category="known"><span class="category-icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3.5 6.25V5a2 2 0 0 1 4 0v1.25M8.5 6.25V5a2 2 0 0 1 4 0v1.25" stroke-linecap="round"/><path d="M2.25 7.75c0-.83.67-1.5 1.5-1.5h2.5c.83 0 1.5.67 1.5 1.5v2.5a2.25 2.25 0 0 1-4.5 0v-2.5ZM8.25 7.75c0-.83.67-1.5 1.5-1.5h2.5c.83 0 1.5.67 1.5 1.5v2.5a2.25 2.25 0 0 1-4.5 0v-2.5Z" stroke-linejoin="round"/><path d="M7.75 8.25h.5" stroke-linecap="round"/></svg></span>Known contacts</button>
+        <button class="category-button" data-category="web"><span class="category-icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M4.25 2.25h7.5M4.25 13.75h7.5M5 2.25v3.4c0 .53.21 1.04.59 1.42L8 9.5l2.41-2.43c.38-.38.59-.89.59-1.42v-3.4M5 13.75v-3.4c0-.53.21-1.04.59-1.42L8 6.5l2.41 2.43c.38.38.59.89.59 1.42v3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Website visitors</button>
+        <button class="category-button" data-category="event"><span class="category-icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M6.25 7.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5ZM10.75 6.75a1.75 1.75 0 1 0 0-3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 13.25v-.75a3.75 3.75 0 0 1 7.5 0v.75M10 10.25a3.25 3.25 0 0 1 3.5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Events</button>
+      </nav>
+      <div class="templates-scroll" id="templatesScroll">
+        <div class="template-hover-glow" id="templateHoverGlow" aria-hidden="true"></div>
+        <div class="empty-state" id="emptyState">
+          <div>
+            <strong>No matching templates</strong><br>
+            Try searching for outbound, website, event, or reactivation.
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="modal-footer">
+      <div class="footer-actions">
+        <button class="btn btn-link" id="cancelTemplateModal">Cancel</button>
+        <div class="footer-ctas">
+          <button class="btn btn-secondary" id="templateFooterBack" data-test="template-footer-back" hidden>Back</button>
+          <button class="btn btn-secondary" id="templateFooterCreateBlank" data-test="template-footer-create-blank">Create blank</button>
+          <button class="btn btn-primary" id="templateFooterCreate" data-test="template-footer-create" disabled>Create</button>
+        </div>
+      </div>
+    </footer>
+  </section>
+</div>
+
+<div class="name-dialog-shell" id="nameLayer" aria-hidden="true">
+  <section class="name-dialog" role="dialog" aria-modal="true" aria-labelledby="nameDialogTitle">
+    <header class="name-header">
+      <div class="tile-icon" id="nameDialogIcon">◎</div>
+      <h2 class="name-title" id="nameDialogTitle">New campaign</h2>
+      <button class="icon-button" id="closeNameModal" aria-label="Close modal">×</button>
+    </header>
+    <div class="name-content">
+      <label class="field-label" for="campaignNameInput">Name</label>
+      <input class="name-input" id="campaignNameInput" value="Cold outbound campaign 1" data-test="campaign-name-input">
+    </div>
+    <footer class="name-footer">
+      <button class="btn btn-link" id="cancelNameModal">Cancel</button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" id="backToTemplates">Back</button>
+      <button class="btn btn-primary" id="createCampaignButton">Create</button>
+    </footer>
+  </section>
+</div>
+
+<script>
+const campaigns = [
+  { icon: "◇", iconClass: "", name: "Flagship campaign", spark: true, status: ["Active", "active"], audience: "639, 207", sequence: "9,701", responses: "485", bar: [30, 10, 8], positive: "291", positiveRate: "2.50%", cpl: "16", meetings: "0" },
+  { icon: "◎", iconClass: "globe", name: "Q4 '25 Web Visitors", status: ["Active", "active"], audience: "512", sequence: "2,311", responses: "161", bar: [32, 8, 8], positive: "72", positiveRate: "0.80%", cpl: "82", meetings: "12" },
+  { icon: "♨", iconClass: "fire", name: "AI-SF CXOs", spark: true, status: ["Low capacity", "warning"], audience: "1128", sequence: "901", responses: "23", bar: [28, 10, 10], positive: "13", positiveRate: "1.30%", cpl: "11", meetings: "8" },
+  { icon: "⌃", iconClass: "up", name: "Closed lost deals '25", spark: true, status: ["Draft", "draft"], audience: "-", sequence: "-", responses: "-", bar: [0, 0, 0], positive: "-", positiveRate: "", cpl: "-", meetings: "-" },
+  { icon: "◎", iconClass: "globe", name: "Q1 '26 Web Visitors", status: ["Draft", "draft"], audience: "-", sequence: "-", responses: "-", bar: [0, 0, 0], positive: "-", positiveRate: "", cpl: "-", meetings: "-" },
+  { icon: "◇", iconClass: "", name: "First campaign", status: ["Stopped", "stopped"], audience: "108,242", sequence: "7,036", responses: "28", bar: [32, 8, 8], positive: "8", positiveRate: "0.01%", cpl: "102", meetings: "4" }
+];
+
+const templates = [
+  {
+    id: "classic-cold",
+    title: "Classic cold outbound",
+    description: "Always-on outreach to ICP-fit accounts in the Artisan database",
+    icon: "◎",
+    categories: ["all", "cold", "team"],
+    section: "recommended",
+    tags: ["Outbound", "Email"]
+  },
+  {
+    id: "funding-event",
+    title: "Funding event",
+    description: "Congratulate newly funded companies and open a timely conversation",
+    icon: "◎",
+    categories: ["all", "cold", "event"],
+    section: "recommended",
+    tags: ["Intent", "Email"]
+  },
+  {
+    id: "category-expansion",
+    title: "Category expansion",
+    description: "Introduce a new product line to high-fit lookalike accounts",
+    icon: "◇",
+    categories: ["all", "cold"],
+    section: "recommended",
+    tags: ["Outbound", "Multi-step"]
+  },
+  {
+    id: "cold-outbound",
+    title: "Classic cold outbound",
+    description: "Always-on outreach to ICP-fit accounts in the Artisan database",
+    icon: "◎",
+    categories: ["cold"],
+    section: "cold",
+    tags: ["Outbound", "Email"]
+  },
+  {
+    id: "competitor-switch",
+    title: "Competitor switch",
+    description: "Target accounts using competing tools with a concise value angle",
+    icon: "◇",
+    categories: ["cold"],
+    section: "cold",
+    tags: ["Outbound", "Research"]
+  },
+  {
+    id: "mql-reactivation",
+    title: "MQL reactivation",
+    description: "Re-engage warm leads that went quiet after the first handoff",
+    icon: "◎",
+    categories: ["all", "known"],
+    section: "known",
+    tags: ["Warm", "Email"]
+  },
+  {
+    id: "webinar-followup",
+    title: "Webinar follow-up",
+    description: "Follow up with attendees and no-shows with context-aware copy",
+    icon: "◎",
+    categories: ["all", "known", "event"],
+    section: "known",
+    tags: ["Event", "Warm"]
+  },
+  {
+    id: "closed-lost",
+    title: "Closed-lost revival",
+    description: "Re-engage opps lost more than 90 days ago with a new angle",
+    icon: "◇",
+    categories: ["all", "known"],
+    section: "known",
+    tags: ["CRM", "Warm"]
+  },
+  {
+    id: "website-visitors",
+    title: "Website visitor intent",
+    description: "Reach known accounts who are showing renewed product interest",
+    icon: "◎",
+    categories: ["web"],
+    section: "web",
+    tags: ["Intent", "Signal"]
+  },
+  {
+    id: "pricing-page",
+    title: "Pricing page follow-up",
+    description: "Start a short sequence after repeat visits to high-intent pages",
+    icon: "◎",
+    categories: ["web"],
+    section: "web",
+    tags: ["Website", "High intent"]
+  },
+  {
+    id: "trade-show",
+    title: "Trade show booth scan",
+    description: "Turn badge scans into a segmented post-event campaign",
+    icon: "◇",
+    categories: ["event"],
+    section: "event",
+    tags: ["Event", "CRM"]
+  },
+  {
+    id: "draft-enterprise",
+    title: "Enterprise pilot nurture",
+    description: "Draft template for long-cycle enterprise committee outreach",
+    icon: "◇",
+    categories: ["drafts", "team"],
+    section: "saved",
+    tags: ["Draft", "Team"]
+  }
+];
+
+const sectionMeta = {
+  recommended: { title: "Recommended", layout: "recommended-row", showArrows: true },
+  cold: { title: "Cold prospects", layout: "", showAll: true, category: "cold" },
+  known: { title: "Known contacts", layout: "three", showAll: true, category: "known" },
+  web: { title: "Website visitors", layout: "", showAll: true, category: "web" },
+  event: { title: "Events", layout: "", showAll: true, category: "event" },
+  saved: { title: "Team templates", layout: "", showAll: false, category: "team" }
+};
+
+const categoryLabels = {
+  all: "All",
+  cold: "Cold prospects",
+  known: "Known contacts",
+  web: "Website visitors",
+  event: "Events",
+  team: "Team templates",
+  drafts: "Drafts"
+};
+
+const categorySection = {
+  cold: "cold",
+  known: "known",
+  web: "web",
+  event: "event",
+  team: "saved",
+  drafts: "saved"
+};
+
+const recommendedCardsPerPage = 3;
+let activeCategory = "all";
+let activeQuery = "";
+let recommendedCarouselIndex = 0;
+let selectedTemplate = null;
+
+const campaignTable = document.querySelector(".campaign-table");
+const templateLayer = document.getElementById("templateLayer");
+const nameLayer = document.getElementById("nameLayer");
+const templateSearch = document.getElementById("templateSearch");
+const templatesScroll = document.getElementById("templatesScroll");
+const templateHoverGlow = document.getElementById("templateHoverGlow");
+const emptyState = document.getElementById("emptyState");
+const templateBody = document.getElementById("templateBody");
+const campaignNameInput = document.getElementById("campaignNameInput");
+const nameDialogIcon = document.getElementById("nameDialogIcon");
+const templateFooterBack = document.getElementById("templateFooterBack");
+const templateFooterCreate = document.getElementById("templateFooterCreate");
+const templateFooterCreateBlank = document.getElementById("templateFooterCreateBlank");
+const createCampaignButton = document.getElementById("createCampaignButton");
+
+function renderCampaignRows() {
+  campaigns.forEach((campaign) => {
+    const row = document.createElement("div");
+    row.className = "table-row";
+    row.innerHTML = `
+      <div class="table-cell campaign-name">
+        <span class="mini-icon ${campaign.iconClass}">${campaign.icon}</span>
+        <span>${campaign.name}</span>
+        ${campaign.spark ? '<span class="spark">✦</span>' : ""}
+      </div>
+      <div class="table-cell"><span class="badge ${campaign.status[1]}">${campaign.status[0]}</span></div>
+      <div class="table-cell metric">${campaign.audience}</div>
+      <div class="table-cell metric">${campaign.sequence}</div>
+      <div class="table-cell metric">
+        <div>
+          <div>${campaign.responses}</div>
+          ${campaign.bar[0] ? `<div class="bar"><span style="width:${campaign.bar[0]}px"></span><span style="width:${campaign.bar[1]}px"></span><span style="width:${campaign.bar[2]}px"></span></div>` : ""}
+        </div>
+      </div>
+      <div class="table-cell metric">${campaign.positive} ${campaign.positiveRate ? `<span class="muted">&nbsp;(${campaign.positiveRate})</span>` : ""}</div>
+      <div class="table-cell metric">${campaign.cpl !== "-" ? `${campaign.cpl}<span class="coin">A</span>` : "-"}</div>
+      <div class="table-cell metric">${campaign.meetings}</div>
+    `;
+    campaignTable.appendChild(row);
+  });
+}
+
+function templateMatches(template) {
+  const inCategory = activeCategory === "all" || template.categories.includes(activeCategory);
+  const query = activeQuery.trim().toLowerCase();
+  if (!query) return inCategory;
+  return [template.title, template.description, template.tags.join(" "), categoryLabels[activeCategory]]
+    .join(" ")
+    .toLowerCase()
+    .includes(query);
+}
+
+function groupTemplates(list) {
+  return list.reduce((groups, template) => {
+    const key = activeQuery ? "search" : (activeCategory === "all" ? template.section : categorySection[activeCategory]);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(template);
+    return groups;
+  }, {});
+}
+
+function renderTemplates() {
+  templatesScroll.querySelectorAll(".template-section").forEach((section) => section.remove());
+  const visible = templates.filter(templateMatches);
+  const groups = groupTemplates(visible);
+  const order = activeQuery ? ["search"] : ["recommended", "cold", "known", "web", "event", "saved"];
+
+  templatesScroll.classList.toggle("search-mode", Boolean(activeQuery));
+  emptyState.classList.toggle("visible", visible.length === 0);
+
+  order.forEach((sectionKey) => {
+    const list = groups[sectionKey];
+    if (!list || !list.length) return;
+    const meta = sectionKey === "search"
+      ? { title: `Search results for "${activeQuery}"`, layout: "", showAll: false }
+      : sectionMeta[sectionKey];
+
+    const section = document.createElement("section");
+    section.className = "template-section";
+    section.dataset.section = sectionKey;
+    const isRecommendedCarousel = meta.layout === "recommended-row";
+    const canViewCategory = activeCategory === "all" && meta.showAll;
+    const carouselId = `${sectionKey}Carousel`;
+    section.innerHTML = `
+      <div class="section-header">
+        <h2>${meta.title}</h2>
+        ${meta.showArrows ? `<div><button class="section-link" data-carousel-prev aria-label="Previous recommended templates" aria-controls="${carouselId}">‹</button><button class="section-link" data-carousel-next aria-label="Next recommended templates" aria-controls="${carouselId}">›</button></div>` : ""}
+        ${canViewCategory ? `<button class="section-link" data-view-category="${meta.category}">View all</button>` : ""}
+      </div>
+      ${isRecommendedCarousel
+        ? `<div class="recommended-carousel"><div class="template-grid recommended-row recommended-track" id="${carouselId}"></div></div>`
+        : `<div class="template-grid ${meta.layout === "three" ? "three" : ""}"></div>`}
+    `;
+
+    const viewAll = section.querySelector("[data-view-category]");
+    if (viewAll) viewAll.addEventListener("click", () => setCategory(viewAll.dataset.viewCategory));
+
+    const grid = section.querySelector(".template-grid");
+    list.forEach((template) => grid.appendChild(createTemplateCard(template)));
+    templatesScroll.appendChild(section);
+    if (isRecommendedCarousel) setupRecommendedCarousel(section, list.length);
+  });
+}
+
+function setupRecommendedCarousel(section, cardCount) {
+  const maxIndex = Math.max(0, cardCount - recommendedCardsPerPage);
+  recommendedCarouselIndex = Math.min(recommendedCarouselIndex, maxIndex);
+  section.dataset.carouselMax = String(maxIndex);
+  section.querySelector("[data-carousel-prev]").addEventListener("click", () => moveRecommendedCarousel(section, -1));
+  section.querySelector("[data-carousel-next]").addEventListener("click", () => moveRecommendedCarousel(section, 1));
+  updateRecommendedCarousel(section);
+  requestAnimationFrame(() => updateRecommendedCarousel(section));
+}
+
+function moveRecommendedCarousel(section, direction) {
+  const maxIndex = Number(section.dataset.carouselMax || 0);
+  recommendedCarouselIndex = Math.max(0, Math.min(maxIndex, recommendedCarouselIndex + direction));
+  updateRecommendedCarousel(section);
+}
+
+function updateRecommendedCarousel(section) {
+  const track = section.querySelector(".recommended-track");
+  const card = track?.querySelector(".template-card");
+  const previousButton = section.querySelector("[data-carousel-prev]");
+  const nextButton = section.querySelector("[data-carousel-next]");
+  const maxIndex = Number(section.dataset.carouselMax || 0);
+  if (!track || !card || !previousButton || !nextButton) return;
+
+  const styles = getComputedStyle(track);
+  const columnGap = parseFloat(styles.columnGap);
+  const gap = Number.isNaN(columnGap) ? parseFloat(styles.gap) || 0 : columnGap;
+  const cardWidth = card.getBoundingClientRect().width;
+  track.style.transform = `translateX(-${recommendedCarouselIndex * (cardWidth + gap)}px)`;
+  [...track.querySelectorAll(".template-card")].forEach((templateCard, index) => {
+    const isVisible = index >= recommendedCarouselIndex && index < recommendedCarouselIndex + recommendedCardsPerPage;
+    templateCard.tabIndex = isVisible ? 0 : -1;
+    templateCard.setAttribute("aria-hidden", String(!isVisible));
+  });
+  previousButton.disabled = recommendedCarouselIndex === 0;
+  nextButton.disabled = recommendedCarouselIndex >= maxIndex;
+}
+
+function createTemplateCard(template) {
+  const card = document.createElement("button");
+  card.className = "template-card";
+  card.type = "button";
+  card.dataset.templateId = template.id;
+  card.setAttribute("data-test", "template-card");
+  card.setAttribute("aria-label", `Use ${template.title} template`);
+  card.innerHTML = `
+    <span class="tile-icon">${template.icon}</span>
+    <span class="template-copy">
+      <span class="template-title">${template.title}</span>
+      <span class="template-description">${template.description}</span>
+    </span>
+  `;
+  card.addEventListener("click", () => selectTemplate(template, card));
+  return card;
+}
+
+function moveTemplateHoverGlow(event) {
+  const card = event.target.closest(".template-card");
+  if (!card || !templatesScroll.contains(card)) {
+    templateHoverGlow.style.opacity = "0";
+    return;
+  }
+
+  const bounds = templatesScroll.getBoundingClientRect();
+  templateHoverGlow.style.left = `${event.clientX - bounds.left + templatesScroll.scrollLeft}px`;
+  templateHoverGlow.style.top = `${event.clientY - bounds.top + templatesScroll.scrollTop}px`;
+  templateHoverGlow.style.opacity = "1";
+}
+
+function hideTemplateHoverGlow() {
+  templateHoverGlow.style.opacity = "0";
+}
+
+function setCategory(category) {
+  activeCategory = category;
+  activeQuery = "";
+  recommendedCarouselIndex = 0;
+  templateSearch.value = "";
+  document.querySelectorAll(".category-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.category === category);
+  });
+  templateSearch.placeholder = category === "all" ? "New campaign" : `Search ${categoryLabels[category].toLowerCase()}...`;
+  renderTemplates();
+  templatesScroll.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function openTemplateModal() {
+  templateLayer.classList.add("open");
+  templateLayer.setAttribute("aria-hidden", "false");
+  setCategory("all");
+  window.setTimeout(() => templateSearch.focus(), 120);
+}
+
+function closeTemplateModal() {
+  templateLayer.classList.remove("open", "is-selecting", "handoff-active");
+  templateLayer.setAttribute("aria-hidden", "true");
+  activeQuery = "";
+  templateSearch.value = "";
+}
+
+function openNameModal(template, options = {}) {
+  selectedTemplate = template;
+  nameDialogIcon.textContent = template.icon;
+  campaignNameInput.value = `${template.title} campaign 1`;
+  nameLayer.classList.toggle("handoff", Boolean(options.handoff));
+  nameLayer.classList.add("open");
+  nameLayer.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => campaignNameInput.focus(), 100);
+}
+
+function createBlankCampaign() {
+  const blankTemplate = {
+    title: "Blank campaign",
+    icon: "◇"
+  };
+  closeTemplateModal();
+  openNameModal(blankTemplate);
+}
+
+function closeNameModal() {
+  nameLayer.classList.remove("open", "handoff");
+  nameLayer.setAttribute("aria-hidden", "true");
+}
+
+function selectTemplate(template, card) {
+  const source = card.getBoundingClientRect();
+  const target = getNameDialogTargetRect();
+  const clone = document.createElement("div");
+  clone.className = "morph-card";
+  clone.setAttribute("aria-hidden", "true");
+  clone.style.width = `${source.width}px`;
+  clone.style.height = `${source.height}px`;
+  clone.style.transform = `translate(${source.left}px, ${source.top}px)`;
+  clone.innerHTML = card.outerHTML;
+  document.body.appendChild(clone);
+
+  templateLayer.classList.add("is-selecting", "handoff-active");
+  templateBody.setAttribute("aria-hidden", "true");
+
+  requestAnimationFrame(() => {
+    clone.classList.add("to-modal");
+    clone.style.width = `${target.width}px`;
+    clone.style.height = `${target.height}px`;
+    clone.style.transform = `translate(${target.left}px, ${target.top}px)`;
+  });
+
+  let didFinish = false;
+  const finishTransition = () => {
+    if (didFinish) return;
+    didFinish = true;
+    openNameModal(template, { handoff: true });
+    requestAnimationFrame(() => {
+      nameLayer.classList.remove("handoff");
+      closeTemplateModal();
+      templateBody.removeAttribute("aria-hidden");
+      clone.classList.add("is-resolving");
+      window.setTimeout(() => clone.remove(), 160);
+    });
+  };
+
+  clone.addEventListener("transitionend", (event) => {
+    if (event.propertyName === "transform") finishTransition();
+  });
+  window.setTimeout(finishTransition, 760);
+}
+
+function getNameDialogTargetRect() {
+  const dialog = nameLayer.querySelector(".name-dialog");
+  const rect = dialog.getBoundingClientRect();
+  const width = rect.width || 520;
+  const height = rect.height || 202;
+  return {
+    width,
+    height,
+    left: (window.innerWidth - width) / 2,
+    top: (window.innerHeight - height) / 2
+  };
+}
+
+function attachEvents() {
+  document.getElementById("newCampaignButton").addEventListener("click", openTemplateModal);
+  document.getElementById("closeTemplateModal").addEventListener("click", closeTemplateModal);
+  document.getElementById("cancelTemplateModal").addEventListener("click", closeTemplateModal);
+  document.getElementById("closeNameModal").addEventListener("click", closeNameModal);
+  document.getElementById("cancelNameModal").addEventListener("click", closeNameModal);
+  templateFooterCreateBlank.addEventListener("click", createBlankCampaign);
+  document.getElementById("backToTemplates").addEventListener("click", () => {
+    closeNameModal();
+    openTemplateModal();
+  });
+
+  document.querySelectorAll(".category-button").forEach((button) => {
+    button.addEventListener("click", () => setCategory(button.dataset.category));
+  });
+
+  templateSearch.addEventListener("input", (event) => {
+    activeQuery = event.target.value;
+    renderTemplates();
+  });
+
+  templatesScroll.addEventListener("pointermove", moveTemplateHoverGlow);
+  templatesScroll.addEventListener("pointerleave", hideTemplateHoverGlow);
+  templatesScroll.addEventListener("scroll", hideTemplateHoverGlow);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (nameLayer.classList.contains("open")) closeNameModal();
+    else if (templateLayer.classList.contains("open")) closeTemplateModal();
+  });
+}
+
+async function runCampaignPrototypeTests() {
+  const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+  const assert = (condition, message) => {
+    if (!condition) throw new Error(message);
+  };
+  const visibleRecommendedTitles = () => {
+    const section = document.querySelector('[data-section="recommended"]');
+    return [...section.querySelectorAll('[data-test="template-card"]')]
+      .filter((card) => card.getAttribute("aria-hidden") !== "true")
+      .map((card) => card.querySelector(".template-title").textContent);
+  };
+
+  closeNameModal();
+  closeTemplateModal();
+  recommendedCarouselIndex = 0;
+  openTemplateModal();
+  assert(templateLayer.classList.contains("open"), "new campaign button opens the chooser modal");
+  assert(templateFooterBack.hidden, "chooser footer hides the back button");
+  assert(templateFooterCreate.textContent.trim() === "Create", "chooser footer labels the primary action Create");
+  assert(templateFooterCreate.disabled, "chooser footer create button is disabled until naming");
+  assert(!templateFooterCreateBlank.hidden && templateFooterCreateBlank.textContent.trim() === "Create blank", "chooser footer shows create blank next to create");
+  await wait(30);
+  assert(visibleRecommendedTitles().length === 3, "recommended carousel shows exactly three cards");
+
+  document.querySelector("[data-carousel-next]").click();
+  await wait(300);
+  assert(visibleRecommendedTitles().join("|") === "Classic cold outbound|Funding event|Category expansion", "recommended carousel keeps the three-card page when all cards fit");
+
+  document.querySelector("[data-carousel-prev]").click();
+  await wait(300);
+  assert(visibleRecommendedTitles().join("|") === "Classic cold outbound|Funding event|Category expansion", "previous arrow preserves the three-card page");
+
+  templateSearch.value = "funding";
+  templateSearch.dispatchEvent(new Event("input", { bubbles: true }));
+  await wait(30);
+  const visibleTitles = [...document.querySelectorAll(".template-title")].map((node) => node.textContent);
+  assert(visibleTitles.length > 0 && visibleTitles.every((title) => title.toLowerCase().includes("funding")), "search filters template results");
+
+  setCategory("known");
+  await wait(30);
+  assert(document.querySelector('[data-category="known"]').classList.contains("active"), "category selection updates active state");
+  assert([...document.querySelectorAll(".section-header h2")].some((node) => node.textContent === "Known contacts"), "known category shows known-contact content");
+  assert(![...document.querySelectorAll(".section-header h2")].some((node) => node.textContent === "Recommended"), "category views do not show the recommended top section");
+  assert(document.querySelectorAll("[data-view-category]").length === 0, "category views do not show view-all links");
+
+  setCategory("all");
+  await wait(30);
+  assert(document.querySelectorAll("[data-view-category]").length > 0, "all view shows section view-all links");
+  document.querySelector('[data-view-category="cold"]').click();
+  await wait(30);
+  assert(document.querySelector('[data-category="cold"]').classList.contains("active"), "view all switches to the matching category tab");
+
+  const firstCard = document.querySelector('[data-test="template-card"]');
+  const firstCardRect = firstCard.getBoundingClientRect();
+  firstCard.dispatchEvent(new PointerEvent("pointermove", {
+    bubbles: true,
+    clientX: firstCardRect.left + 16,
+    clientY: firstCardRect.top + 16
+  }));
+  assert(templateHoverGlow.style.opacity === "1", "card hover uses the shared background glow layer");
+  templatesScroll.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true }));
+  assert(templateHoverGlow.style.opacity === "0", "shared background glow hides when leaving the card list");
+  firstCard.click();
+  await wait(820);
+  assert(nameLayer.classList.contains("open"), "template click transitions to naming modal");
+  assert(campaignNameInput.value.toLowerCase().includes("campaign 1"), "naming modal is prefilled from selected template");
+  assert(!document.getElementById("backToTemplates").hidden, "naming modal keeps the back button available");
+  assert(createCampaignButton.textContent.trim() === "Create" && !createCampaignButton.disabled, "naming modal keeps create enabled");
+  closeNameModal();
+
+  openTemplateModal();
+  closeTemplateModal();
+  assert(!templateLayer.classList.contains("open"), "x button can close the chooser modal");
+  return "Campaign creation prototype tests passed";
+}
+
+window.runCampaignPrototypeTests = runCampaignPrototypeTests;
+
+renderCampaignRows();
+renderTemplates();
+attachEvents();
+</script>
+</body>
+</html>
