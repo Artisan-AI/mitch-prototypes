@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequence Loading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple-10: #F3EFFB; --purple-15: #E9E1F8; --purple-20: #DFD2F4;
+  --purple-25: #D5C4F1; --purple-30: #CAB5ED; --purple-40: #B598E6;
+  --purple-50: #A17BDF; --purple-55: #8555D2; --purple-60: #682FC5;
+  --purple-65: #5E2BB2; --purple-70: #53269E; --purple-80: #3F1D77;
+  --tan-10: #FAF8F5; --tan-15: #F1EEE9; --tan-20: #E8E3DC;
+  --tan-25: #DED8D1; --tan-30: #D3CCC5; --tan-40: #C0B4A7;
+  --tan-50: #A89D90; --tan-60: #8E847A; --tan-65: #7F776E;
+  --tan-70: #6A6358; --tan-80: #524E48; --tan-90: #373431; --tan-100: #201F1D;
+  --green-60: #43AD5B; --red-60: #D94638; --red-10: #FDF3F2;
+  --orange-60: #E16931; --blue-10: #F1F5FE; --blue-60: #3068E2; --blue-70: #1D53C8;
+  --yellow-50: #F5B52E; --yellow-60: #E49E0C; --pink-60: #DA3784;
+  --stone-20: #D7D1E0; --stone-30: #C7C1D0;
+  --duration-micro: 150ms; --duration-fast: 200ms; --duration-moderate: 300ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--tan-10); color: var(--tan-100); -webkit-font-smoothing: antialiased; height: 100vh; overflow: hidden; display: flex; }
+
+/* ─── Side Nav ─── */
+.side-nav { width: 56px; height: 100vh; background: var(--purple-10); border-right: 1px solid var(--tan-20); display: flex; flex-direction: column; align-items: center; padding: 16px 0; gap: 8px; flex-shrink: 0; z-index: 5; }
+.nav-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background var(--duration-micro) var(--ease-out); }
+.nav-icon:hover { background: var(--purple-15); }
+.nav-icon.active { background: var(--purple-20); }
+.nav-icon svg { width: 20px; height: 20px; color: var(--tan-60); }
+.nav-icon.active svg { color: var(--purple-60); }
+.nav-spacer { flex: 1; }
+.logo-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--purple-60); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.logo-icon svg { width: 18px; height: 18px; color: white; }
+
+/* ─── Layout ─── */
+.main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.top-header { border-bottom: 1px solid var(--tan-20); background: white; }
+.breadcrumb-bar { display: flex; align-items: center; padding: 20px 24px; gap: 8px; font-size: 14px; }
+.breadcrumb-bar a { color: var(--tan-65); text-decoration: none; }
+.breadcrumb-bar a:hover { color: var(--purple-60); }
+.breadcrumb-bar .separator { color: var(--tan-40); }
+.breadcrumb-bar .current { color: var(--tan-100); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+.breadcrumb-bar .current svg { width: 16px; height: 16px; color: var(--tan-50); }
+.tabs-bar { display: flex; padding: 0 24px; border-bottom: 1px solid var(--tan-20); background: white; }
+.tab { padding: 10px 16px; font-size: 13px; font-weight: 500; color: var(--tan-60); cursor: pointer; border-bottom: 2px solid transparent; transition: color var(--duration-micro) var(--ease-out), border-color var(--duration-micro) var(--ease-out); user-select: none; display: flex; align-items: center; gap: 6px; }
+.tab:hover { color: var(--tan-90); }
+.tab.active { color: var(--purple-60); border-bottom-color: var(--purple-60); }
+.tab svg { width: 16px; height: 16px; }
+.content-area { flex: 1; display: flex; overflow: hidden; }
+
+/* ─── Left Panel ─── */
+.left-panel { flex: 1; overflow-y: auto; padding: 32px 32px 120px; background: var(--tan-10); }
+.section-heading { font-size: 16px; font-weight: 600; line-height: 24px; margin-bottom: 4px; }
+.section-description { font-size: 13px; color: var(--tan-65); line-height: 18px; margin-bottom: 20px; }
+.context-card { background: white; border: 1px solid var(--tan-20); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+.context-label { font-size: 12px; font-weight: 500; color: var(--tan-65); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.input-row { display: flex; gap: 12px; margin-bottom: 16px; }
+.input-field { flex: 1; background: white; border: 1px solid var(--tan-20); border-radius: 8px; padding: 10px 14px; font-size: 14px; color: var(--tan-100); font-family: inherit; outline: none; transition: border-color var(--duration-fast) var(--ease-out); }
+.input-field:focus { border-color: var(--purple-60); }
+.input-field::placeholder { color: var(--tan-50); }
+.file-upload { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: white; border: 1px dashed var(--tan-30); border-radius: 8px; cursor: pointer; transition: border-color var(--duration-micro) var(--ease-out); margin-bottom: 16px; }
+.file-upload:hover { border-color: var(--purple-40); }
+.file-upload svg { width: 16px; height: 16px; color: var(--tan-50); }
+.file-upload span { font-size: 13px; color: var(--tan-60); }
+.uploaded-file { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--tan-15); border-radius: 8px; margin-bottom: 16px; }
+.uploaded-file svg { width: 16px; height: 16px; color: var(--red-60); }
+.uploaded-file span { font-size: 13px; color: var(--tan-80); flex: 1; }
+.generate-bar { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; margin-top: 8px; border-top: 1px solid var(--tan-20); }
+.skip-link { font-size: 13px; color: var(--tan-60); cursor: pointer; }
+.skip-link:hover { color: var(--purple-60); }
+.btn-generate { display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--purple-60); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; transition: background var(--duration-micro) var(--ease-out); }
+.btn-generate:hover { background: var(--purple-65); transform: translateY(-1px); }
+.btn-generate:active { transform: scale(0.97); }
+.btn-generate svg { width: 16px; height: 16px; }
+
+/* ─── Right Panel ─── */
+.right-panel { width: 520px; border-left: 1px solid var(--tan-20); background: white; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--tan-20); }
+.panel-title { font-size: 14px; font-weight: 600; }
+.panel-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; }
+.panel-close:hover { background: var(--tan-15); }
+.panel-close svg { width: 16px; height: 16px; color: var(--tan-60); }
+.panel-body { flex: 1; overflow-y: auto; padding: 20px; position: relative; }
+.sender-info { display: flex; align-items: center; gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--tan-20); margin-bottom: 20px; }
+.sender-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-30), var(--purple-50)); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: white; }
+.sender-details { flex: 1; }
+.sender-name { font-size: 14px; font-weight: 600; }
+.sender-role { font-size: 12px; color: var(--tan-60); margin-top: 1px; }
+.sequence-label { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.sequence-label svg { width: 16px; height: 16px; color: var(--purple-60); }
+.sequence-label span { font-size: 13px; font-weight: 600; }
+
+/* ─── SVG Tree ─── */
+.tree-svg-wrap { position: relative; width: 100%; display: flex; justify-content: center; padding: 8px 0 16px; overflow: visible; }
+.tree-svg-wrap svg { overflow: visible; }
+
+/* Stroke drawing */
+.tree-path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--len, 1000);
+  stroke-dashoffset: var(--len, 1000);
+  opacity: 0;
+}
+.tree-path.drawn {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 600ms var(--ease-out), opacity 200ms ease-out;
+}
+
+/* Shape outlines */
+.tree-shape {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--len, 200);
+  stroke-dashoffset: var(--len, 200);
+  opacity: 0;
+}
+.tree-shape.drawn {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 500ms var(--ease-out), opacity 150ms ease-out;
+}
+
+/* Icons - smooth fade, no bounce */
+.tree-icon {
+  opacity: 0;
+  transition: opacity 400ms ease-out;
+}
+.tree-icon.visible {
+  opacity: 0.3;
+}
+
+/* Subtle fill pulse */
+.tree-fill { opacity: 0; }
+.tree-fill.pulsing { animation: fillPulse 2.5s ease-in-out infinite; }
+@keyframes fillPulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.06; }
+}
+
+/* ─── Top-to-bottom shimmer sweep ─── */
+@keyframes sweepDown {
+  0% { y: -100%; }
+  100% { y: 100%; }
+}
+
+/* ─── Status ─── */
+.tree-status { text-align: center; font-size: 12px; color: var(--tan-50); margin-top: 4px; opacity: 0; transition: opacity 300ms var(--ease-out); }
+.tree-status.visible { opacity: 1; }
+
+/* ─── Message Cards ─── */
+.message-cards { display: flex; flex-direction: column; }
+.message-card { padding: 16px 0; border-bottom: 1px solid var(--tan-20); opacity: 0; transform: translateY(12px); }
+.message-card:last-child { border-bottom: none; }
+.message-card.visible { opacity: 1; transform: translateY(0); transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out); }
+.message-step { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.step-badge { display: flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+.step-badge.email { background: var(--blue-10); color: var(--blue-70); }
+.step-badge.linkedin { background: #EDF4FF; color: #0A66C2; }
+.step-badge svg { width: 14px; height: 14px; }
+.step-label { font-size: 12px; color: var(--tan-50); }
+.message-body { font-size: 13px; color: var(--tan-80); line-height: 20px; padding-left: 2px; }
+.message-body p { margin-bottom: 10px; }
+.message-body p:last-child { margin-bottom: 0; }
+.message-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-left: 2px; }
+.action-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; font-family: inherit; cursor: pointer; border: 1px solid var(--tan-20); background: white; color: var(--tan-70); }
+.action-btn:hover { border-color: var(--tan-30); color: var(--tan-100); }
+.action-btn.primary { background: var(--purple-60); border-color: var(--purple-60); color: white; }
+.action-btn.primary:hover { background: var(--purple-65); border-color: var(--purple-65); }
+.condition-row, .wait-row { display: flex; align-items: center; justify-content: center; padding: 12px 0; opacity: 0; transform: translateY(8px); }
+.condition-row.visible, .wait-row.visible { opacity: 1; transform: translateY(0); transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out); }
+.condition-pill { display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--purple-10); border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--purple-60); }
+.condition-pill svg { width: 14px; height: 14px; }
+.wait-pill { display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--tan-15); border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--tan-70); }
+.wait-pill svg { width: 14px; height: 14px; color: var(--yellow-60); }
+
+/* ─── Bottom Bar ─── */
+.bottom-bar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-top: 1px solid var(--tan-20); background: white; }
+.btn-back { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: white; border: 1px solid var(--tan-20); border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--tan-70); font-family: inherit; cursor: pointer; }
+.btn-back:hover { border-color: var(--tan-30); }
+.btn-back svg { width: 16px; height: 16px; }
+.bottom-right { display: flex; align-items: center; gap: 12px; }
+.btn-regen { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: white; border: 1px solid var(--tan-20); border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--tan-80); font-family: inherit; cursor: pointer; }
+.btn-regen:hover { border-color: var(--purple-40); color: var(--purple-60); }
+.btn-regen svg { width: 16px; height: 16px; }
+.btn-launch { padding: 10px 20px; background: var(--purple-60); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; }
+.btn-launch:hover { background: var(--purple-65); transform: translateY(-1px); }
+.btn-launch:active { transform: scale(0.97); }
+.panel-body::-webkit-scrollbar, .left-panel::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-track, .left-panel::-webkit-scrollbar-track { background: transparent; }
+.panel-body::-webkit-scrollbar-thumb, .left-panel::-webkit-scrollbar-thumb { background: var(--tan-30); border-radius: 2px; }
+.ctrl-btns { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 8px; z-index: 100; }
+.ctrl-btn { padding: 8px 14px; background: var(--tan-90); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; font-family: inherit; cursor: pointer; opacity: 0.7; }
+.ctrl-btn:hover { opacity: 1; }
+.ctrl-btn.resolve { background: var(--purple-60); }
+</style>
+</head>
+<body>
+
+<nav class="side-nav">
+  <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+  <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+  <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+  <div class="nav-icon active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+  <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+  <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
+  <div class="nav-spacer"></div>
+  <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+</nav>
+
+<div class="main-content">
+  <div class="top-header">
+    <div class="breadcrumb-bar">
+      <a href="#">Campaigns</a>
+      <span class="separator"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></span>
+      <span class="current">Spring Outreach 2026 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+    </div>
+  </div>
+  <div class="tabs-bar">
+    <div class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3l2 2"/></svg>Targeting</div>
+    <div class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h8M4 8h5M4 12h7"/></svg>Sequence</div>
+    <div class="tab active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 1l-7 7M14 1l-3 13-4-6-6-4 13-3z"/></svg>Messaging</div>
+    <div class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3.5"/><path d="M2.5 14c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5"/></svg>Senders</div>
+    <div class="tab"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="2.5"/><path d="M13.5 13.5L15 15"/><circle cx="8" cy="8" r="6.5"/></svg>Settings</div>
+  </div>
+  <div class="content-area">
+    <div class="left-panel">
+      <h2 class="section-heading">Give Ava context to generate messaging</h2>
+      <p class="section-description">Add links to a product or landing page URL, it will never be shared with prospects.</p>
+      <div class="context-card">
+        <div class="context-label">Links</div>
+        <div class="input-row"><input class="input-field" type="text" value="https://artisan.co"></div>
+        <div class="file-upload"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg><span>Add link</span></div>
+        <div class="context-label" style="margin-top:16px;">Files</div>
+        <div class="uploaded-file"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 1.5H4a1.5 1.5 0 00-1.5 1.5v10A1.5 1.5 0 004 14.5h8a1.5 1.5 0 001.5-1.5V6L9 1.5z"/><path d="M9 1.5V6h4.5"/></svg><span>ACME Services 2025.pdf</span></div>
+        <div class="file-upload"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg><span>Add file</span></div>
+      </div>
+      <div class="generate-bar">
+        <span class="skip-link">Skip for now</span>
+        <button class="btn-generate" id="generateBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4l3-1.5"/><path d="M3.5 8a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0z"/></svg>Generate messaging</button>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="panel-header">
+        <span class="panel-title">Generated sequence</span>
+        <div class="panel-close"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></div>
+      </div>
+      <div class="panel-body" id="panelBody">
+        <div class="sender-info">
+          <div class="sender-avatar">ST</div>
+          <div class="sender-details"><div class="sender-name">Stacy Torres</div><div class="sender-role">HR Growth Marketer at Northbeam Dynamics</div></div>
+        </div>
+        <div class="sequence-label"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4v8M4 4l4 2-4 2"/><path d="M12 8v4M10 10h4"/></svg><span>Sequences</span></div>
+
+        <div class="tree-svg-wrap" id="treeContainer"></div>
+        <div class="tree-status" id="treeStatus">Analyzing your product context...</div>
+
+        <div class="message-cards" id="messageCards">
+          <div class="message-card" data-card="0">
+            <div class="message-step"><span class="step-badge email"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M1.5 5l6.5 4 6.5-4"/></svg>Send email</span><span class="step-label">Step 1</span></div>
+            <div class="message-body"><p>I hope you're having a productive week. I wanted to share how Artisan can revolutionize your HR ops, especially for your company's staffing needs.</p><p>We've helped similar businesses reduce hiring time by 40%, and I'd love to show how it works with a quick demo.</p></div>
+            <div class="message-actions"><button class="action-btn primary">View</button><button class="action-btn">Edit</button><button class="action-btn">Components</button></div>
+          </div>
+          <div class="wait-row" data-card="1"><div class="wait-pill"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3l2 2"/></svg>Wait 3 days</div></div>
+          <div class="condition-row" data-card="2"><div class="condition-pill"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8h8M8 4l4 4-4 4"/></svg>If no reply</div></div>
+          <div class="message-card" data-card="3">
+            <div class="message-step"><span class="step-badge linkedin"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M13.5 1h-11A1.5 1.5 0 001 2.5v11A1.5 1.5 0 002.5 15h11a1.5 1.5 0 001.5-1.5v-11A1.5 1.5 0 0013.5 1zM5.25 12.75h-2v-6h2v6zM4.25 5.75a1.13 1.13 0 110-2.25 1.13 1.13 0 010 2.25zm8.5 7h-2V9.88c0-.7-.01-1.6-.97-1.6-.98 0-1.13.76-1.13 1.55v2.92h-2v-6h1.92v.82h.03c.27-.5.92-1.03 1.89-1.03 2.02 0 2.39 1.33 2.39 3.06v3.15z"/></svg>Send LinkedIn message</span><span class="step-label">Step 2</span></div>
+            <div class="message-body"><p>Hi there! I've been reaching out about Artisan and I couldn't help myself! Just noticed how much your team is growing at Northbeam Dynamics.</p><p>Mind if I send over a sales deck for you to check out?</p></div>
+            <div class="message-actions"><button class="action-btn primary">View</button><button class="action-btn">Edit</button><button class="action-btn">Components</button></div>
+          </div>
+          <div class="wait-row" data-card="4"><div class="wait-pill"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3l2 2"/></svg>Wait 2 days</div></div>
+          <div class="condition-row" data-card="5"><div class="condition-pill"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8h8M8 4l4 4-4 4"/></svg>If no reply</div></div>
+          <div class="message-card" data-card="6">
+            <div class="message-step"><span class="step-badge email"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M1.5 5l6.5 4 6.5-4"/></svg>Follow-up email</span><span class="step-label">Step 3</span></div>
+            <div class="message-body"><p>Just circling back on my last note. I know it's easy for things to slip through the cracks, so I wanted to make sure this didn't get lost.</p><p>Do you have time for a quick chat to learn more about us?</p></div>
+            <div class="message-actions"><button class="action-btn primary">View</button><button class="action-btn">Edit</button><button class="action-btn">Components</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="btn-back"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 4l-4 4 4 4"/></svg>Back</button>
+    <div class="bottom-right">
+      <button class="btn-regen" id="regenBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v5h5"/><path d="M3.51 10a6 6 0 1010.13-4.64L1 4"/></svg>Regenerate sequence</button>
+      <button class="btn-launch">Launch</button>
+    </div>
+  </div>
+</div>
+
+<div class="ctrl-btns">
+  <button class="ctrl-btn" id="resetBtn">Reset</button>
+  <button class="ctrl-btn resolve" id="resolveBtn">Resolve (show cards)</button>
+</div>
+
+<script>
+// ─── Tree definitions ───
+const TREES = [
+  { width: 440, height: 360, steps: [
+    { type: 'circle', cx: 220, cy: 20, r: 16, icon: 'send' },
+    { type: 'line', x1: 220, y1: 36, x2: 220, y2: 64 },
+    { type: 'rect', cx: 220, cy: 82, w: 48, h: 28, rx: 6, icon: 'mail' },
+    { type: 'line', x1: 220, y1: 96, x2: 220, y2: 124 },
+    { type: 'diamond', cx: 220, cy: 144, s: 18, icon: 'clock' },
+    { type: 'line', x1: 220, y1: 162, x2: 220, y2: 186 },
+    { type: 'diamond', cx: 220, cy: 204, s: 16, icon: 'branch' },
+    { type: 'line', x1: 204, y1: 204, x2: 120, y2: 248 },
+    { type: 'rect', cx: 120, cy: 264, w: 44, h: 26, rx: 6, icon: 'linkedin' },
+    { type: 'line', x1: 236, y1: 204, x2: 320, y2: 248 },
+    { type: 'rect', cx: 320, cy: 264, w: 44, h: 26, rx: 6, icon: 'mail' },
+    { type: 'line', x1: 120, y1: 277, x2: 220, y2: 310 },
+    { type: 'line', x1: 320, y1: 277, x2: 220, y2: 310 },
+    { type: 'diamond', cx: 220, cy: 324, s: 16, icon: 'clock' },
+    { type: 'line', x1: 220, y1: 340, x2: 220, y2: 356 },
+    { type: 'circle', cx: 220, cy: 356, r: 6 },
+  ]},
+  { width: 440, height: 380, steps: [
+    { type: 'circle', cx: 220, cy: 20, r: 16, icon: 'send' },
+    { type: 'line', x1: 220, y1: 36, x2: 220, y2: 60 },
+    { type: 'rect', cx: 220, cy: 78, w: 48, h: 28, rx: 6, icon: 'mail' },
+    { type: 'line', x1: 220, y1: 92, x2: 220, y2: 118 },
+    { type: 'diamond', cx: 220, cy: 136, s: 18, icon: 'clock' },
+    { type: 'line', x1: 220, y1: 154, x2: 220, y2: 176 },
+    { type: 'diamond', cx: 220, cy: 194, s: 16, icon: 'branch' },
+    { type: 'line', x1: 204, y1: 194, x2: 80, y2: 240 },
+    { type: 'rect', cx: 80, cy: 256, w: 40, h: 24, rx: 6, icon: 'mail' },
+    { type: 'line', x1: 220, y1: 210, x2: 220, y2: 240 },
+    { type: 'rect', cx: 220, cy: 256, w: 44, h: 24, rx: 6, icon: 'linkedin' },
+    { type: 'line', x1: 236, y1: 194, x2: 360, y2: 240 },
+    { type: 'rect', cx: 360, cy: 256, w: 40, h: 24, rx: 6, icon: 'phone' },
+    { type: 'line', x1: 80, y1: 268, x2: 80, y2: 296 },
+    { type: 'diamond', cx: 80, cy: 312, s: 14, icon: 'clock' },
+    { type: 'line', x1: 220, y1: 268, x2: 220, y2: 296 },
+    { type: 'diamond', cx: 220, cy: 312, s: 14, icon: 'clock' },
+    { type: 'line', x1: 360, y1: 268, x2: 360, y2: 296 },
+    { type: 'diamond', cx: 360, cy: 312, s: 14, icon: 'clock' },
+    { type: 'line', x1: 80, y1: 326, x2: 220, y2: 362 },
+    { type: 'line', x1: 220, y1: 326, x2: 220, y2: 362 },
+    { type: 'line', x1: 360, y1: 326, x2: 220, y2: 362 },
+    { type: 'circle', cx: 220, cy: 368, r: 6 },
+  ]},
+  { width: 440, height: 400, steps: [
+    { type: 'circle', cx: 220, cy: 18, r: 16, icon: 'send' },
+    { type: 'line', x1: 220, y1: 34, x2: 220, y2: 52 },
+    { type: 'rect', cx: 220, cy: 68, w: 48, h: 26, rx: 6, icon: 'mail' },
+    { type: 'line', x1: 220, y1: 81, x2: 220, y2: 100 },
+    { type: 'diamond', cx: 220, cy: 116, s: 14, icon: 'clock' },
+    { type: 'line', x1: 220, y1: 130, x2: 220, y2: 148 },
+    { type: 'diamond', cx: 220, cy: 164, s: 14, icon: 'branch' },
+    { type: 'line', x1: 206, y1: 164, x2: 150, y2: 200 },
+    { type: 'rect', cx: 150, cy: 216, w: 44, h: 26, rx: 6, icon: 'linkedin' },
+    { type: 'line', x1: 234, y1: 164, x2: 290, y2: 200 },
+    { type: 'rect', cx: 290, cy: 216, w: 44, h: 26, rx: 6, icon: 'mail' },
+    { type: 'line', x1: 150, y1: 229, x2: 220, y2: 260 },
+    { type: 'line', x1: 290, y1: 229, x2: 220, y2: 260 },
+    { type: 'diamond', cx: 220, cy: 276, s: 14, icon: 'clock' },
+    { type: 'line', x1: 220, y1: 290, x2: 220, y2: 308 },
+    { type: 'diamond', cx: 220, cy: 324, s: 14, icon: 'branch' },
+    { type: 'line', x1: 220, y1: 338, x2: 220, y2: 356 },
+    { type: 'rect', cx: 220, cy: 372, w: 48, h: 26, rx: 6, icon: 'mail' },
+    { type: 'circle', cx: 220, cy: 400, r: 6 },
+  ]},
+];
+
+// ─── Icon paths ───
+function iconPath(icon, cx, cy, s) {
+  const h = s * 0.45;
+  switch (icon) {
+    case 'send': return `M${cx-h} ${cy-h}l${h*2} ${h}l${-h*2} ${h}z`;
+    case 'mail': return `M${cx-h} ${cy-h*0.7}h${h*2}v${h*1.4}h${-h*2}zM${cx-h} ${cy-h*0.5}l${h} ${h*0.7}l${h} ${-h*0.7}`;
+    case 'linkedin': return `M${cx-h*0.6} ${cy+h*0.6}v${-h}M${cx+h*0.1} ${cy+h*0.6}v${-h*0.7}M${cx-h*0.6} ${cy-h*0.6}v${-h*0.15}`;
+    case 'clock': return `M${cx} ${cy-h*0.7}v${h*0.7}l${h*0.4} ${h*0.4}`;
+    case 'branch': return `M${cx-h*0.5} ${cy}h${h}M${cx} ${cy-h*0.5}l${h*0.5} ${h*0.5}l${-h*0.5} ${h*0.5}`;
+    case 'phone': return `M${cx-h*0.4} ${cy-h*0.7}l${h*0.2} ${h*0.3}l${-h*0.15} ${h*0.15}l${h*0.55} ${h*0.55}l${h*0.15} ${-h*0.15}l${h*0.3} ${h*0.2}`;
+    default: return '';
+  }
+}
+
+// ─── Build SVG with top-to-bottom sweep gradient ───
+function buildSVG(tree) {
+  const { width, height, steps } = tree;
+  let els = '';
+
+  // The key: a vertical gradient that sweeps top→bottom continuously
+  // We use a tall gradient rect that animates its y position
+  const defs = `
+    <defs>
+      <linearGradient id="rainbow" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+        <stop offset="0%" stop-color="#CAB5ED"/>
+        <stop offset="20%" stop-color="#DA3784"/>
+        <stop offset="40%" stop-color="#A17BDF"/>
+        <stop offset="60%" stop-color="#3068E2"/>
+        <stop offset="80%" stop-color="#B598E6"/>
+        <stop offset="100%" stop-color="#CAB5ED"/>
+      </linearGradient>
+      <linearGradient id="sweep" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="white" stop-opacity="0"/>
+        <stop offset="30%" stop-color="white" stop-opacity="0"/>
+        <stop offset="50%" stop-color="white" stop-opacity="0.85"/>
+        <stop offset="70%" stop-color="white" stop-opacity="0"/>
+        <stop offset="100%" stop-color="white" stop-opacity="0"/>
+      </linearGradient>
+      <mask id="sweepMask">
+        <rect x="0" y="0" width="${width}" height="${height}" fill="url(#rainbow)" opacity="0.5"/>
+        <rect id="sweepRect" x="0" width="${width}" height="${height * 2}" fill="url(#sweep)">
+          <animate attributeName="y" from="${-height * 2}" to="${height}" dur="2.2s" repeatCount="indefinite"/>
+        </rect>
+      </mask>
+    </defs>
+  `;
+
+  steps.forEach((s, i) => {
+    if (s.type === 'line') {
+      const len = Math.ceil(Math.sqrt((s.x2-s.x1)**2 + (s.y2-s.y1)**2));
+      // Base stroke (static rainbow)
+      els += `<line data-i="${i}" class="tree-path" x1="${s.x1}" y1="${s.y1}" x2="${s.x2}" y2="${s.y2}" stroke="url(#rainbow)" style="--len:${len}" opacity="0.35"/>`;
+      // Sweep highlight layer
+      els += `<line data-i="${i}" class="tree-path" x1="${s.x1}" y1="${s.y1}" x2="${s.x2}" y2="${s.y2}" stroke="white" mask="url(#sweepMask)" style="--len:${len}"/>`;
+    } else if (s.type === 'circle') {
+      const c = Math.ceil(2 * Math.PI * s.r);
+      els += `<circle class="tree-fill" data-fi="${i}" cx="${s.cx}" cy="${s.cy}" r="${s.r}" fill="url(#rainbow)"/>`;
+      els += `<circle data-i="${i}" class="tree-shape" cx="${s.cx}" cy="${s.cy}" r="${s.r}" stroke="url(#rainbow)" style="--len:${c}" opacity="0.35"/>`;
+      els += `<circle data-i="${i}" class="tree-shape" cx="${s.cx}" cy="${s.cy}" r="${s.r}" stroke="white" mask="url(#sweepMask)" style="--len:${c}"/>`;
+      if (s.icon) els += `<path class="tree-icon" data-ii="${i}" d="${iconPath(s.icon, s.cx, s.cy, s.r)}" stroke="url(#rainbow)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    } else if (s.type === 'rect') {
+      const p = Math.ceil(2 * (s.w + s.h));
+      els += `<rect class="tree-fill" data-fi="${i}" x="${s.cx-s.w/2}" y="${s.cy-s.h/2}" width="${s.w}" height="${s.h}" rx="${s.rx}" fill="url(#rainbow)"/>`;
+      els += `<rect data-i="${i}" class="tree-shape" x="${s.cx-s.w/2}" y="${s.cy-s.h/2}" width="${s.w}" height="${s.h}" rx="${s.rx}" stroke="url(#rainbow)" style="--len:${p}" opacity="0.35"/>`;
+      els += `<rect data-i="${i}" class="tree-shape" x="${s.cx-s.w/2}" y="${s.cy-s.h/2}" width="${s.w}" height="${s.h}" rx="${s.rx}" stroke="white" mask="url(#sweepMask)" style="--len:${p}"/>`;
+      if (s.icon) els += `<path class="tree-icon" data-ii="${i}" d="${iconPath(s.icon, s.cx, s.cy, Math.min(s.w, s.h))}" stroke="url(#rainbow)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    } else if (s.type === 'diamond') {
+      const p = Math.ceil(4 * s.s * Math.SQRT2);
+      const d = `M${s.cx} ${s.cy-s.s}L${s.cx+s.s} ${s.cy}L${s.cx} ${s.cy+s.s}L${s.cx-s.s} ${s.cy}Z`;
+      els += `<path class="tree-fill" data-fi="${i}" d="${d}" fill="url(#rainbow)"/>`;
+      els += `<path data-i="${i}" class="tree-shape" d="${d}" stroke="url(#rainbow)" style="--len:${p}" opacity="0.35"/>`;
+      els += `<path data-i="${i}" class="tree-shape" d="${d}" stroke="white" mask="url(#sweepMask)" style="--len:${p}"/>`;
+      if (s.icon) els += `<path class="tree-icon" data-ii="${i}" d="${iconPath(s.icon, s.cx, s.cy, s.s)}" stroke="url(#rainbow)" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+  });
+
+  return `<svg width="${width}" height="${height + 10}" viewBox="0 0 ${width} ${height + 10}">${defs}${els}</svg>`;
+}
+
+// ─── State ───
+const treeContainer = document.getElementById('treeContainer');
+const treeStatus = document.getElementById('treeStatus');
+const panelBody = document.getElementById('panelBody');
+const cardEls = document.querySelectorAll('[data-card]');
+const statusMsgs = ['Analyzing your product context...','Mapping optimal touchpoints...','Crafting personalized messaging...','Optimizing send cadence...','Generating follow-up sequences...','Finalizing your campaign flow...'];
+let sIdx = 0, sInterval, timeouts = [], treeIdx = 0, isLoading = false;
+
+function clearAll() {
+  timeouts.forEach(t => clearTimeout(t));
+  timeouts = [];
+  if (sInterval) clearInterval(sInterval);
+}
+
+function reset() {
+  clearAll();
+  isLoading = false;
+  treeContainer.innerHTML = '';
+  treeContainer.style = '';
+  treeStatus.classList.remove('visible');
+  treeStatus.textContent = statusMsgs[0];
+  sIdx = 0;
+  cardEls.forEach(c => c.classList.remove('visible'));
+  panelBody.scrollTop = 0;
+}
+
+function startLoading() {
+  reset();
+  isLoading = true;
+
+  const tree = TREES[treeIdx % TREES.length];
+  treeIdx++;
+  treeContainer.innerHTML = buildSVG(tree);
+
+  // Status cycling
+  timeouts.push(setTimeout(() => {
+    treeStatus.classList.add('visible');
+    sInterval = setInterval(() => {
+      sIdx = (sIdx + 1) % statusMsgs.length;
+      treeStatus.style.opacity = '0';
+      timeouts.push(setTimeout(() => {
+        treeStatus.textContent = statusMsgs[sIdx];
+        treeStatus.style.opacity = '';
+        treeStatus.classList.add('visible');
+      }, 200));
+    }, 2200);
+  }, 100));
+
+  // Stagger draw steps
+  const stagger = 240;
+  tree.steps.forEach((_, i) => {
+    timeouts.push(setTimeout(() => {
+      // Draw all elements for this step index (base + sweep layers)
+      treeContainer.querySelectorAll(`[data-i="${i}"]`).forEach(el => el.classList.add('drawn'));
+      // Pulse fill
+      const fill = treeContainer.querySelector(`[data-fi="${i}"]`);
+      if (fill) timeouts.push(setTimeout(() => fill.classList.add('pulsing'), 300));
+      // Smooth icon fade
+      const icon = treeContainer.querySelector(`[data-ii="${i}"]`);
+      if (icon) timeouts.push(setTimeout(() => icon.classList.add('visible'), 400));
+    }, 300 + i * stagger));
+  });
+
+  // After tree is built, it just keeps looping the sweep - continuous until resolve()
+}
+
+function resolve() {
+  if (!isLoading) return;
+  isLoading = false;
+
+  // Fade status
+  treeStatus.classList.remove('visible');
+
+  // Collapse tree
+  timeouts.push(setTimeout(() => {
+    const h = treeContainer.scrollHeight;
+    treeContainer.style.maxHeight = h + 'px';
+    treeContainer.style.overflow = 'hidden';
+    treeContainer.offsetHeight;
+    treeContainer.style.transition = 'max-height 500ms cubic-bezier(0.55,0,1,0.45), opacity 300ms cubic-bezier(0.55,0,1,0.45)';
+    treeContainer.style.maxHeight = '0px';
+    treeContainer.style.opacity = '0';
+  }, 300));
+
+  // Show cards
+  cardEls.forEach((c, i) => {
+    timeouts.push(setTimeout(() => {
+      c.classList.add('visible');
+      if (i > 2) panelBody.scrollTo({ top: panelBody.scrollHeight, behavior: 'smooth' });
+    }, 800 + i * 180));
+  });
+}
+
+// ─── Events ───
+document.getElementById('generateBtn').addEventListener('click', startLoading);
+document.getElementById('regenBtn').addEventListener('click', startLoading);
+document.getElementById('resetBtn').addEventListener('click', reset);
+document.getElementById('resolveBtn').addEventListener('click', resolve);
+
+// Auto-start on load, auto-resolve after 8s for demo purposes
+window.addEventListener('load', () => {
+  setTimeout(startLoading, 600);
+  setTimeout(resolve, 9000);
+});
+</script>
+</body>
+</html>
