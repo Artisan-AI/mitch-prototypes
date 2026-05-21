@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upgrade Banner Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --tan-10: #faf8f5;
+  --tan-15: #f1eee9;
+  --tan-20: #e8e3dc;
+  --tan-30: #d3ccc5;
+  --tan-40: #c0b4a7;
+  --tan-50: #a89d90;
+  --tan-60: #8e847a;
+  --tan-70: #6a6358;
+  --tan-90: #373431;
+  --tan-100: #201f1d;
+  --purple-10: #f3effb;
+  --purple-60: #682fc5;
+  --purple-70: #53269e;
+  --white: #ffffff;
+  --orange: #f8a36f;
+  --magenta: #b74ef9;
+  --blue: #5488f8;
+  --artisan-gradient: linear-gradient(90deg, var(--orange) 0%, var(--magenta) 48%, var(--blue) 100%);
+  --artisan-gradient-loop: linear-gradient(90deg, var(--orange) 0%, var(--magenta) 24%, var(--blue) 50%, var(--magenta) 74%, var(--orange) 100%);
+  --artisan-border-loop: linear-gradient(90deg, rgba(248, 163, 111, 0.62) 0%, rgba(183, 78, 249, 0.46) 24%, rgba(84, 136, 248, 0.5) 50%, rgba(183, 78, 249, 0.46) 74%, rgba(248, 163, 111, 0.62) 100%);
+  --artisan-glow-loop: linear-gradient(90deg, rgba(248, 163, 111, 0.32) 0%, rgba(183, 78, 249, 0.28) 24%, rgba(84, 136, 248, 0.3) 50%, rgba(183, 78, 249, 0.28) 74%, rgba(248, 163, 111, 0.32) 100%);
+  --artisan-border-strip: linear-gradient(90deg, rgba(248, 163, 111, 0.68) 0%, rgba(183, 78, 249, 0.51) 12.5%, rgba(84, 136, 248, 0.55) 25%, rgba(183, 78, 249, 0.51) 37.5%, rgba(248, 163, 111, 0.68) 50%, rgba(183, 78, 249, 0.51) 62.5%, rgba(84, 136, 248, 0.55) 75%, rgba(183, 78, 249, 0.51) 87.5%, rgba(248, 163, 111, 0.68) 100%);
+  --artisan-glow-strip: linear-gradient(90deg, rgba(248, 163, 111, 0.36) 0%, rgba(183, 78, 249, 0.31) 12.5%, rgba(84, 136, 248, 0.34) 25%, rgba(183, 78, 249, 0.31) 37.5%, rgba(248, 163, 111, 0.36) 50%, rgba(183, 78, 249, 0.31) 62.5%, rgba(84, 136, 248, 0.34) 75%, rgba(183, 78, 249, 0.31) 87.5%, rgba(248, 163, 111, 0.36) 100%);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-emphatic: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-width: 1120px;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--tan-10);
+  color: var(--tan-100);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  border: 0;
+  font: inherit;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+.side-nav {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  width: 200px;
+  flex: 0 0 200px;
+  flex-direction: column;
+  border-right: 1px solid var(--tan-20);
+  background: var(--white);
+}
+
+.nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--tan-100);
+  font-weight: 600;
+}
+
+.mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--purple-60);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.collapse {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tan-50);
+}
+
+.nav-section {
+  padding: 6px 8px;
+}
+
+.nav-label {
+  padding: 10px 12px;
+  color: var(--tan-60);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: var(--tan-70);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-item.is-active {
+  background: var(--purple-10);
+  color: var(--purple-60);
+}
+
+.nav-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  background: currentColor;
+  opacity: 0.38;
+}
+
+.main {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: var(--tan-10);
+}
+
+.upgrade-zone {
+  position: relative;
+  z-index: 5;
+}
+
+.upgrade-glow {
+  position: absolute;
+  inset: 45px 0 auto;
+  height: 48px;
+  overflow: hidden;
+  opacity: 0.46;
+  transform: translate3d(0, 0, 0);
+  animation: glow-breathe 3.4s var(--ease-emphatic) infinite alternate;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.58) 36%, rgba(0, 0, 0, 0.2) 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.58) 36%, rgba(0, 0, 0, 0.2) 68%, transparent 100%);
+  pointer-events: none;
+}
+
+.upgrade-glow::before {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 200%;
+  height: 26px;
+  background: var(--artisan-glow-strip);
+  content: "";
+  filter: blur(18px);
+  transform: translate3d(0, 0, 0);
+  animation: seamless-gradient-flow 4.8s linear infinite;
+}
+
+.upgrade-alert {
+  position: relative;
+  display: flex;
+  height: 48px;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 56px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid rgba(192, 184, 174, 0.34);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.78) inset;
+}
+
+.upgrade-alert::before,
+.upgrade-alert::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.upgrade-alert::before {
+  height: 1px;
+  right: auto;
+  width: 200%;
+  background: var(--artisan-border-strip);
+  opacity: 1;
+  animation: seamless-gradient-flow 4.8s linear infinite;
+}
+
+.upgrade-alert::after {
+  height: 6px;
+  right: auto;
+  width: 200%;
+  background:
+    radial-gradient(120px 10px at 14% 100%, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0) 60%),
+    radial-gradient(120px 10px at 64% 100%, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0) 60%),
+    var(--artisan-border-strip);
+  mix-blend-mode: screen;
+  opacity: 0.46;
+  transform: translateY(3px);
+  animation: seamless-gradient-flow 4.8s linear infinite;
+}
+
+.warning-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  color: #e16931;
+}
+
+.alert-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 8px;
+  align-items: flex-start;
+  color: var(--tan-70);
+  font-size: 14px;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.alert-title {
+  flex: 0 0 auto;
+  color: #28272a;
+  font-weight: 600;
+}
+
+.upgrade-button {
+  position: relative;
+  display: flex;
+  height: 24px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--tan-100);
+  cursor: pointer;
+  filter: drop-shadow(0 1px 1px rgba(106, 99, 88, 0.15));
+}
+
+.upgrade-button::before {
+  position: absolute;
+  inset: -1px;
+  border-radius: 7px;
+  background: var(--artisan-gradient-loop);
+  background-size: 260% 100%;
+  content: "";
+  filter: blur(3px);
+  opacity: 0.32;
+  animation: button-glow 3.2s linear infinite;
+}
+
+.upgrade-button::after {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: var(--white);
+  content: "";
+}
+
+.upgrade-button span {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 3px 8px;
+  border: 1px solid rgba(248, 163, 111, 0.9);
+  border-radius: 6px;
+  background: var(--white);
+  box-shadow: 0 1px 0.5px rgba(106, 99, 88, 0.15), 0 1px 1px rgba(106, 99, 88, 0.15);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16.8px;
+}
+
+.upgrade-button:hover::before {
+  opacity: 0.5;
+}
+
+.page-header {
+  position: relative;
+  height: 142px;
+  padding: 72px 56px 24px;
+  border-bottom: 1px solid var(--tan-20);
+  background: var(--white);
+}
+
+.breadcrumb {
+  margin-bottom: 8px;
+  color: var(--tan-60);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 36px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ghost-button,
+.primary-button {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ghost-button {
+  border: 1px solid var(--tan-20);
+  background: var(--white);
+  color: var(--tan-70);
+}
+
+.primary-button {
+  background: var(--purple-60);
+  color: var(--white);
+}
+
+.content {
+  height: calc(100vh - 142px);
+  overflow: hidden;
+  padding: 32px 56px 80px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--tan-20);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.metric {
+  min-height: 138px;
+  padding: 16px;
+  border-right: 1px solid var(--tan-20);
+}
+
+.metric:last-child {
+  border-right: 0;
+}
+
+.metric-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--tan-70);
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.metric-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--tan-15);
+}
+
+.metric-value {
+  margin-top: 22px;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 48px;
+}
+
+.metric-change {
+  color: #43ad5b;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.panel {
+  position: relative;
+  margin-top: 24px;
+  overflow: hidden;
+  border: 1px solid var(--tan-20);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.panel-heading {
+  display: flex;
+  height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--tan-20);
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.task-row {
+  display: flex;
+  height: 48px;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--tan-15);
+  color: var(--tan-70);
+}
+
+.task-row:last-child {
+  border-bottom: 0;
+}
+
+.task-row strong {
+  color: var(--tan-100);
+  font-weight: 500;
+}
+
+.count-pill {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--tan-15);
+  color: var(--tan-70);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.animation-callout {
+  position: absolute;
+  right: 28px;
+  bottom: 24px;
+  width: 282px;
+  padding: 14px 16px;
+  border: 1px solid rgba(183, 78, 249, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 18px 48px rgba(55, 52, 49, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.callout-label {
+  color: var(--purple-60);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.callout-copy {
+  margin-top: 4px;
+  color: var(--tan-70);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+@keyframes seamless-gradient-flow {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes glow-breathe {
+  0% {
+    opacity: 0.35;
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0.53;
+    transform: translate3d(0, 1px, 0);
+  }
+}
+
+@keyframes button-glow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: -260% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  body {
+    min-width: 0;
+  }
+
+  .side-nav {
+    width: 164px;
+    flex-basis: 164px;
+  }
+
+  .brand span:last-child {
+    display: none;
+  }
+
+  .upgrade-alert {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+
+  .alert-copy {
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .page-header {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+
+  .content {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side-nav" aria-label="Main navigation">
+    <div class="nav-header">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <span>Artisan</span>
+      </div>
+      <button class="collapse" type="button" aria-label="Collapse navigation">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Ava</div>
+      <div class="nav-item is-active"><span class="nav-icon"></span>Overview</div>
+      <div class="nav-item"><span class="nav-icon"></span>Campaigns</div>
+      <div class="nav-item"><span class="nav-icon"></span>Messages</div>
+      <div class="nav-item"><span class="nav-icon"></span>Tasks</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Workspace</div>
+      <div class="nav-item"><span class="nav-icon"></span>Lists</div>
+      <div class="nav-item"><span class="nav-icon"></span>Analytics</div>
+      <div class="nav-item"><span class="nav-icon"></span>Settings</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="upgrade-zone" aria-label="Trial upgrade notification">
+      <div class="upgrade-glow" aria-hidden="true"></div>
+      <section class="upgrade-alert" data-node-id="527:31250">
+        <svg class="warning-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M9.151 3.09a.98.98 0 0 1 1.698 0l7.03 12.19a.98.98 0 0 1-.849 1.47H2.97a.98.98 0 0 1-.849-1.47L9.151 3.09Z" fill="#FEF5F1" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+          <path d="M10 7.1v4.2M10 14.1h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="alert-copy">
+          <p class="alert-title">Your trial ends in N days.</p>
+          <p>Choose a plan to keep your campaigns running</p>
+        </div>
+        <button class="upgrade-button" type="button"><span>Upgrade</span></button>
+      </section>
+    </div>
+
+    <header class="page-header">
+      <p class="breadcrumb">Ava / Overview</p>
+      <div class="header-row">
+        <h1>Manage Ava</h1>
+        <div class="header-actions">
+          <button class="ghost-button" type="button">View activity</button>
+          <button class="primary-button" type="button">New campaign</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="content" aria-label="Ava overview">
+      <div class="metrics">
+        <article class="metric">
+          <div class="metric-label"><span class="metric-icon"></span>New leads enrolled</div>
+          <div class="metric-value">1,247</div>
+          <div class="metric-change">+23.1% vs. last month</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label"><span class="metric-icon"></span>Messages sent</div>
+          <div class="metric-value">3,838</div>
+          <div class="metric-change">+8.3% vs. last month</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label"><span class="metric-icon"></span>Positive outcomes</div>
+          <div class="metric-value">699</div>
+          <div class="metric-change">+15.7% vs. last month</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label"><span class="metric-icon"></span>Meetings booked</div>
+          <div class="metric-value">34</div>
+          <div class="metric-change">+2.1% vs. last month</div>
+        </article>
+      </div>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div class="panel-title"><span class="metric-icon"></span>Tasks requiring action</div>
+          <button class="ghost-button" type="button">Review tasks</button>
+        </div>
+        <div class="task-row"><strong>Messages requiring action</strong><span class="count-pill">3</span></div>
+        <div class="task-row"><strong>Flagged autonomous responses</strong><span class="count-pill">1</span></div>
+        <div class="task-row"><strong>Outbound approvals</strong><span class="count-pill">1</span></div>
+        <div class="task-row"><strong>Platform tasks</strong><span class="count-pill">1</span></div>
+      </section>
+
+      <aside class="animation-callout">
+        <div class="callout-label">Animated gradient study</div>
+        <p class="callout-copy">The bar keeps the Figma proportions while the bottom border and compact blurred glow share a moving Artisan gradient.</p>
+      </aside>
+    </section>
+  </main>
+</div>
+</body>
+</html>
