@@ -5,9 +5,11 @@
 - Prefer real profile photos over gradient or initials placeholders when designing person/profile prototype UI.
 - Selected-card AI visuals should feel purposeful and tiered: use animated borders, shimmers, or gradients to communicate state without overpowering the content.
 - Generative dot and pixel effects should move in coherent organic waves, handle browser zoom, and change intensity without reloading or reinitializing on every state change.
+- For AI loading prototypes, prefer living knowledge-graph or growing-node visualizations that visibly build connections over static decorative concepts.
 - When a neutral drawer or background effect is requested, keep dots subtle, tan-toned, behind content, and non-interfering with text or controls.
 - For pencil-line animation prototypes, keep the line hidden behind the Figma pencil, make point A follow the pencil directly, and let the ripple travel through the full line without extra glow or outline.
 - For credits/reward animations, use the Figma Artisan coin style, keep earned-credit badges outside cramped sidebars, and avoid mid-flight pauses or spins.
+- For animated gradient banner/glow work, keep border and blur colors synced, use seamless loops without restart snaps, and make vertical fades progressive.
 - When asked to push or merge prototype work, include all relevant local changes and finish with the default branch in sync unless the user asks for a PR.
 
 ## Learned Workspace Facts
